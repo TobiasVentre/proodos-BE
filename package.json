@@ -1,0 +1,15 @@
+{
+  "name": "proodos-service",
+  "private": true,
+  "workspaces": [
+    "Domain",
+    "Application",
+    "Infrastructure",
+    "API"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "start": "npm run start --workspace API"
+  }
+}
+
