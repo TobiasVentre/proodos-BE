@@ -4,9 +4,12 @@ exports.ComponenteRepository = void 0;
 const Models_1 = require("../Models");
 const ComponenteMapper_1 = require("../../Mappers/ComponenteMapper");
 class ComponenteRepository {
+    constructor(logger) {
+        this.logger = logger;
+    }
     async create(entity) {
-        console.log("[Repository] ComponenteRepository.create()");
-        console.log("[Repository] Datos recibidos:", entity);
+        this.logger.info("[Repository] ComponenteRepository.create()");
+        this.logger.debug("[Repository] Datos recibidos:", entity);
         const created = await Models_1.ComponenteModel.create({
             id_tipo_componente: entity.id_tipo_componente,
             id_plan: entity.id_plan,
