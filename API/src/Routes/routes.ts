@@ -1,8 +1,18 @@
 import { Router } from "express";
-import { ComponenteController } from "../Controllers/ComponenteController";
-import { LandingPageController } from "../Controllers/LandingPageController";
+import { createComponenteController } from "../Controllers/ComponenteController";
+import { createLandingPageController } from "../Controllers/LandingPageController";
+import { CompositionRoot } from "../CompositionRoot";
 
-export const routes = Router();
+export const createRoutes = (compositionRoot: CompositionRoot) => {
+  const routes = Router();
 
-routes.use("/componentes", ComponenteController);
-routes.use("/landings", LandingPageController);
+  routes.use(
+    "/componentes",
+    createComponenteController({
+      createComponenteService: compositionRoot.createComponenteService,
+    })
+  );
+  routes.use("/landings", createLandingPageController());
+
+  return routes;
+};
