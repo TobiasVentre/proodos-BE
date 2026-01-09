@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateLandingPageService = void 0;
+exports.UpdateLandingPageCommandHandler = void 0;
 const LandingPageMapper_1 = require("./LandingPageMapper");
-class UpdateLandingPageService {
+class UpdateLandingPageCommandHandler {
     constructor(landingPageRepository) {
         this.landingPageRepository = landingPageRepository;
     }
@@ -11,4 +11,4 @@ class UpdateLandingPageService {
         return await this.landingPageRepository.update(landing);
     }
 }
-exports.UpdateLandingPageService = UpdateLandingPageService;
+exports.UpdateLandingPageCommandHandler = UpdateLandingPageCommandHandler;
