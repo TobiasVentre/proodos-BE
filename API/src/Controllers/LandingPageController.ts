@@ -1,6 +1,15 @@
 import { Router } from "express";
+import { CreateLandingPageService } from "@proodos/application/Services/LandingPage/CreateLandingPageService";
+import { GetLandingPageByIdService } from "@proodos/application/Services/LandingPage/GetLandingPageByIdService";
+import { GetAllLandingPagesService } from "@proodos/application/Services/LandingPage/GetAllLandingPagesService";
+import { LandingPageRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingPageRepository";
 
 export const LandingPageController = Router();
+
+const landingPageRepository = new LandingPageRepository();
+const createLandingPageService = new CreateLandingPageService(landingPageRepository);
+const getLandingPageByIdService = new GetLandingPageByIdService(landingPageRepository);
+const getAllLandingPagesService = new GetAllLandingPagesService(landingPageRepository);
 
 /**
  * @openapi
@@ -14,7 +23,17 @@ export const LandingPageController = Router();
  *         description: Lista de landing pages
  */
 LandingPageController.get("/", async (req, res) => {
-  res.json({ message: "GET /landings OK" });
+  try {
+    const result = await getAllLandingPagesService.execute();
+
+    return res.json({
+      message: "OK",
+      data: result
+    });
+  } catch (error) {
+    console.log("[Controller] ERROR:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 /**
@@ -26,7 +45,18 @@ LandingPageController.get("/", async (req, res) => {
  *     summary: Obtiene landing page por ID
  */
 LandingPageController.get("/:id", async (req, res) => {
-  res.json({ message: `GET /landings/${req.params.id} OK` });
+  try {
+    const landingId = Number(req.params.id);
+    const result = await getLandingPageByIdService.execute(landingId);
+
+    return res.json({
+      message: "OK",
+      data: result
+    });
+  } catch (error) {
+    console.log("[Controller] ERROR:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 /**
@@ -38,5 +68,17 @@ LandingPageController.get("/:id", async (req, res) => {
  *     summary: Crea una nueva landing page
  */
 LandingPageController.post("/", async (req, res) => {
-  res.json({ message: "POST /landings OK" });
+  console.log("[Controller] POST /landings");
+
+  try {
+    const result = await createLandingPageService.execute(req.body);
+
+    return res.json({
+      message: "OK",
+      data: result
+    });
+  } catch (error) {
+    console.log("[Controller] ERROR:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
