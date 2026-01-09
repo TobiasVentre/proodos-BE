@@ -1,4 +1,5 @@
 import { IComponenteRepository } from "@proodos/application/Interfaces/IComponenteRepository";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { Componente } from "@proodos/domain/Entities/Componente";
 
 import {
@@ -10,10 +11,11 @@ import {
 import { ComponenteMapper } from "../../Mappers/ComponenteMapper";
 
 export class ComponenteRepository implements IComponenteRepository {
-  async create(entity: Componente): Promise<Componente> {
+  constructor(private readonly logger: ILogger) {}
 
-    console.log("[Repository] ComponenteRepository.create()");
-    console.log("[Repository] Datos recibidos:", entity);
+  async create(entity: Componente): Promise<Componente> {
+    this.logger.info("[Repository] ComponenteRepository.create()");
+    this.logger.debug("[Repository] Datos recibidos:", entity);
 
     const created = await ComponenteModel.create({
       id_tipo_componente: entity.id_tipo_componente,
