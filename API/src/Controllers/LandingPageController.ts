@@ -1,4 +1,8 @@
 import { Router } from "express";
+import { CreateLandingPageService } from "@proodos/application/Services/LandingPage/CreateLandingPageService";
+import { GetLandingPageByIdService } from "@proodos/application/Services/LandingPage/GetLandingPageByIdService";
+import { GetAllLandingPagesService } from "@proodos/application/Services/LandingPage/GetAllLandingPagesService";
+import { LandingPageRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingPageRepository";
 
 export const createLandingPageController = () => {
   const landingPageController = Router();
