@@ -1,9 +1,9 @@
+import { CreateLandingPageCommand } from "../../DTOs/LandingPage/CreateLandingPageCommand";
 import { ILandingPageRepository } from "../../Interfaces/ILandingPageRepository";
 import { LandingPage } from "@proodos/domain/Entities/LandingPage";
-import { CreateLandingPageCommand } from "../../DTOs/LandingPage/CreateLandingPageCommand";
 import { LandingPageMapper } from "./LandingPageMapper";
 
-export class CreateLandingPageService {
+export class CreateLandingPageCommandHandler {
   constructor(private readonly landingPageRepository: ILandingPageRepository) {}
 
   async execute(command: CreateLandingPageCommand): Promise<LandingPage> {
