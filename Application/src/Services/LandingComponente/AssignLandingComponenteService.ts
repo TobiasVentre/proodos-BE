@@ -2,8 +2,9 @@ import { ILandingComponenteRepository } from "../../Interfaces/ILandingComponent
 import { ILandingPageRepository } from "../../Interfaces/ILandingPageRepository";
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { LandingComponente } from "@proodos/domain/Entities/LandingComponente";
+import { AssignLandingComponenteUseCase } from "../../Ports/LandingComponenteUseCases";
 
-export class AssignLandingComponenteService {
+export class AssignLandingComponenteService implements AssignLandingComponenteUseCase {
   constructor(
     private readonly landingPageRepository: ILandingPageRepository,
     private readonly componenteRepository: IComponenteRepository,

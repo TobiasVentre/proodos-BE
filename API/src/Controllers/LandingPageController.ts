@@ -1,14 +1,16 @@
 import { Router } from "express";
-import { CreateLandingPageService } from "@proodos/application/Services/LandingPage/CreateLandingPageService";
-import { GetLandingPageByIdService } from "@proodos/application/Services/LandingPage/GetLandingPageByIdService";
-import { GetAllLandingPagesService } from "@proodos/application/Services/LandingPage/GetAllLandingPagesService";
-import { AssignLandingComponenteService } from "@proodos/application/Services/LandingComponente/AssignLandingComponenteService";
+import {
+  CreateLandingPageUseCase,
+  GetAllLandingPagesUseCase,
+  GetLandingPageByIdUseCase,
+} from "@proodos/application/Ports/LandingPageUseCases";
+import { AssignLandingComponenteUseCase } from "@proodos/application/Ports/LandingComponenteUseCases";
 
 type LandingPageControllerDeps = {
-  createLandingPageService: CreateLandingPageService;
-  getLandingPageByIdService: GetLandingPageByIdService;
-  getAllLandingPagesService: GetAllLandingPagesService;
-  assignLandingComponenteService: AssignLandingComponenteService;
+  createLandingPageService: CreateLandingPageUseCase;
+  getLandingPageByIdService: GetLandingPageByIdUseCase;
+  getAllLandingPagesService: GetAllLandingPagesUseCase;
+  assignLandingComponenteService: AssignLandingComponenteUseCase;
 };
 
 export const createLandingPageController = ({
