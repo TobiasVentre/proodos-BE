@@ -2,12 +2,16 @@ import { CreateLandingPageDTO } from "../../DTOs/LandingPage/CreateLandingPageDT
 import { ILandingPageRepository } from "../../Interfaces/ILandingPageRepository";
 import { LandingPage } from "@proodos/domain/Entities/LandingPage";
 import { CreateLandingPageUseCase } from "../../Ports/LandingPageUseCases";
+import { ILogger } from "../../Interfaces/ILogger";
 
 export class CreateLandingPageService implements CreateLandingPageUseCase {
-  constructor(private readonly landingPageRepository: ILandingPageRepository) {}
+  constructor(
+    private readonly landingPageRepository: ILandingPageRepository,
+    private readonly logger: ILogger
+  ) {}
 
   async execute(dto: CreateLandingPageDTO): Promise<LandingPage> {
-    console.log("[Service] CreateLandingPageService.execute()");
+    this.logger.info("[Service] CreateLandingPageService.execute()");
     return await this.landingPageRepository.create(dto as LandingPage);
   }
 }
