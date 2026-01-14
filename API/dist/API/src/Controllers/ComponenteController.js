@@ -2,17 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createComponenteController = void 0;
 const express_1 = require("express");
-const CreateComponenteService_1 = require("@proodos/application/Services/Componente/CreateComponenteService");
-const GetAllComponentesService_1 = require("@proodos/application/Services/Componente/GetAllComponentesService");
-const GetComponenteByIdService_1 = require("@proodos/application/Services/Componente/GetComponenteByIdService");
-const PatchComponenteService_1 = require("@proodos/application/Services/Componente/PatchComponenteService");
-const ComponenteRepository_1 = require("@proodos/infrastructure/Persistence/Repositories/ComponenteRepository");
-const createComponenteController = (logger) => {
-    const componenteRepository = new ComponenteRepository_1.ComponenteRepository(logger);
-    const createComponenteService = new CreateComponenteService_1.CreateComponenteService(componenteRepository);
-    const getAllComponentesService = new GetAllComponentesService_1.GetAllComponentesService(componenteRepository);
-    const getComponenteByIdService = new GetComponenteByIdService_1.GetComponenteByIdService(componenteRepository);
-    const patchComponenteService = new PatchComponenteService_1.PatchComponenteService(componenteRepository);
+const createComponenteController = ({ createComponenteService, getAllComponentesService, getComponenteByIdService, patchComponenteService, }) => {
     const componenteController = (0, express_1.Router)();
     /**
      * @openapi
