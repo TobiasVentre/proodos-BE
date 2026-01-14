@@ -2,30 +2,22 @@ import { Router } from "express";
 import { CreateLandingPageService } from "@proodos/application/Services/LandingPage/CreateLandingPageService";
 import { GetLandingPageByIdService } from "@proodos/application/Services/LandingPage/GetLandingPageByIdService";
 import { GetAllLandingPagesService } from "@proodos/application/Services/LandingPage/GetAllLandingPagesService";
-import { LandingPageRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingPageRepository";
 import { AssignLandingComponenteService } from "@proodos/application/Services/LandingComponente/AssignLandingComponenteService";
-import { LandingComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingComponenteRepository";
-import { ComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/ComponenteRepository";
 
+type LandingPageControllerDeps = {
+  createLandingPageService: CreateLandingPageService;
+  getLandingPageByIdService: GetLandingPageByIdService;
+  getAllLandingPagesService: GetAllLandingPagesService;
+  assignLandingComponenteService: AssignLandingComponenteService;
+};
 
-
-export const LandingPageController = Router();
-
-const landingPageRepository = new LandingPageRepository();
-const createLandingPageService = new CreateLandingPageService(landingPageRepository);
-const getLandingPageByIdService = new GetLandingPageByIdService(landingPageRepository);
-const getAllLandingPagesService = new GetAllLandingPagesService(landingPageRepository);
-const landingComponenteRepository = new LandingComponenteRepository();
-
-// ComponenteRepository requiere logger: para este paso corto usamos console.
-// (Luego lo unificamos con tu ILogger real como en Componentes.)
-const componenteRepository = new ComponenteRepository(console as any);
-
-const assignLandingComponenteService = new AssignLandingComponenteService(
-  landingPageRepository,
-  componenteRepository as any,
-  landingComponenteRepository
-);
+export const createLandingPageController = ({
+  createLandingPageService,
+  getLandingPageByIdService,
+  getAllLandingPagesService,
+  assignLandingComponenteService,
+}: LandingPageControllerDeps) => {
+  const landingPageController = Router();
 
 
 /**
@@ -39,7 +31,7 @@ const assignLandingComponenteService = new AssignLandingComponenteService(
  *       200:
  *         description: Lista de landing pages
  */
-LandingPageController.get("/", async (req, res) => {
+  landingPageController.get("/", async (req, res) => {
   console.log("[Controller] GET /landings");
 
   try {
@@ -53,7 +45,7 @@ LandingPageController.get("/", async (req, res) => {
     console.log("[Controller] ERROR:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
-});
+  });
 
 /**
  * @openapi
@@ -63,7 +55,7 @@ LandingPageController.get("/", async (req, res) => {
  *       - Landing Pages
  *     summary: Obtiene landing page por ID
  */
-LandingPageController.get("/:id", async (req, res) => {
+  landingPageController.get("/:id", async (req, res) => {
   console.log(`[Controller] GET /landings/${req.params.id}`);
 
   const landingId = Number(req.params.id);
@@ -86,7 +78,7 @@ LandingPageController.get("/:id", async (req, res) => {
     console.log("[Controller] ERROR:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
-});
+  });
 
 /**
  * @openapi
@@ -121,7 +113,7 @@ LandingPageController.get("/:id", async (req, res) => {
  *       400:
  *         description: Request inválida
  */
-LandingPageController.post("/", async (req, res) => {
+  landingPageController.post("/", async (req, res) => {
   console.log("[Controller] POST /landings");
   console.log("[Controller] Body:", req.body);
 
@@ -146,7 +138,7 @@ LandingPageController.post("/", async (req, res) => {
     console.log("[Controller] ERROR:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
-});
+  });
 
 /**
  * @openapi
@@ -183,7 +175,7 @@ LandingPageController.post("/", async (req, res) => {
  *       404:
  *         description: Landing o componente inexistente
  */
-LandingPageController.post("/:id/componentes", async (req, res) => {
+  landingPageController.post("/:id/componentes", async (req, res) => {
   console.log(`[Controller] POST /landings/${req.params.id}/componentes`);
 
   const id_landing = Number(req.params.id);
@@ -197,12 +189,9 @@ LandingPageController.post("/:id/componentes", async (req, res) => {
   }
 
   try {
-    // Si existe, el service devuelve el par sin crear (idempotente)
-    const exists = await landingComponenteRepository.exists(id_landing, id_componente);
+    const result = await assignLandingComponenteService.execute(id_landing, id_componente);
 
-    const data = await assignLandingComponenteService.execute(id_landing, id_componente);
-
-    return res.status(exists ? 200 : 201).json({ message: "OK", data });
+    return res.status(result.existed ? 200 : 201).json({ message: "OK", data: result.data });
   } catch (error: any) {
     if (error?.message === "LANDING_NOT_FOUND") return res.status(404).json({ error: "Landing not found" });
     if (error?.message === "COMPONENTE_NOT_FOUND") return res.status(404).json({ error: "Componente not found" });
@@ -210,5 +199,7 @@ LandingPageController.post("/:id/componentes", async (req, res) => {
     console.log("[Controller] ERROR:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
-});
+  });
 
+  return landingPageController;
+};

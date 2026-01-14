@@ -3,16 +3,20 @@ import { CreateComponenteService } from "@proodos/application/Services/Component
 import { GetAllComponentesService } from "@proodos/application/Services/Componente/GetAllComponentesService";
 import { GetComponenteByIdService } from "@proodos/application/Services/Componente/GetComponenteByIdService";
 import { PatchComponenteService } from "@proodos/application/Services/Componente/PatchComponenteService";
-import { ILogger } from "@proodos/application/Interfaces/ILogger";
-import { ComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/ComponenteRepository";
 
-export const createComponenteController = (logger: ILogger) => {
-  const componenteRepository = new ComponenteRepository(logger);
+type ComponenteControllerDeps = {
+  createComponenteService: CreateComponenteService;
+  getAllComponentesService: GetAllComponentesService;
+  getComponenteByIdService: GetComponenteByIdService;
+  patchComponenteService: PatchComponenteService;
+};
 
-  const createComponenteService = new CreateComponenteService(componenteRepository);
-  const getAllComponentesService = new GetAllComponentesService(componenteRepository);
-  const getComponenteByIdService = new GetComponenteByIdService(componenteRepository);
-  const patchComponenteService = new PatchComponenteService(componenteRepository);
+export const createComponenteController = ({
+  createComponenteService,
+  getAllComponentesService,
+  getComponenteByIdService,
+  patchComponenteService,
+}: ComponenteControllerDeps) => {
   const componenteController = Router();
 
   /**
