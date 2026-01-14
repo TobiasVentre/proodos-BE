@@ -6,6 +6,7 @@ class GetLandingPageByIdService {
         this.landingPageRepository = landingPageRepository;
     }
     async execute(id_landing) {
+        console.log("[Service] GetLandingPageByIdService.execute()", { id_landing });
         return await this.landingPageRepository.getById(id_landing);
     }
 }

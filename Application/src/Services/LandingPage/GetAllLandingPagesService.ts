@@ -5,6 +5,7 @@ export class GetAllLandingPagesService {
   constructor(private readonly landingPageRepository: ILandingPageRepository) {}
 
   async execute(): Promise<LandingPage[]> {
+    console.log("[Service] GetAllLandingPagesService.execute()")
     return await this.landingPageRepository.getAll();
   }
 }

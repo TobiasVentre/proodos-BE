@@ -38,7 +38,9 @@ const SequelizeConfig_1 = require("../../Config/SequelizeConfig");
 Object.defineProperty(exports, "sequelize", { enumerable: true, get: function () { return SequelizeConfig_1.sequelize; } });
 const models = __importStar(require("../Models"));
 const associations_1 = require("./associations");
-const initModels = () => {
+const initModels = async () => {
+    await SequelizeConfig_1.sequelize.authenticate();
+    console.log("[DB] authenticate OK");
     Object.values(models).forEach((m) => {
         if (typeof m.initModel === "function")
             m.initModel(SequelizeConfig_1.sequelize);

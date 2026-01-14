@@ -1,15 +1,20 @@
+
+import { loadEnv } from "./Config/loadEnv";
+loadEnv();
+
 import express from "express";
 import { setupSwagger } from "./Swagger/swagger.config";
 import { buildRoutes } from "./Routes/routes";
 import { ConsoleLogger } from "./Logging/ConsoleLogger";
 import { initModels } from "@proodos/infrastructure/Persistence/Sequelize";
 
+
 const app = express();
 const logger = new ConsoleLogger();
 
 app.use(express.json());
 
-initModels(); 
+initModels();
 
 // Swagger
 setupSwagger(app);
@@ -21,4 +26,11 @@ app.use("/api", buildRoutes(logger));
 const PORT = 3000;
 app.listen(PORT, () => {
   logger.info(`API Running on http://localhost:${PORT}/docs`);
+});
+
+
+console.log("[API RUNTIME ENV]", {
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+  DB_NAME: process.env.DB_NAME,
 });

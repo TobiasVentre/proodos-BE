@@ -1,21 +1,19 @@
 import { Sequelize } from "sequelize";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const DB_NAME = process.env.DB_NAME || "";
-const DB_HOST = process.env.DB_HOST || "localhost";
-const DB_PORT = Number(process.env.DB_PORT) || 1433;
-
-export const sequelize = new Sequelize(DB_NAME, "", "", {
-  dialect: "mssql",
-  host: DB_HOST,
-  port: DB_PORT,
-  logging: false,
-  dialectOptions: {
-    options: {
-      trustedConnection: true,
-      trustServerCertificate: true
-    }
+export const sequelize = new Sequelize(
+  process.env.DB_NAME as string,
+  process.env.DB_USER as string,
+  process.env.DB_PASSWORD as string,
+  {
+    dialect: "mssql",
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT || 1433),
+    logging: false,
+    dialectOptions: {
+      options: {
+        encrypt: String(process.env.DB_ENCRYPT).toLowerCase() === "true",
+        trustServerCertificate: String(process.env.DB_TRUST_CERT).toLowerCase() !== "false",
+      },
+    },
   }
-});
+);

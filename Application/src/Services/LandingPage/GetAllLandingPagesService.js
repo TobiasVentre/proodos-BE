@@ -6,6 +6,7 @@ class GetAllLandingPagesService {
         this.landingPageRepository = landingPageRepository;
     }
     async execute() {
+        console.log("[Service] GetAllLandingPagesService.execute()");
         return await this.landingPageRepository.getAll();
     }
 }

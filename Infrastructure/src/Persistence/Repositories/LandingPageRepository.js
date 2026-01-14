@@ -28,10 +28,14 @@ class LandingPageRepository {
     }
     async getById(id_landing) {
         const row = await Models_1.LandingPageModel.findByPk(id_landing);
+        console.log("[Repository] LandingPageRepository.getById()", { id_landing });
         return row ? LandingPageMapper_1.LandingPageMapper.toDomain(row) : null;
     }
     async getAll() {
-        const rows = await Models_1.LandingPageModel.findAll();
+        console.log("[Repository] LandingPageRepository.getAll()");
+        const rows = await Models_1.LandingPageModel.findAll({
+            order: [["id_landing", "DESC"]],
+        });
         return rows.map((r) => LandingPageMapper_1.LandingPageMapper.toDomain(r));
     }
 }

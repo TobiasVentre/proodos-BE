@@ -1,14 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateLandingPageService = void 0;
-const LandingPageMapper_1 = require("./LandingPageMapper");
 class CreateLandingPageService {
     constructor(landingPageRepository) {
         this.landingPageRepository = landingPageRepository;
     }
-    async execute(command) {
-        const landing = LandingPageMapper_1.LandingPageMapper.fromCreateCommand(command);
-        return await this.landingPageRepository.create(landing);
+    async execute(dto) {
+        console.log("[Service] CreateLandingPageService.execute()");
+        return await this.landingPageRepository.create(dto);
     }
 }
 exports.CreateLandingPageService = CreateLandingPageService;

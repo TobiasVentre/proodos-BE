@@ -37,11 +37,17 @@ export class LandingPageRepository implements ILandingPageRepository {
 
   async getById(id_landing: number): Promise<LandingPage | null> {
     const row = await LandingPageModel.findByPk(id_landing);
+     console.log("[Repository] LandingPageRepository.getById()", { id_landing });
     return row ? LandingPageMapper.toDomain(row) : null;
   }
 
   async getAll(): Promise<LandingPage[]> {
-    const rows = await LandingPageModel.findAll();
+    console.log("[Repository] LandingPageRepository.getAll()");
+
+    const rows = await LandingPageModel.findAll({
+      order: [["id_landing", "DESC"]],
+    });
+
     return rows.map((r) => LandingPageMapper.toDomain(r));
   }
 }

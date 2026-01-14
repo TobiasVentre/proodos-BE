@@ -1,14 +1,12 @@
+import { CreateLandingPageDTO } from "../../DTOs/LandingPage/CreateLandingPageDTO";
 import { ILandingPageRepository } from "../../Interfaces/ILandingPageRepository";
 import { LandingPage } from "@proodos/domain/Entities/LandingPage";
-import { CreateLandingPageCommand } from "../../DTOs/LandingPage/CreateLandingPageCommand";
-import { LandingPageMapper } from "./LandingPageMapper";
 
 export class CreateLandingPageService {
   constructor(private readonly landingPageRepository: ILandingPageRepository) {}
 
-  async execute(command: CreateLandingPageCommand): Promise<LandingPage> {
-    const landing = LandingPageMapper.fromCreateCommand(command);
-
-    return await this.landingPageRepository.create(landing);
+  async execute(dto: CreateLandingPageDTO): Promise<LandingPage> {
+    console.log("[Service] CreateLandingPageService.execute()");
+    return await this.landingPageRepository.create(dto as LandingPage);
   }
 }
