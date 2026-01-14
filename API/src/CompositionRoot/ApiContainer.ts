@@ -19,10 +19,10 @@ import { CreateLandingPageService } from "@proodos/application/Services/LandingP
 import { GetAllLandingPagesService } from "@proodos/application/Services/LandingPage/GetAllLandingPagesService";
 import { GetLandingPageByIdService } from "@proodos/application/Services/LandingPage/GetLandingPageByIdService";
 import { AssignLandingComponenteService } from "@proodos/application/Services/LandingComponente/AssignLandingComponenteService";
-import { ComponenteRepository } from "../Persistence/Repositories/ComponenteRepository";
-import { LandingComponenteRepository } from "../Persistence/Repositories/LandingComponenteRepository";
-import { LandingPageRepository } from "../Persistence/Repositories/LandingPageRepository";
-import { initModels } from "../Persistence/Sequelize";
+import { ComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/ComponenteRepository";
+import { LandingComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingComponenteRepository";
+import { LandingPageRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingPageRepository";
+import { initModels } from "@proodos/infrastructure/Persistence/Sequelize";
 
 export type ApiUseCases = {
   componente: {
@@ -48,19 +48,20 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
 
   return {
     componente: {
-      createComponente: new CreateComponenteService(componenteRepository),
+      createComponente: new CreateComponenteService(componenteRepository, logger),
       getAllComponentes: new GetAllComponentesService(componenteRepository),
       getComponenteById: new GetComponenteByIdService(componenteRepository),
       patchComponente: new PatchComponenteService(componenteRepository),
     },
     landing: {
-      createLandingPage: new CreateLandingPageService(landingPageRepository),
-      getAllLandingPages: new GetAllLandingPagesService(landingPageRepository),
-      getLandingPageById: new GetLandingPageByIdService(landingPageRepository),
+      createLandingPage: new CreateLandingPageService(landingPageRepository, logger),
+      getAllLandingPages: new GetAllLandingPagesService(landingPageRepository, logger),
+      getLandingPageById: new GetLandingPageByIdService(landingPageRepository, logger),
       assignLandingComponente: new AssignLandingComponenteService(
         landingPageRepository,
         componenteRepository,
-        landingComponenteRepository
+        landingComponenteRepository,
+        logger
       ),
     },
   };
