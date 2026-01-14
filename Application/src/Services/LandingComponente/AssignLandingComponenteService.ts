@@ -10,7 +10,10 @@ export class AssignLandingComponenteService {
     private readonly landingComponenteRepository: ILandingComponenteRepository
   ) {}
 
-  async execute(id_landing: number, id_componente: number): Promise<LandingComponente> {
+  async execute(
+    id_landing: number,
+    id_componente: number
+  ): Promise<{ data: LandingComponente; existed: boolean }> {
     console.log("[Service] AssignLandingComponenteService.execute()", { id_landing, id_componente });
 
     const landing = await this.landingPageRepository.getById(id_landing);
@@ -22,9 +25,10 @@ export class AssignLandingComponenteService {
     const already = await this.landingComponenteRepository.exists(id_landing, id_componente);
     if (already) {
       // idempotente
-      return { id_landing, id_componente };
+      return { data: { id_landing, id_componente }, existed: true };
     }
 
-    return this.landingComponenteRepository.assign({ id_landing, id_componente });
+    const data = await this.landingComponenteRepository.assign({ id_landing, id_componente });
+    return { data, existed: false };
   }
 }
