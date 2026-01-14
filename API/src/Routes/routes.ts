@@ -4,9 +4,9 @@ import { createComponenteController } from "../Controllers/ComponenteController"
 import { createLandingPageController } from "../Controllers/LandingPageController";
 import { buildApiUseCases } from "@proodos/infrastructure/CompositionRoot/ApiContainer";
 
-export const buildRoutes = (logger: ILogger) => {
+export const buildRoutes = async (logger: ILogger) => {
   const routes = Router();
-  const useCases = buildApiUseCases(logger);
+  const useCases = await buildApiUseCases(logger);
 
   routes.use(
     "/componentes",
