@@ -43,7 +43,7 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
   await initModels();
 
   const componenteRepository = new ComponenteRepository(logger);
-  const landingPageRepository = new LandingPageRepository();
+  const landingPageRepository = new LandingPageRepository(logger);
   const landingComponenteRepository = new LandingComponenteRepository();
 
   return {
