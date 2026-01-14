@@ -1,14 +1,16 @@
 import { Router } from "express";
-import { CreateComponenteService } from "@proodos/application/Services/Componente/CreateComponenteService";
-import { GetAllComponentesService } from "@proodos/application/Services/Componente/GetAllComponentesService";
-import { GetComponenteByIdService } from "@proodos/application/Services/Componente/GetComponenteByIdService";
-import { PatchComponenteService } from "@proodos/application/Services/Componente/PatchComponenteService";
+import {
+  CreateComponenteUseCase,
+  GetAllComponentesUseCase,
+  GetComponenteByIdUseCase,
+  PatchComponenteUseCase,
+} from "@proodos/application/Ports/ComponenteUseCases";
 
 type ComponenteControllerDeps = {
-  createComponenteService: CreateComponenteService;
-  getAllComponentesService: GetAllComponentesService;
-  getComponenteByIdService: GetComponenteByIdService;
-  patchComponenteService: PatchComponenteService;
+  createComponenteService: CreateComponenteUseCase;
+  getAllComponentesService: GetAllComponentesUseCase;
+  getComponenteByIdService: GetComponenteByIdUseCase;
+  patchComponenteService: PatchComponenteUseCase;
 };
 
 export const createComponenteController = ({
