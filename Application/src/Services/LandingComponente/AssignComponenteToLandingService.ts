@@ -2,19 +2,21 @@ import { ILandingComponenteRepository } from "../../Interfaces/ILandingComponent
 import { ILandingPageRepository } from "../../Interfaces/ILandingPageRepository";
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { LandingComponente } from "@proodos/domain/Entities/LandingComponente";
+import { ILogger } from "../../Interfaces/ILogger";
 
 export class AssignLandingComponenteService {
   constructor(
     private readonly landingPageRepository: ILandingPageRepository,
     private readonly componenteRepository: IComponenteRepository,
-    private readonly landingComponenteRepository: ILandingComponenteRepository
+    private readonly landingComponenteRepository: ILandingComponenteRepository,
+    private readonly logger: ILogger
   ) {}
 
   async execute(
     id_landing: number,
     id_componente: number
   ): Promise<{ created: boolean; data: LandingComponente }> {
-    console.log("[Service] AssignLandingComponenteService.execute()", { id_landing, id_componente });
+    this.logger.info("[Service] AssignLandingComponenteService.execute()", { id_landing, id_componente });
 
     const landing = await this.landingPageRepository.getById(id_landing);
     if (!landing) throw new Error("LANDING_NOT_FOUND");
