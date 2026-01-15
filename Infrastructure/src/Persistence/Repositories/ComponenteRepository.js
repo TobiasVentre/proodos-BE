@@ -36,37 +36,76 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComponenteRepository = void 0;
 const Models = __importStar(require("../Models"));
 const ComponenteMapper_1 = require("../../Mappers/ComponenteMapper");
+const SequelizeConfig_1 = require("../../Config/SequelizeConfig");
 class ComponenteRepository {
     constructor(logger) {
         this.logger = logger;
     }
+    async resolveSoftDeleteSupport() {
+        if (this.softDeleteSupported !== undefined) {
+            return this.softDeleteSupported;
+        }
+        try {
+            const [rows] = await SequelizeConfig_1.sequelize.query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'componente' AND COLUMN_NAME IN ('estado','fecha_baja')");
+            const columnNames = Array.isArray(rows)
+                ? rows.map((row) => String(row.COLUMN_NAME || "").toLowerCase())
+                : [];
+            this.softDeleteSupported =
+                columnNames.includes("estado") && columnNames.includes("fecha_baja");
+        }
+        catch (error) {
+            this.logger.error("[Repository] Failed to resolve soft delete support", error);
+            this.softDeleteSupported = false;
+        }
+        return this.softDeleteSupported;
+    }
+    async buildAttributes() {
+        const baseAttributes = [
+            "id_componente",
+            "id_tipo_componente",
+            "id_plan",
+            "id_tipo_variacion",
+            "nombre",
+            "fecha_creacion",
+        ];
+        if (await this.resolveSoftDeleteSupport()) {
+            baseAttributes.push("estado", "fecha_baja");
+        }
+        return baseAttributes;
+    }
     async create(entity) {
         this.logger.info("[Repository] ComponenteRepository.create()");
         this.logger.debug("[Repository] Datos recibidos:", entity);
-        const created = await Models.ComponenteModel.create({
+        const payload = {
             id_tipo_componente: entity.id_tipo_componente,
             id_plan: entity.id_plan,
             id_tipo_variacion: entity.id_tipo_variacion,
             nombre: entity.nombre,
             // en DB ya tenés default; si querés dejarlo a DB, eliminá esta línea
             fecha_creacion: new Date(),
-            estado: entity.estado ?? "ACTIVO",
-            fecha_baja: entity.fecha_baja ?? null,
-        });
+        };
+        if (await this.resolveSoftDeleteSupport()) {
+            payload.estado = entity.estado ?? "ACTIVO";
+            payload.fecha_baja = entity.fecha_baja ?? null;
+        }
+        const created = await Models.ComponenteModel.create(payload);
         return ComponenteMapper_1.ComponenteMapper.toDomain(created);
     }
     async update(entity) {
         this.logger.info("[Repository] ComponenteRepository.update()");
         this.logger.debug("[Repository] Datos recibidos:", entity);
-        await Models.ComponenteModel.update({
+        const payload = {
             id_tipo_componente: entity.id_tipo_componente,
             id_plan: entity.id_plan,
             id_tipo_variacion: entity.id_tipo_variacion,
             nombre: entity.nombre,
             fecha_creacion: entity.fecha_creacion,
-            estado: entity.estado,
-            fecha_baja: entity.fecha_baja ?? null,
-        }, { where: { id_componente: entity.id_componente } });
+        };
+        if (await this.resolveSoftDeleteSupport()) {
+            payload.estado = entity.estado;
+            payload.fecha_baja = entity.fecha_baja ?? null;
+        }
+        await Models.ComponenteModel.update(payload, { where: { id_componente: entity.id_componente } });
         const updated = await Models.ComponenteModel.findByPk(entity.id_componente);
         if (!updated) {
             // Para cumplir el contrato: Promise<Componente>
@@ -87,10 +126,15 @@ class ComponenteRepository {
             updatePayload.id_tipo_variacion = dto.id_tipo_variacion;
         if (dto.nombre !== undefined)
             updatePayload.nombre = dto.nombre;
-        if (dto.estado !== undefined)
-            updatePayload.estado = dto.estado;
-        if (dto.fecha_baja !== undefined)
-            updatePayload.fecha_baja = dto.fecha_baja;
+        if (dto.estado !== undefined || dto.fecha_baja !== undefined) {
+            if (!(await this.resolveSoftDeleteSupport())) {
+                throw new Error("SOFT_DELETE_NOT_SUPPORTED");
+            }
+            if (dto.estado !== undefined)
+                updatePayload.estado = dto.estado;
+            if (dto.fecha_baja !== undefined)
+                updatePayload.fecha_baja = dto.fecha_baja;
+        }
         // Si no vino nada, no hacemos nada (o podés lanzar error 400 desde Service/Controller)
         if (Object.keys(updatePayload).length === 0) {
             throw new Error("No fields provided for patch");
@@ -108,12 +152,18 @@ class ComponenteRepository {
         await Models.ComponenteModel.destroy({ where: { id_componente } });
     }
     async softDelete(id_componente, fecha_baja, estado) {
+        if (!(await this.resolveSoftDeleteSupport())) {
+            throw new Error("SOFT_DELETE_NOT_SUPPORTED");
+        }
         await Models.ComponenteModel.update({ fecha_baja, estado }, { where: { id_componente } });
     }
     async getById(id) {
         this.logger.info("[Repository] ComponenteRepository.getById(id)");
+        const attributes = await this.buildAttributes();
+        const supportsSoftDelete = await this.resolveSoftDeleteSupport();
         const row = await Models.ComponenteModel.findOne({
-            where: { id_componente: id, estado: "ACTIVO" },
+            attributes,
+            where: supportsSoftDelete ? { id_componente: id, estado: "ACTIVO" } : { id_componente: id },
             include: [
                 { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
                 { model: Models.TipoVariacionModel, as: "tipoVariacion", required: false },
@@ -124,8 +174,11 @@ class ComponenteRepository {
     }
     async getAll() {
         this.logger.info("[Repository] ComponenteRepository.getAll()");
+        const attributes = await this.buildAttributes();
+        const supportsSoftDelete = await this.resolveSoftDeleteSupport();
         const rows = await Models.ComponenteModel.findAll({
-            where: { estado: "ACTIVO" },
+            attributes,
+            where: supportsSoftDelete ? { estado: "ACTIVO" } : undefined,
             order: [["id_componente", "DESC"]],
             include: [
                 { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
@@ -137,8 +190,11 @@ class ComponenteRepository {
     }
     async getByPlan(id_plan) {
         this.logger.info("[Repository] ComponenteRepository.getByPlan(id_plan)");
+        const attributes = await this.buildAttributes();
+        const supportsSoftDelete = await this.resolveSoftDeleteSupport();
         const rows = await Models.ComponenteModel.findAll({
-            where: { id_plan, estado: "ACTIVO" },
+            attributes,
+            where: supportsSoftDelete ? { id_plan, estado: "ACTIVO" } : { id_plan },
             order: [["id_componente", "DESC"]],
             include: [
                 { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
