@@ -1,7 +1,15 @@
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import { Express } from "express";
-import { componenteSchemas, landingSchemas, planSchemas } from "./schemas";
+import {
+  componenteSchemas,
+  landingSchemas,
+  planSchemas,
+  tipoComponenteSchemas,
+  tipoVariacionSchemas,
+  tipoElementoSchemas,
+  elementoComponenteSchemas
+} from "./schemas";
 
 export function setupSwagger(app: Express): void {
   const options = {
@@ -16,7 +24,11 @@ export function setupSwagger(app: Express): void {
         schemas: {
           ...componenteSchemas,
           ...planSchemas,
-          ...landingSchemas
+          ...landingSchemas,
+          ...tipoComponenteSchemas,
+          ...tipoVariacionSchemas,
+          ...tipoElementoSchemas,
+          ...elementoComponenteSchemas
         }
       }
     },

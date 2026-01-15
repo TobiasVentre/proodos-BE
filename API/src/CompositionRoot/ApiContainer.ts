@@ -27,6 +27,38 @@ import {
   UpdatePlanUseCase,
 } from "@proodos/application/Ports/PlanUseCases";
 import {
+  CreateTipoComponenteUseCase,
+  GetAllTiposComponenteUseCase,
+  GetTipoComponenteByIdUseCase,
+  PatchTipoComponenteUseCase,
+  UpdateTipoComponenteUseCase,
+} from "@proodos/application/Ports/TipoComponenteUseCases";
+import {
+  CreateTipoVariacionUseCase,
+  GetAllTiposVariacionUseCase,
+  GetTipoVariacionByIdUseCase,
+  GetVariacionesByTipoComponenteUseCase,
+  PatchTipoVariacionUseCase,
+  UpdateTipoVariacionUseCase,
+} from "@proodos/application/Ports/TipoVariacionUseCases";
+import {
+  CreateTipoElementoUseCase,
+  DeleteTipoElementoUseCase,
+  GetAllTiposElementoUseCase,
+  GetTipoElementoByIdUseCase,
+  PatchTipoElementoUseCase,
+  UpdateTipoElementoUseCase,
+} from "@proodos/application/Ports/TipoElementoUseCases";
+import {
+  CreateElementoComponenteUseCase,
+  DeleteElementoComponenteUseCase,
+  GetAllElementosComponenteUseCase,
+  GetElementoComponenteByIdUseCase,
+  GetElementosByComponenteUseCase,
+  PatchElementoComponenteUseCase,
+  UpdateElementoComponenteUseCase,
+} from "@proodos/application/Ports/ElementoComponenteUseCases";
+import {
   AssignLandingComponenteUseCase,
   GetLandingComponentesUseCase,
   GetLandingsByComponenteUseCase,
@@ -55,6 +87,30 @@ import { GetAllPlansService } from "@proodos/application/Services/Plan/GetAllPla
 import { GetPlanByIdService } from "@proodos/application/Services/Plan/GetPlanByIdService";
 import { PatchPlanService } from "@proodos/application/Services/Plan/PatchPlanService";
 import { UpdatePlanService } from "@proodos/application/Services/Plan/UpdatePlanService";
+import { CreateTipoComponenteService } from "@proodos/application/Services/TipoComponente/CreateTipoComponenteService";
+import { GetAllTiposComponenteService } from "@proodos/application/Services/TipoComponente/GetAllTiposComponenteService";
+import { GetTipoComponenteByIdService } from "@proodos/application/Services/TipoComponente/GetTipoComponenteByIdService";
+import { UpdateTipoComponenteService } from "@proodos/application/Services/TipoComponente/UpdateTipoComponenteService";
+import { PatchTipoComponenteService } from "@proodos/application/Services/TipoComponente/PatchTipoComponenteService";
+import { CreateTipoVariacionService } from "@proodos/application/Services/TipoVariacion/CreateTipoVariacionService";
+import { GetAllTiposVariacionService } from "@proodos/application/Services/TipoVariacion/GetAllTiposVariacionService";
+import { GetTipoVariacionByIdService } from "@proodos/application/Services/TipoVariacion/GetTipoVariacionByIdService";
+import { GetVariacionesByTipoComponenteService } from "@proodos/application/Services/TipoVariacion/GetVariacionesByTipoComponenteService";
+import { UpdateTipoVariacionService } from "@proodos/application/Services/TipoVariacion/UpdateTipoVariacionService";
+import { PatchTipoVariacionService } from "@proodos/application/Services/TipoVariacion/PatchTipoVariacionService";
+import { CreateTipoElementoService } from "@proodos/application/Services/TipoElemento/CreateTipoElementoService";
+import { GetAllTiposElementoService } from "@proodos/application/Services/TipoElemento/GetAllTiposElementoService";
+import { GetTipoElementoByIdService } from "@proodos/application/Services/TipoElemento/GetTipoElementoByIdService";
+import { UpdateTipoElementoService } from "@proodos/application/Services/TipoElemento/UpdateTipoElementoService";
+import { PatchTipoElementoService } from "@proodos/application/Services/TipoElemento/PatchTipoElementoService";
+import { DeleteTipoElementoService } from "@proodos/application/Services/TipoElemento/DeleteTipoElementoService";
+import { CreateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/CreateElementoComponenteService";
+import { GetAllElementosComponenteService } from "@proodos/application/Services/ElementoComponente/GetAllElementosComponenteService";
+import { GetElementoComponenteByIdService } from "@proodos/application/Services/ElementoComponente/GetElementoComponenteByIdService";
+import { GetElementosByComponenteService } from "@proodos/application/Services/ElementoComponente/GetElementosByComponenteService";
+import { UpdateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/UpdateElementoComponenteService";
+import { PatchElementoComponenteService } from "@proodos/application/Services/ElementoComponente/PatchElementoComponenteService";
+import { DeleteElementoComponenteService } from "@proodos/application/Services/ElementoComponente/DeleteElementoComponenteService";
 import { AssignLandingComponenteService } from "@proodos/application/Services/LandingComponente/AssignLandingComponenteService";
 import { UnassignComponenteFromLandingService } from "@proodos/application/Services/LandingComponente/UnassignComponenteFromLandingService";
 import { ComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/ComponenteRepository";
@@ -62,6 +118,10 @@ import { ComponenteCompuestoRepository } from "@proodos/infrastructure/Persisten
 import { LandingComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingComponenteRepository";
 import { LandingPageRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingPageRepository";
 import { PlanRepository } from "@proodos/infrastructure/Persistence/Repositories/PlanRepository";
+import { TipoComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/TipoComponenteRepository";
+import { TipoVariacionRepository } from "@proodos/infrastructure/Persistence/Repositories/TipoVariacionRepository";
+import { TipoElementoRepository } from "@proodos/infrastructure/Persistence/Repositories/TipoElementoRepository";
+import { ElementoComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/ElementoComponenteRepository";
 import { initModels } from "@proodos/infrastructure/Persistence/Sequelize";
 
 export type ApiUseCases = {
@@ -96,6 +156,38 @@ export type ApiUseCases = {
     patchPlan: PatchPlanUseCase;
     updatePlan: UpdatePlanUseCase;
   };
+  tipoComponente: {
+    createTipoComponente: CreateTipoComponenteUseCase;
+    getAllTiposComponente: GetAllTiposComponenteUseCase;
+    getTipoComponenteById: GetTipoComponenteByIdUseCase;
+    updateTipoComponente: UpdateTipoComponenteUseCase;
+    patchTipoComponente: PatchTipoComponenteUseCase;
+  };
+  tipoVariacion: {
+    createTipoVariacion: CreateTipoVariacionUseCase;
+    getAllTiposVariacion: GetAllTiposVariacionUseCase;
+    getTipoVariacionById: GetTipoVariacionByIdUseCase;
+    getVariacionesByTipoComponente: GetVariacionesByTipoComponenteUseCase;
+    updateTipoVariacion: UpdateTipoVariacionUseCase;
+    patchTipoVariacion: PatchTipoVariacionUseCase;
+  };
+  tipoElemento: {
+    createTipoElemento: CreateTipoElementoUseCase;
+    getAllTiposElemento: GetAllTiposElementoUseCase;
+    getTipoElementoById: GetTipoElementoByIdUseCase;
+    updateTipoElemento: UpdateTipoElementoUseCase;
+    patchTipoElemento: PatchTipoElementoUseCase;
+    deleteTipoElemento: DeleteTipoElementoUseCase;
+  };
+  elementoComponente: {
+    createElementoComponente: CreateElementoComponenteUseCase;
+    getAllElementosComponente: GetAllElementosComponenteUseCase;
+    getElementoComponenteById: GetElementoComponenteByIdUseCase;
+    getElementosByComponente: GetElementosByComponenteUseCase;
+    updateElementoComponente: UpdateElementoComponenteUseCase;
+    patchElementoComponente: PatchElementoComponenteUseCase;
+    deleteElementoComponente: DeleteElementoComponenteUseCase;
+  };
 };
 
 export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> => {
@@ -106,6 +198,10 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
   const landingPageRepository = new LandingPageRepository(logger);
   const landingComponenteRepository = new LandingComponenteRepository();
   const planRepository = new PlanRepository(logger);
+  const tipoComponenteRepository = new TipoComponenteRepository(logger);
+  const tipoVariacionRepository = new TipoVariacionRepository(logger);
+  const tipoElementoRepository = new TipoElementoRepository(logger);
+  const elementoComponenteRepository = new ElementoComponenteRepository(logger);
 
   return {
     componente: {
@@ -157,6 +253,90 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
       getPlanById: new GetPlanByIdService(planRepository, logger),
       patchPlan: new PatchPlanService(planRepository, logger),
       updatePlan: new UpdatePlanService(planRepository, logger),
+    },
+    tipoComponente: {
+      createTipoComponente: new CreateTipoComponenteService(
+        tipoComponenteRepository,
+        logger
+      ),
+      getAllTiposComponente: new GetAllTiposComponenteService(
+        tipoComponenteRepository,
+        logger
+      ),
+      getTipoComponenteById: new GetTipoComponenteByIdService(
+        tipoComponenteRepository,
+        logger
+      ),
+      updateTipoComponente: new UpdateTipoComponenteService(tipoComponenteRepository),
+      patchTipoComponente: new PatchTipoComponenteService(tipoComponenteRepository),
+    },
+    tipoVariacion: {
+      createTipoVariacion: new CreateTipoVariacionService(
+        tipoVariacionRepository,
+        tipoComponenteRepository,
+        logger
+      ),
+      getAllTiposVariacion: new GetAllTiposVariacionService(
+        tipoVariacionRepository,
+        logger
+      ),
+      getTipoVariacionById: new GetTipoVariacionByIdService(
+        tipoVariacionRepository,
+        logger
+      ),
+      getVariacionesByTipoComponente: new GetVariacionesByTipoComponenteService(
+        tipoVariacionRepository,
+        logger
+      ),
+      updateTipoVariacion: new UpdateTipoVariacionService(
+        tipoVariacionRepository,
+        tipoComponenteRepository
+      ),
+      patchTipoVariacion: new PatchTipoVariacionService(
+        tipoVariacionRepository,
+        tipoComponenteRepository
+      ),
+    },
+    tipoElemento: {
+      createTipoElemento: new CreateTipoElementoService(tipoElementoRepository, logger),
+      getAllTiposElemento: new GetAllTiposElementoService(tipoElementoRepository, logger),
+      getTipoElementoById: new GetTipoElementoByIdService(tipoElementoRepository, logger),
+      updateTipoElemento: new UpdateTipoElementoService(tipoElementoRepository),
+      patchTipoElemento: new PatchTipoElementoService(tipoElementoRepository),
+      deleteTipoElemento: new DeleteTipoElementoService(tipoElementoRepository),
+    },
+    elementoComponente: {
+      createElementoComponente: new CreateElementoComponenteService(
+        elementoComponenteRepository,
+        componenteRepository,
+        tipoElementoRepository,
+        logger
+      ),
+      getAllElementosComponente: new GetAllElementosComponenteService(
+        elementoComponenteRepository,
+        logger
+      ),
+      getElementoComponenteById: new GetElementoComponenteByIdService(
+        elementoComponenteRepository,
+        logger
+      ),
+      getElementosByComponente: new GetElementosByComponenteService(
+        elementoComponenteRepository,
+        logger
+      ),
+      updateElementoComponente: new UpdateElementoComponenteService(
+        elementoComponenteRepository,
+        componenteRepository,
+        tipoElementoRepository
+      ),
+      patchElementoComponente: new PatchElementoComponenteService(
+        elementoComponenteRepository,
+        componenteRepository,
+        tipoElementoRepository
+      ),
+      deleteElementoComponente: new DeleteElementoComponenteService(
+        elementoComponenteRepository
+      ),
     },
   };
 };
