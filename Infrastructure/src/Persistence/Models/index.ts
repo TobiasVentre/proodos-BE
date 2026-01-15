@@ -5,3 +5,4 @@ export { TipoComponenteModel } from "./TipoComponenteModel";
 export { TipoVariacionModel } from "./TipoVariacionModel";
 export { ElementoComponenteModel } from "./ElementoComponenteModel";
 export { ComponenteCompuestoModel } from "./ComponenteCompuestoModel";
+export { PlanModel } from "./PlanModel";
