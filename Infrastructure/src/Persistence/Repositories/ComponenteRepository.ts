@@ -3,15 +3,16 @@ import { ComponenteMapper } from "../../Mappers/ComponenteMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { PatchComponenteDTO } from "@proodos/application/DTOs/Componente/PatchComponenteDTO";
 import { Componente } from "@proodos/domain/Entities/Componente";
+import { IComponenteRepository } from "@proodos/application/Interfaces/IComponenteRepository";
 
-export class ComponenteRepository {
+export class ComponenteRepository implements IComponenteRepository {
   private logger: ILogger;
 
   constructor(logger: ILogger) {
     this.logger = logger;
   }
 
-  async create(entity: any) {
+  async create(entity: Componente): Promise<Componente> {
     this.logger.info("[Repository] ComponenteRepository.create()");
     this.logger.debug("[Repository] Datos recibidos:", entity);
 
@@ -52,7 +53,7 @@ export class ComponenteRepository {
     return ComponenteMapper.toDomain(updated);
   }
 
-  async patch(id_componente: number, dto: PatchComponenteDTO) {
+  async patch(id_componente: number, dto: PatchComponenteDTO): Promise<Componente> {
   this.logger.info("[Repository] ComponenteRepository.patch()", { id_componente });
   this.logger.debug("[Repository] Patch DTO:", dto);
 
@@ -82,11 +83,11 @@ export class ComponenteRepository {
   return ComponenteMapper.toDomain(updated);
 }
 
-  async delete(id_componente: number) {
+  async delete(id_componente: number): Promise<void> {
     await Models.ComponenteModel.destroy({ where: { id_componente } });
   }
 
-  async getById(id: number) {
+  async getById(id: number): Promise<Componente | null> {
     this.logger.info("[Repository] ComponenteRepository.getById(id)");
 
     const row = await Models.ComponenteModel.findByPk(id, {
@@ -101,7 +102,7 @@ export class ComponenteRepository {
     return row ? ComponenteMapper.toDomain(row) : null;
   }
 
-  async getAll() {
+  async getAll(): Promise<Componente[]> {
     this.logger.info("[Repository] ComponenteRepository.getAll()");
 
     const rows = await Models.ComponenteModel.findAll({

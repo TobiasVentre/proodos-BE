@@ -2,7 +2,7 @@ import { Router } from "express";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { createComponenteController } from "../Controllers/ComponenteController";
 import { createLandingPageController } from "../Controllers/LandingPageController";
-import { buildApiUseCases } from "@proodos/infrastructure/CompositionRoot/ApiContainer";
+import { buildApiUseCases } from "@proodos/api/CompositionRoot/ApiContainer";
 
 export const buildRoutes = async (logger: ILogger) => {
   const routes = Router();
