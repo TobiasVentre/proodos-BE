@@ -8,10 +8,12 @@ class ComponenteCompuestoModel extends sequelize_1.Model {
             id_padre: {
                 type: sequelize_1.DataTypes.INTEGER,
                 primaryKey: true,
+                field: "id_componente_padre",
             },
             id_hijo: {
                 type: sequelize_1.DataTypes.INTEGER,
                 primaryKey: true,
+                field: "id_componente_hijo",
             },
         }, {
             sequelize,
