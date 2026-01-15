@@ -7,6 +7,8 @@ export class ComponenteModel extends Model {
   id_tipo_variacion!: number;
   nombre!: string;
   fecha_creacion!: Date;
+  estado!: string;
+  fecha_baja?: Date | null;
 
   static initModel(sequelize: Sequelize) {
     ComponenteModel.init(
@@ -36,6 +38,14 @@ export class ComponenteModel extends Model {
           type: DataTypes.DATE,
           allowNull: false,
           // si querés que DB lo haga, lo pondremos en migration.
+        },
+        estado: {
+          type: DataTypes.STRING(50),
+          allowNull: false,
+        },
+        fecha_baja: {
+          type: DataTypes.DATE,
+          allowNull: true,
         },
       },
       {

@@ -22,6 +22,26 @@ export interface DeleteComponenteUseCase {
   execute(id_componente: number): Promise<void>;
 }
 
+export interface SoftDeleteComponenteUseCase {
+  execute(id_componente: number): Promise<void>;
+}
+
 export interface GetComponentesByPlanUseCase {
   execute(id_plan: number): Promise<Componente[]>;
+}
+
+export interface ComponenteTreeNode extends Componente {
+  hijos: ComponenteTreeNode[];
+}
+
+export interface AssignComponenteHijoUseCase {
+  execute(id_padre: number, id_hijo: number): Promise<{ created: boolean }>;
+}
+
+export interface UnassignComponenteHijoUseCase {
+  execute(id_padre: number, id_hijo: number): Promise<void>;
+}
+
+export interface GetComponenteTreeUseCase {
+  execute(id_padre: number): Promise<ComponenteTreeNode>;
 }

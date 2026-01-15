@@ -1,8 +1,11 @@
 import { Router } from "express";
 import {
   CreateLandingPageUseCase,
+  DeleteLandingPageUseCase,
   GetAllLandingPagesUseCase,
   GetLandingPageByIdUseCase,
+  PatchLandingPageUseCase,
+  UpdateLandingPageUseCase,
 } from "@proodos/application/Ports/LandingPageUseCases";
 import {
   AssignLandingComponenteUseCase,
@@ -15,6 +18,9 @@ type LandingPageControllerDeps = {
   createLandingPageService: CreateLandingPageUseCase;
   getLandingPageByIdService: GetLandingPageByIdUseCase;
   getAllLandingPagesService: GetAllLandingPagesUseCase;
+  updateLandingPageService: UpdateLandingPageUseCase;
+  patchLandingPageService: PatchLandingPageUseCase;
+  deleteLandingPageService: DeleteLandingPageUseCase;
   assignLandingComponenteService: AssignLandingComponenteUseCase;
   unassignLandingComponenteService: UnassignLandingComponenteUseCase;
   getLandingComponentesService: GetLandingComponentesUseCase;
@@ -24,6 +30,9 @@ export const createLandingPageController = ({
   createLandingPageService,
   getLandingPageByIdService,
   getAllLandingPagesService,
+  updateLandingPageService,
+  patchLandingPageService,
+  deleteLandingPageService,
   assignLandingComponenteService,
   unassignLandingComponenteService,
   getLandingComponentesService,
@@ -191,6 +200,178 @@ export const createLandingPageController = ({
       data: result,
     });
   } catch (error) {
+    console.log("[Controller] ERROR:", error);
+    return handleControllerError(res, error);
+  }
+  });
+
+/**
+ * @openapi
+ * /api/landings/{id}:
+ *   put:
+ *     tags:
+ *       - Landing Pages
+ *     summary: Actualiza una landing page
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - URL
+ *               - estado
+ *               - segmento
+ *             properties:
+ *               URL:
+ *                 type: string
+ *               estado:
+ *                 type: string
+ *               segmento:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Landing actualizada
+ *       400:
+ *         description: Request inválida
+ *       404:
+ *         description: Landing no encontrada
+ */
+  landingPageController.put("/:id", async (req, res) => {
+  console.log(`[Controller] PUT /landings/${req.params.id}`);
+
+  const id_landing = Number(req.params.id);
+  if (Number.isNaN(id_landing) || id_landing <= 0) {
+    return respondValidationError(res, "Invalid id");
+  }
+
+  const { URL, estado, segmento } = req.body || {};
+
+  if (!URL || !estado || !segmento) {
+    return respondValidationError(res, "Missing required fields", {
+      required: ["URL", "estado", "segmento"],
+    });
+  }
+
+  try {
+    const result = await updateLandingPageService.execute({
+      id_landing,
+      URL,
+      estado,
+      segmento,
+    });
+
+    return res.json({
+      message: "OK",
+      data: result,
+    });
+  } catch (error: any) {
+    console.log("[Controller] ERROR:", error);
+    if (error?.message === "LANDING_NOT_FOUND") {
+      return res.status(404).json({ error: "LandingPage not found" });
+    }
+    return handleControllerError(res, error);
+  }
+  });
+
+/**
+ * @openapi
+ * /api/landings/{id}:
+ *   patch:
+ *     tags:
+ *       - Landing Pages
+ *     summary: Actualiza parcialmente una landing page
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               URL:
+ *                 type: string
+ *               estado:
+ *                 type: string
+ *               segmento:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Landing actualizada parcialmente
+ *       400:
+ *         description: Request inválida
+ *       404:
+ *         description: Landing no encontrada
+ */
+  landingPageController.patch("/:id", async (req, res) => {
+  console.log(`[Controller] PATCH /landings/${req.params.id}`);
+
+  const id_landing = Number(req.params.id);
+  if (Number.isNaN(id_landing) || id_landing <= 0) {
+    return respondValidationError(res, "Invalid id");
+  }
+
+  try {
+    const result = await patchLandingPageService.execute(id_landing, req.body || {});
+
+    return res.json({
+      message: "OK",
+      data: result,
+    });
+  } catch (error: any) {
+    console.log("[Controller] ERROR:", error);
+    if (error?.message === "LANDING_NOT_FOUND") {
+      return res.status(404).json({ error: "LandingPage not found" });
+    }
+    if (String(error?.message || "").includes("No fields provided")) {
+      return respondValidationError(res, "No fields provided");
+    }
+    return handleControllerError(res, error);
+  }
+  });
+
+/**
+ * @openapi
+ * /api/landings/{id}:
+ *   delete:
+ *     tags:
+ *       - Landing Pages
+ *     summary: Elimina una landing page
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Eliminada
+ *       400:
+ *         description: Request inválida
+ */
+  landingPageController.delete("/:id", async (req, res) => {
+  console.log(`[Controller] DELETE /landings/${req.params.id}`);
+
+  const id_landing = Number(req.params.id);
+  if (Number.isNaN(id_landing) || id_landing <= 0) {
+    return respondValidationError(res, "Invalid id");
+  }
+
+  try {
+    await deleteLandingPageService.execute(id_landing);
+    return res.status(204).send();
+  } catch (error: any) {
     console.log("[Controller] ERROR:", error);
     return handleControllerError(res, error);
   }
