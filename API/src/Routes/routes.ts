@@ -33,6 +33,7 @@ export const buildRoutes = async (logger: ILogger) => {
       createPlanService: useCases.plan.createPlan,
       getAllPlansService: useCases.plan.getAllPlans,
       getPlanByIdService: useCases.plan.getPlanById,
+      patchPlanService: useCases.plan.patchPlan,
       updatePlanService: useCases.plan.updatePlan,
     })
   );

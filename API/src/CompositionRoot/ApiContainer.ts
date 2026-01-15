@@ -14,6 +14,7 @@ import {
   CreatePlanUseCase,
   GetAllPlansUseCase,
   GetPlanByIdUseCase,
+  PatchPlanUseCase,
   UpdatePlanUseCase,
 } from "@proodos/application/Ports/PlanUseCases";
 import { AssignLandingComponenteUseCase } from "@proodos/application/Ports/LandingComponenteUseCases";
@@ -27,6 +28,7 @@ import { GetLandingPageByIdService } from "@proodos/application/Services/Landing
 import { CreatePlanService } from "@proodos/application/Services/Plan/CreatePlanService";
 import { GetAllPlansService } from "@proodos/application/Services/Plan/GetAllPlansService";
 import { GetPlanByIdService } from "@proodos/application/Services/Plan/GetPlanByIdService";
+import { PatchPlanService } from "@proodos/application/Services/Plan/PatchPlanService";
 import { UpdatePlanService } from "@proodos/application/Services/Plan/UpdatePlanService";
 import { AssignLandingComponenteService } from "@proodos/application/Services/LandingComponente/AssignLandingComponenteService";
 import { ComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/ComponenteRepository";
@@ -52,6 +54,7 @@ export type ApiUseCases = {
     createPlan: CreatePlanUseCase;
     getAllPlans: GetAllPlansUseCase;
     getPlanById: GetPlanByIdUseCase;
+    patchPlan: PatchPlanUseCase;
     updatePlan: UpdatePlanUseCase;
   };
 };
@@ -86,6 +89,7 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
       createPlan: new CreatePlanService(planRepository, logger),
       getAllPlans: new GetAllPlansService(planRepository, logger),
       getPlanById: new GetPlanByIdService(planRepository, logger),
+      patchPlan: new PatchPlanService(planRepository, logger),
       updatePlan: new UpdatePlanService(planRepository, logger),
     },
   };
