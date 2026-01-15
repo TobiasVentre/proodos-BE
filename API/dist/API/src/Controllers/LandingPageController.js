@@ -36,6 +36,13 @@ const createLandingPageController = ({ createLandingPageService, getLandingPageB
      *     tags:
      *       - Landing Pages
      *     summary: Obtiene landing page por ID
+     *     parameters:
+     *       - name: id
+     *         in: path
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: ID de la landing page
      */
     landingPageController.get("/:id", async (req, res) => {
         console.log(`[Controller] GET /landings/${req.params.id}`);
