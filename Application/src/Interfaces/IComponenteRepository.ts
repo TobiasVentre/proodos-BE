@@ -8,4 +8,5 @@ export interface IComponenteRepository {
   delete(id_componente: number): Promise<void>;   // soft delete se manejará en Infra
   getById(id_componente: number): Promise<Componente | null>;
   getAll(): Promise<Componente[]>;                // luego agregamos filtros
+  getByPlan(id_plan: number): Promise<Componente[]>;
 }

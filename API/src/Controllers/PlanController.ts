@@ -6,6 +6,7 @@ import {
   PatchPlanUseCase,
   UpdatePlanUseCase,
 } from "@proodos/application/Ports/PlanUseCases";
+import { GetComponentesByPlanUseCase } from "@proodos/application/Ports/ComponenteUseCases";
 import { handleControllerError, respondValidationError } from "./ControllerErrors";
 
 const requiredPlanFields = [
@@ -24,6 +25,7 @@ type PlanControllerDeps = {
   getPlanByIdService: GetPlanByIdUseCase;
   patchPlanService: PatchPlanUseCase;
   updatePlanService: UpdatePlanUseCase;
+  getComponentesByPlanService: GetComponentesByPlanUseCase;
 };
 
 export const createPlanController = ({
@@ -32,6 +34,7 @@ export const createPlanController = ({
   getPlanByIdService,
   patchPlanService,
   updatePlanService,
+  getComponentesByPlanService,
 }: PlanControllerDeps) => {
   const planController = Router();
 
@@ -97,6 +100,54 @@ export const createPlanController = ({
       if (!result) {
         return res.status(404).json({ error: "Not found" });
       }
+
+      return res.status(200).json({
+        message: "OK",
+        data: result,
+      });
+    } catch (error) {
+      console.log("[Controller] ERROR:", error);
+      return handleControllerError(res, error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/planes/{id}/componentes:
+   *   get:
+   *     tags:
+   *       - Planes
+   *     summary: Obtiene los componentes asociados a un plan
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       200:
+   *         description: Lista de componentes
+   *       400:
+   *         description: ID inválido
+   *       404:
+   *         description: Plan no encontrado
+   */
+  planController.get("/:id/componentes", async (req, res) => {
+    console.log(`[Controller] GET /planes/${req.params.id}/componentes`);
+
+    const id = Number(req.params.id);
+    if (Number.isNaN(id) || id <= 0) {
+      return respondValidationError(res, "Invalid id");
+    }
+
+    try {
+      const plan = await getPlanByIdService.execute(id);
+
+      if (!plan) {
+        return res.status(404).json({ error: "Not found" });
+      }
+
+      const result = await getComponentesByPlanService.execute(id);
 
       return res.status(200).json({
         message: "OK",

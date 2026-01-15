@@ -17,3 +17,11 @@ export interface GetComponenteByIdUseCase {
 export interface PatchComponenteUseCase {
   execute(id_componente: number, dto: PatchComponenteDTO): Promise<Componente>;
 }
+
+export interface DeleteComponenteUseCase {
+  execute(id_componente: number): Promise<void>;
+}
+
+export interface GetComponentesByPlanUseCase {
+  execute(id_plan: number): Promise<Componente[]>;
+}
