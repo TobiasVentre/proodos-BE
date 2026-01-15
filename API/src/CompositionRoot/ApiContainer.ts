@@ -66,10 +66,10 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
 
   return {
     componente: {
-      createComponente: new CreateComponenteService(componenteRepository, logger),
+      createComponente: new CreateComponenteService(componenteRepository, planRepository, logger),
       getAllComponentes: new GetAllComponentesService(componenteRepository),
       getComponenteById: new GetComponenteByIdService(componenteRepository),
-      patchComponente: new PatchComponenteService(componenteRepository),
+      patchComponente: new PatchComponenteService(componenteRepository, planRepository),
     },
     landing: {
       createLandingPage: new CreateLandingPageService(landingPageRepository, logger),

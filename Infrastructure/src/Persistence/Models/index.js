@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ComponenteCompuestoModel = exports.ElementoComponenteModel = exports.TipoVariacionModel = exports.TipoComponenteModel = exports.LandingComponenteModel = exports.LandingPageModel = exports.ComponenteModel = void 0;
+exports.PlanModel = exports.ComponenteCompuestoModel = exports.ElementoComponenteModel = exports.TipoVariacionModel = exports.TipoComponenteModel = exports.LandingComponenteModel = exports.LandingPageModel = exports.ComponenteModel = void 0;
 var ComponenteModel_1 = require("./ComponenteModel");
 Object.defineProperty(exports, "ComponenteModel", { enumerable: true, get: function () { return ComponenteModel_1.ComponenteModel; } });
 var LandingPageModel_1 = require("./LandingPageModel");
@@ -15,3 +15,5 @@ var ElementoComponenteModel_1 = require("./ElementoComponenteModel");
 Object.defineProperty(exports, "ElementoComponenteModel", { enumerable: true, get: function () { return ElementoComponenteModel_1.ElementoComponenteModel; } });
 var ComponenteCompuestoModel_1 = require("./ComponenteCompuestoModel");
 Object.defineProperty(exports, "ComponenteCompuestoModel", { enumerable: true, get: function () { return ComponenteCompuestoModel_1.ComponenteCompuestoModel; } });
+var PlanModel_1 = require("./PlanModel");
+Object.defineProperty(exports, "PlanModel", { enumerable: true, get: function () { return PlanModel_1.PlanModel; } });
