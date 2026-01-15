@@ -50,6 +50,8 @@ class ComponenteRepository {
             nombre: entity.nombre,
             // en DB ya tenés default; si querés dejarlo a DB, eliminá esta línea
             fecha_creacion: new Date(),
+            estado: entity.estado ?? "ACTIVO",
+            fecha_baja: entity.fecha_baja ?? null,
         });
         return ComponenteMapper_1.ComponenteMapper.toDomain(created);
     }
@@ -62,6 +64,8 @@ class ComponenteRepository {
             id_tipo_variacion: entity.id_tipo_variacion,
             nombre: entity.nombre,
             fecha_creacion: entity.fecha_creacion,
+            estado: entity.estado,
+            fecha_baja: entity.fecha_baja ?? null,
         }, { where: { id_componente: entity.id_componente } });
         const updated = await Models.ComponenteModel.findByPk(entity.id_componente);
         if (!updated) {
@@ -83,6 +87,10 @@ class ComponenteRepository {
             updatePayload.id_tipo_variacion = dto.id_tipo_variacion;
         if (dto.nombre !== undefined)
             updatePayload.nombre = dto.nombre;
+        if (dto.estado !== undefined)
+            updatePayload.estado = dto.estado;
+        if (dto.fecha_baja !== undefined)
+            updatePayload.fecha_baja = dto.fecha_baja;
         // Si no vino nada, no hacemos nada (o podés lanzar error 400 desde Service/Controller)
         if (Object.keys(updatePayload).length === 0) {
             throw new Error("No fields provided for patch");
@@ -99,9 +107,13 @@ class ComponenteRepository {
     async delete(id_componente) {
         await Models.ComponenteModel.destroy({ where: { id_componente } });
     }
+    async softDelete(id_componente, fecha_baja, estado) {
+        await Models.ComponenteModel.update({ fecha_baja, estado }, { where: { id_componente } });
+    }
     async getById(id) {
         this.logger.info("[Repository] ComponenteRepository.getById(id)");
-        const row = await Models.ComponenteModel.findByPk(id, {
+        const row = await Models.ComponenteModel.findOne({
+            where: { id_componente: id, estado: "ACTIVO" },
             include: [
                 { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
                 { model: Models.TipoVariacionModel, as: "tipoVariacion", required: false },
@@ -113,6 +125,7 @@ class ComponenteRepository {
     async getAll() {
         this.logger.info("[Repository] ComponenteRepository.getAll()");
         const rows = await Models.ComponenteModel.findAll({
+            where: { estado: "ACTIVO" },
             order: [["id_componente", "DESC"]],
             include: [
                 { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
@@ -125,7 +138,7 @@ class ComponenteRepository {
     async getByPlan(id_plan) {
         this.logger.info("[Repository] ComponenteRepository.getByPlan(id_plan)");
         const rows = await Models.ComponenteModel.findAll({
-            where: { id_plan },
+            where: { id_plan, estado: "ACTIVO" },
             order: [["id_componente", "DESC"]],
             include: [
                 { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
