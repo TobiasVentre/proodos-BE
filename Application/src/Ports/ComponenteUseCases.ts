@@ -21,3 +21,7 @@ export interface PatchComponenteUseCase {
 export interface DeleteComponenteUseCase {
   execute(id_componente: number): Promise<void>;
 }
+
+export interface GetComponentesByPlanUseCase {
+  execute(id_plan: number): Promise<Componente[]>;
+}

@@ -3,6 +3,7 @@ import {
   CreateComponenteUseCase,
   DeleteComponenteUseCase,
   GetAllComponentesUseCase,
+  GetComponentesByPlanUseCase,
   GetComponenteByIdUseCase,
   PatchComponenteUseCase,
 } from "@proodos/application/Ports/ComponenteUseCases";
@@ -27,6 +28,7 @@ import {
 import { CreateComponenteService } from "@proodos/application/Services/Componente/CreateComponenteService";
 import { DeleteComponenteService } from "@proodos/application/Services/Componente/DeleteComponenteService";
 import { GetAllComponentesService } from "@proodos/application/Services/Componente/GetAllComponentesService";
+import { GetComponentesByPlanService } from "@proodos/application/Services/Componente/GetComponentesByPlanService";
 import { GetComponenteByIdService } from "@proodos/application/Services/Componente/GetComponenteByIdService";
 import { PatchComponenteService } from "@proodos/application/Services/Componente/PatchComponenteService";
 import { GetLandingComponentesService } from "@proodos/application/Services/LandingComponente/GetLandingComponentesService";
@@ -54,6 +56,7 @@ export type ApiUseCases = {
     getComponenteById: GetComponenteByIdUseCase;
     patchComponente: PatchComponenteUseCase;
     deleteComponente: DeleteComponenteUseCase;
+    getComponentesByPlan: GetComponentesByPlanUseCase;
     getLandingsByComponente: GetLandingsByComponenteUseCase;
   };
   landing: {
@@ -91,6 +94,7 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
         componenteRepository,
         landingComponenteRepository
       ),
+      getComponentesByPlan: new GetComponentesByPlanService(componenteRepository),
       getLandingsByComponente: new GetLandingsByComponenteService(landingComponenteRepository),
     },
     landing: {

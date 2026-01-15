@@ -115,4 +115,20 @@ export class ComponenteRepository implements IComponenteRepository {
 
     return rows.map((r: any) => ComponenteMapper.toDomain(r));
   }
+
+  async getByPlan(id_plan: number): Promise<Componente[]> {
+    this.logger.info("[Repository] ComponenteRepository.getByPlan(id_plan)");
+
+    const rows = await Models.ComponenteModel.findAll({
+      where: { id_plan },
+      order: [["id_componente", "DESC"]],
+      include: [
+        { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
+        { model: Models.TipoVariacionModel, as: "tipoVariacion", required: false },
+        { model: Models.PlanModel, as: "plan", required: false },
+      ],
+    });
+
+    return rows.map((r: any) => ComponenteMapper.toDomain(r));
+  }
 }
