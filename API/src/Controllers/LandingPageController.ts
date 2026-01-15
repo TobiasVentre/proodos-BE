@@ -4,7 +4,11 @@ import {
   GetAllLandingPagesUseCase,
   GetLandingPageByIdUseCase,
 } from "@proodos/application/Ports/LandingPageUseCases";
-import { AssignLandingComponenteUseCase } from "@proodos/application/Ports/LandingComponenteUseCases";
+import {
+  AssignLandingComponenteUseCase,
+  GetLandingComponentesUseCase,
+  UnassignLandingComponenteUseCase,
+} from "@proodos/application/Ports/LandingComponenteUseCases";
 import { handleControllerError, respondValidationError } from "./ControllerErrors";
 
 type LandingPageControllerDeps = {
@@ -12,6 +16,8 @@ type LandingPageControllerDeps = {
   getLandingPageByIdService: GetLandingPageByIdUseCase;
   getAllLandingPagesService: GetAllLandingPagesUseCase;
   assignLandingComponenteService: AssignLandingComponenteUseCase;
+  unassignLandingComponenteService: UnassignLandingComponenteUseCase;
+  getLandingComponentesService: GetLandingComponentesUseCase;
 };
 
 export const createLandingPageController = ({
@@ -19,6 +25,8 @@ export const createLandingPageController = ({
   getLandingPageByIdService,
   getAllLandingPagesService,
   assignLandingComponenteService,
+  unassignLandingComponenteService,
+  getLandingComponentesService,
 }: LandingPageControllerDeps) => {
   const landingPageController = Router();
 
@@ -244,6 +252,94 @@ export const createLandingPageController = ({
     if (error?.message === "LANDING_NOT_FOUND") return res.status(404).json({ error: "Landing not found" });
     if (error?.message === "COMPONENTE_NOT_FOUND") return res.status(404).json({ error: "Componente not found" });
 
+    console.log("[Controller] ERROR:", error);
+    return handleControllerError(res, error);
+  }
+  });
+
+/**
+ * @openapi
+ * /api/landings/{id}/componentes:
+ *   get:
+ *     tags:
+ *       - Landing Pages
+ *     summary: Lista los componentes asociados a una landing
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de asociaciones landing-componente
+ *       400:
+ *         description: ID inválido
+ */
+  landingPageController.get("/:id/componentes", async (req, res) => {
+  console.log(`[Controller] GET /landings/${req.params.id}/componentes`);
+
+  const id_landing = Number(req.params.id);
+  if (Number.isNaN(id_landing) || id_landing <= 0) {
+    return respondValidationError(res, "Invalid landing id");
+  }
+
+  try {
+    const result = await getLandingComponentesService.execute(id_landing);
+
+    return res.status(200).json({
+      message: "OK",
+      data: result,
+    });
+  } catch (error) {
+    console.log("[Controller] ERROR:", error);
+    return handleControllerError(res, error);
+  }
+  });
+
+/**
+ * @openapi
+ * /api/landings/{id}/componentes/{id_componente}:
+ *   delete:
+ *     tags:
+ *       - Landing Pages
+ *     summary: Desasocia un componente de una landing
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - name: id_componente
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Desasociado
+ *       400:
+ *         description: Request inválida
+ */
+  landingPageController.delete("/:id/componentes/:id_componente", async (req, res) => {
+  console.log(
+    `[Controller] DELETE /landings/${req.params.id}/componentes/${req.params.id_componente}`
+  );
+
+  const id_landing = Number(req.params.id);
+  const id_componente = Number(req.params.id_componente);
+
+  if (Number.isNaN(id_landing) || id_landing <= 0) {
+    return respondValidationError(res, "Invalid landing id");
+  }
+  if (Number.isNaN(id_componente) || id_componente <= 0) {
+    return respondValidationError(res, "Invalid id_componente");
+  }
+
+  try {
+    await unassignLandingComponenteService.execute(id_landing, id_componente);
+    return res.status(204).send();
+  } catch (error) {
     console.log("[Controller] ERROR:", error);
     return handleControllerError(res, error);
   }
