@@ -58,6 +58,18 @@ export const planSchemas = {
       aumento: { type: "number", example: 3000 },
       precio_sin_iva: { type: "number", example: 9900 }
     }
+  },
+  PatchPlanDTO: {
+    type: "object",
+    properties: {
+      nombre: { type: "string", example: "Plan Hogar" },
+      capacidad: { type: "integer", example: 100 },
+      capacidad_anterior: { type: "integer", example: 50 },
+      precio_full_price: { type: "number", example: 15000 },
+      precio_oferta: { type: "number", example: 12000 },
+      aumento: { type: "number", example: 3000 },
+      precio_sin_iva: { type: "number", example: 9900 }
+    }
   }
 };
 
