@@ -5,6 +5,7 @@ import {
   GetPlanByIdUseCase,
   UpdatePlanUseCase,
 } from "@proodos/application/Ports/PlanUseCases";
+import { handleControllerError, respondValidationError } from "./ControllerErrors";
 
 const requiredPlanFields = [
   "nombre",
@@ -54,7 +55,7 @@ export const createPlanController = ({
       });
     } catch (error) {
       console.log("[Controller] ERROR:", error);
-      return res.status(500).json({ error: "Internal server error" });
+      return handleControllerError(res, error);
     }
   });
 
@@ -85,7 +86,7 @@ export const createPlanController = ({
     try {
       const id = Number(req.params.id);
       if (Number.isNaN(id) || id <= 0) {
-        return res.status(400).json({ error: "Invalid id" });
+        return respondValidationError(res, "Invalid id");
       }
 
       const result = await getPlanByIdService.execute(id);
@@ -100,7 +101,7 @@ export const createPlanController = ({
       });
     } catch (error) {
       console.log("[Controller] ERROR:", error);
-      return res.status(500).json({ error: "Internal server error" });
+      return handleControllerError(res, error);
     }
   });
 
@@ -129,8 +130,7 @@ export const createPlanController = ({
     );
 
     if (missingFields.length > 0) {
-      return res.status(400).json({
-        error: "Missing required fields",
+      return respondValidationError(res, "Missing required fields", {
         required: missingFields,
       });
     }
@@ -144,7 +144,7 @@ export const createPlanController = ({
       });
     } catch (error) {
       console.log("[Controller] ERROR:", error);
-      return res.status(500).json({ error: "Internal server error" });
+      return handleControllerError(res, error);
     }
   });
 
@@ -180,7 +180,7 @@ export const createPlanController = ({
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return res.status(400).json({ error: "Invalid id" });
+      return respondValidationError(res, "Invalid id");
     }
 
     const missingFields = requiredPlanFields.filter(
@@ -188,8 +188,7 @@ export const createPlanController = ({
     );
 
     if (missingFields.length > 0) {
-      return res.status(400).json({
-        error: "Missing required fields",
+      return respondValidationError(res, "Missing required fields", {
         required: missingFields,
       });
     }
@@ -211,7 +210,7 @@ export const createPlanController = ({
         return res.status(404).json({ error: "Not found" });
       }
 
-      return res.status(500).json({ error: "Internal server error" });
+      return handleControllerError(res, error);
     }
   });
 

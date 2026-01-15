@@ -5,6 +5,7 @@ import {
   GetLandingPageByIdUseCase,
 } from "@proodos/application/Ports/LandingPageUseCases";
 import { AssignLandingComponenteUseCase } from "@proodos/application/Ports/LandingComponenteUseCases";
+import { handleControllerError, respondValidationError } from "./ControllerErrors";
 
 type LandingPageControllerDeps = {
   createLandingPageService: CreateLandingPageUseCase;
@@ -45,7 +46,7 @@ export const createLandingPageController = ({
     });
   } catch (error) {
     console.log("[Controller] ERROR:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return handleControllerError(res, error);
   }
   });
 
@@ -69,7 +70,7 @@ export const createLandingPageController = ({
 
   const landingId = Number(req.params.id);
   if (Number.isNaN(landingId) || landingId <= 0) {
-    return res.status(400).json({ error: "Invalid id" });
+    return respondValidationError(res, "Invalid id");
   }
 
   try {
@@ -85,7 +86,7 @@ export const createLandingPageController = ({
     });
   } catch (error) {
     console.log("[Controller] ERROR:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return handleControllerError(res, error);
   }
   });
 
@@ -130,8 +131,7 @@ export const createLandingPageController = ({
 
   // Validación mínima
   if (!URL || !estado || !segmento) {
-    return res.status(400).json({
-      error: "Missing required fields",
+    return respondValidationError(res, "Missing required fields", {
       required: ["URL", "estado", "segmento"],
     });
   }
@@ -145,7 +145,7 @@ export const createLandingPageController = ({
     });
   } catch (error) {
     console.log("[Controller] ERROR:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return handleControllerError(res, error);
   }
   });
 
@@ -191,10 +191,10 @@ export const createLandingPageController = ({
   const id_componente = Number(req.body?.id_componente);
 
   if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return res.status(400).json({ error: "Invalid landing id" });
+    return respondValidationError(res, "Invalid landing id");
   }
   if (Number.isNaN(id_componente) || id_componente <= 0) {
-    return res.status(400).json({ error: "Invalid id_componente" });
+    return respondValidationError(res, "Invalid id_componente");
   }
 
   try {
@@ -206,7 +206,7 @@ export const createLandingPageController = ({
     if (error?.message === "COMPONENTE_NOT_FOUND") return res.status(404).json({ error: "Componente not found" });
 
     console.log("[Controller] ERROR:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return handleControllerError(res, error);
   }
   });
 

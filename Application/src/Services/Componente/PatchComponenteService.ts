@@ -3,7 +3,7 @@ import { PatchComponenteDTO } from "../../DTOs/Componente/PatchComponenteDTO";
 import { Componente } from "@proodos/domain/Entities/Componente";
 import { PatchComponenteUseCase } from "../../Ports/ComponenteUseCases";
 import { IPlanRepository } from "../../Interfaces/IPlanRepository";
-import { ValidationError } from "../../Errors/ValidationError";
+import { ensurePlanExists } from "./ensurePlanExists";
 
 export class PatchComponenteService implements PatchComponenteUseCase {
   constructor(
@@ -13,10 +13,7 @@ export class PatchComponenteService implements PatchComponenteUseCase {
 
   async execute(id_componente: number, dto: PatchComponenteDTO): Promise<Componente> {
     if (dto.id_plan !== undefined) {
-      const planExists = await this.planRepository.exists(dto.id_plan);
-      if (!planExists) {
-        throw new ValidationError("IC-04", "Plan no existe");
-      }
+      await ensurePlanExists(this.planRepository, dto.id_plan);
     }
     return this.repo.patch(id_componente, dto);
   }

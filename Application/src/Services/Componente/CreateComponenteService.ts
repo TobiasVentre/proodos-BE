@@ -4,7 +4,7 @@ import { Componente } from "@proodos/domain/Entities/Componente";
 import { CreateComponenteUseCase } from "../../Ports/ComponenteUseCases";
 import { ILogger } from "../../Interfaces/ILogger";
 import { IPlanRepository } from "../../Interfaces/IPlanRepository";
-import { ValidationError } from "../../Errors/ValidationError";
+import { ensurePlanExists } from "./ensurePlanExists";
 
 export class CreateComponenteService implements CreateComponenteUseCase {
   constructor(
@@ -15,10 +15,7 @@ export class CreateComponenteService implements CreateComponenteUseCase {
 
   async execute(dto: CreateComponenteDTO): Promise<Componente> {
     this.logger.info("[Service] CreateComponenteService.execute()");
-    const planExists = await this.planRepository.exists(dto.id_plan);
-    if (!planExists) {
-      throw new ValidationError("IC-04", "Plan no existe");
-    }
+    await ensurePlanExists(this.planRepository, dto.id_plan);
     return await this.componenteRepository.create(dto as Componente);
   }
 }

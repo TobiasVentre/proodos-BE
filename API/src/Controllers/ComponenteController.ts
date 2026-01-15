@@ -5,6 +5,7 @@ import {
   GetComponenteByIdUseCase,
   PatchComponenteUseCase,
 } from "@proodos/application/Ports/ComponenteUseCases";
+import { handleControllerError, respondValidationError } from "./ControllerErrors";
 
 type ComponenteControllerDeps = {
   createComponenteService: CreateComponenteUseCase;
@@ -74,10 +75,7 @@ export const createComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      if (error?.code === "IC-04") {
-        return res.status(400).json({ error: { code: "IC-04", message: error.message } });
-      }
-      return res.status(500).json({ error: "Internal server error" });
+      return handleControllerError(res, error);
     }
   });
 
@@ -136,7 +134,7 @@ export const createComponenteController = ({
     try {
       const id = Number(req.params.id);
       if (Number.isNaN(id) || id <= 0) {
-        return res.status(400).json({ error: "Invalid id" });
+        return respondValidationError(res, "Invalid id");
       }
 
       const result = await getComponenteByIdService.execute(id);
@@ -151,10 +149,7 @@ export const createComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      if (error?.code === "IC-04") {
-        return res.status(400).json({ error: { code: "IC-04", message: error.message } });
-      }
-      return res.status(500).json({ error: "Internal server error" });
+      return handleControllerError(res, error);
     }
   });
 
@@ -200,10 +195,7 @@ export const createComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      if (error?.code === "IC-04") {
-        return res.status(400).json({ error: { code: "IC-04", message: error.message } });
-      }
-      return res.status(500).json({ error: "Internal server error" });
+      return handleControllerError(res, error);
     }
   });
   /**
@@ -248,7 +240,7 @@ export const createComponenteController = ({
     try {
       const id = Number(req.params.id);
       if (Number.isNaN(id) || id <= 0) {
-        return res.status(400).json({ error: "Invalid id" });
+        return respondValidationError(res, "Invalid id");
       }
 
       const result = await patchComponenteService.execute(id, req.body);
@@ -260,17 +252,14 @@ export const createComponenteController = ({
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
 
-      if (error?.code === "IC-04") {
-        return res.status(400).json({ error: { code: "IC-04", message: error.message } });
-      }
       if (String(error?.message || "").includes("not found")) {
         return res.status(404).json({ error: "Not found" });
       }
       if (String(error?.message || "").includes("No fields provided")) {
-        return res.status(400).json({ error: "No fields provided" });
+        return respondValidationError(res, "No fields provided");
       }
 
-      return res.status(500).json({ error: "Internal server error" });
+      return handleControllerError(res, error);
     }
   });
 

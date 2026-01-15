@@ -1,3 +1,5 @@
+import { Plan } from "./Plan";
+
 export class Componente {
   id_componente!: number;
   id_tipo_componente!: number;
@@ -5,5 +7,5 @@ export class Componente {
   id_tipo_variacion!: number;
   nombre!: string;
   fecha_creacion!: Date;
-  plan?: Record<string, unknown>;
+  plan?: Plan;
 }
