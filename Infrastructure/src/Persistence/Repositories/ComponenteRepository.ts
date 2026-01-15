@@ -94,8 +94,7 @@ export class ComponenteRepository implements IComponenteRepository {
       include: [
         { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
         { model: Models.TipoVariacionModel, as: "tipoVariacion", required: false },
-        // Si todavía no tenés la asociación a plan, NO lo incluyas aún.
-        // { model: Models.PlanModel, as: "plan", required: false },
+        { model: Models.PlanModel, as: "plan", required: false },
       ],
     });
 
@@ -110,7 +109,7 @@ export class ComponenteRepository implements IComponenteRepository {
       include: [
         { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
         { model: Models.TipoVariacionModel, as: "tipoVariacion", required: false },
-        // { model: Models.PlanModel, as: "plan", required: false },
+        { model: Models.PlanModel, as: "plan", required: false },
       ],
     });
 

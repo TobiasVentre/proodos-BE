@@ -105,8 +105,7 @@ class ComponenteRepository {
             include: [
                 { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
                 { model: Models.TipoVariacionModel, as: "tipoVariacion", required: false },
-                // Si todavía no tenés la asociación a plan, NO lo incluyas aún.
-                // { model: Models.PlanModel, as: "plan", required: false },
+                { model: Models.PlanModel, as: "plan", required: false },
             ],
         });
         return row ? ComponenteMapper_1.ComponenteMapper.toDomain(row) : null;
@@ -118,7 +117,7 @@ class ComponenteRepository {
             include: [
                 { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
                 { model: Models.TipoVariacionModel, as: "tipoVariacion", required: false },
-                // { model: Models.PlanModel, as: "plan", required: false },
+                { model: Models.PlanModel, as: "plan", required: false },
             ],
         });
         return rows.map((r) => ComponenteMapper_1.ComponenteMapper.toDomain(r));

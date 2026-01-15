@@ -19,6 +19,13 @@ const initAssociations = () => {
         as: "tipoVariacion",
     });
     /**
+     * componente.id_plan → plan.id_plan
+     */
+    Models_1.ComponenteModel.belongsTo(Models_1.PlanModel, {
+        foreignKey: "id_plan",
+        as: "plan",
+    });
+    /**
      * tipo_variacion.id_tipo_componente → tipo_componente.id_tipo_componente
      */
     Models_1.TipoVariacionModel.belongsTo(Models_1.TipoComponenteModel, {

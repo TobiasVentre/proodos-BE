@@ -6,6 +6,7 @@ import {
   TipoVariacionModel,
   ElementoComponenteModel,
   ComponenteCompuestoModel,
+  PlanModel,
 } from "../Models";
 
 export const initAssociations = () => {
@@ -24,6 +25,14 @@ export const initAssociations = () => {
   ComponenteModel.belongsTo(TipoVariacionModel, {
     foreignKey: "id_tipo_variacion",
     as: "tipoVariacion",
+  });
+
+  /**
+   * componente.id_plan → plan.id_plan
+   */
+  ComponenteModel.belongsTo(PlanModel, {
+    foreignKey: "id_plan",
+    as: "plan",
   });
 
   /**

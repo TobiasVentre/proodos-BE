@@ -5,4 +5,5 @@ export class Componente {
   id_tipo_variacion!: number;
   nombre!: string;
   fecha_creacion!: Date;
+  plan?: Record<string, unknown>;
 }

@@ -31,6 +31,36 @@ export const createComponenteController = ({
    *     responses:
    *       200:
    *         description: Lista de componentes
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: OK
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                     type: object
+   *                     properties:
+   *                       id_componente:
+   *                         type: integer
+   *                       id_tipo_componente:
+   *                         type: integer
+   *                       id_plan:
+   *                         type: integer
+   *                       id_tipo_variacion:
+   *                         type: integer
+   *                       nombre:
+   *                         type: string
+   *                       fecha_creacion:
+   *                         type: string
+   *                         format: date-time
+   *                       plan:
+   *                         type: object
+   *                         nullable: true
+   *                         additionalProperties: true
    */
   componenteController.get("/", async (req, res) => {
     console.log("[Controller] GET /componentes");
@@ -67,6 +97,34 @@ export const createComponenteController = ({
    *     responses:
    *       200:
    *         description: Componente encontrado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: OK
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     id_componente:
+   *                       type: integer
+   *                     id_tipo_componente:
+   *                       type: integer
+   *                     id_plan:
+   *                       type: integer
+   *                     id_tipo_variacion:
+   *                       type: integer
+   *                     nombre:
+   *                       type: string
+   *                     fecha_creacion:
+   *                       type: string
+   *                       format: date-time
+   *                     plan:
+   *                       type: object
+   *                       nullable: true
+   *                       additionalProperties: true
    *       400:
    *         description: ID inválido
    *       404:

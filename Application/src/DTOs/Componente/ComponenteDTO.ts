@@ -5,4 +5,5 @@ export interface ComponenteDTO {
   id_tipo_variacion: number;
   nombre: string;
   fecha_creacion: Date;
+  plan?: Record<string, unknown>;
 }
