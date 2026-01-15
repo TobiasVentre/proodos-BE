@@ -7,5 +7,7 @@ export interface ComponenteDTO {
   id_tipo_variacion: number;
   nombre: string;
   fecha_creacion: Date;
+  estado: string;
+  fecha_baja?: Date | null;
   plan?: PlanDTO;
 }
