@@ -1,3 +1,8 @@
+import { Plan } from "@proodos/domain/Entities/Plan";
+
 export interface IPlanRepository {
-  exists(id_plan: number): Promise<boolean>;
+  create(plan: Plan): Promise<Plan>;
+  update(plan: Plan): Promise<Plan>;
+  getById(id_plan: number): Promise<Plan | null>;
+  getAll(): Promise<Plan[]>;
 }
