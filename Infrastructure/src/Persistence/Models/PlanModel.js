@@ -10,10 +10,6 @@ class PlanModel extends sequelize_1.Model {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            nombre: {
-                type: sequelize_1.DataTypes.STRING(100),
-                allowNull: true,
-            },
         }, {
             sequelize,
             tableName: "plan",

@@ -72,8 +72,11 @@ export const createComponenteController = ({
         message: "OK",
         data: result
       });
-    } catch (error) {
+    } catch (error: any) {
       console.log("[Controller] ERROR:", error);
+      if (error?.code === "IC-04") {
+        return res.status(400).json({ error: { code: "IC-04", message: error.message } });
+      }
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -146,8 +149,11 @@ export const createComponenteController = ({
         message: "OK",
         data: result
       });
-    } catch (error) {
+    } catch (error: any) {
       console.log("[Controller] ERROR:", error);
+      if (error?.code === "IC-04") {
+        return res.status(400).json({ error: { code: "IC-04", message: error.message } });
+      }
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -192,8 +198,11 @@ export const createComponenteController = ({
         message: "OK",
         data: result
       });
-    } catch (error) {
+    } catch (error: any) {
       console.log("[Controller] ERROR:", error);
+      if (error?.code === "IC-04") {
+        return res.status(400).json({ error: { code: "IC-04", message: error.message } });
+      }
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -251,6 +260,9 @@ export const createComponenteController = ({
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
 
+      if (error?.code === "IC-04") {
+        return res.status(400).json({ error: { code: "IC-04", message: error.message } });
+      }
       if (String(error?.message || "").includes("not found")) {
         return res.status(404).json({ error: "Not found" });
       }
