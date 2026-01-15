@@ -3,6 +3,7 @@ import {
   CreatePlanUseCase,
   GetAllPlansUseCase,
   GetPlanByIdUseCase,
+  PatchPlanUseCase,
   UpdatePlanUseCase,
 } from "@proodos/application/Ports/PlanUseCases";
 import { handleControllerError, respondValidationError } from "./ControllerErrors";
@@ -21,6 +22,7 @@ type PlanControllerDeps = {
   createPlanService: CreatePlanUseCase;
   getAllPlansService: GetAllPlansUseCase;
   getPlanByIdService: GetPlanByIdUseCase;
+  patchPlanService: PatchPlanUseCase;
   updatePlanService: UpdatePlanUseCase;
 };
 
@@ -28,6 +30,7 @@ export const createPlanController = ({
   createPlanService,
   getAllPlansService,
   getPlanByIdService,
+  patchPlanService,
   updatePlanService,
 }: PlanControllerDeps) => {
   const planController = Router();
@@ -144,6 +147,62 @@ export const createPlanController = ({
       });
     } catch (error) {
       console.log("[Controller] ERROR:", error);
+      return handleControllerError(res, error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/planes/{id}:
+   *   patch:
+   *     tags:
+   *       - Planes
+   *     summary: Actualiza parcialmente un plan
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/PatchPlanDTO'
+   *     responses:
+   *       200:
+   *         description: Plan actualizado parcialmente
+   *       400:
+   *         description: Request inválida
+   *       404:
+   *         description: No encontrado
+   */
+  planController.patch("/:id", async (req, res) => {
+    console.log(`[Controller] PATCH /planes/${req.params.id}`);
+
+    const id = Number(req.params.id);
+    if (Number.isNaN(id) || id <= 0) {
+      return respondValidationError(res, "Invalid id");
+    }
+
+    try {
+      const result = await patchPlanService.execute(id, req.body);
+
+      return res.status(200).json({
+        message: "OK",
+        data: result,
+      });
+    } catch (error: any) {
+      console.log("[Controller] ERROR:", error);
+
+      if (String(error?.message || "").includes("not found")) {
+        return res.status(404).json({ error: "Not found" });
+      }
+      if (String(error?.message || "").includes("No fields provided")) {
+        return respondValidationError(res, "No fields provided");
+      }
+
       return handleControllerError(res, error);
     }
   });

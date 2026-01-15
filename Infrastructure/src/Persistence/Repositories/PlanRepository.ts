@@ -3,6 +3,7 @@ import { PlanMapper } from "../../Mappers/PlanMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { Plan } from "@proodos/domain/Entities/Plan";
 import { IPlanRepository } from "@proodos/application/Interfaces/IPlanRepository";
+import { PatchPlanDTO } from "@proodos/application/DTOs/Plan/PatchPlanDTO";
 
 export class PlanRepository implements IPlanRepository {
   private logger: ILogger;
@@ -49,6 +50,45 @@ export class PlanRepository implements IPlanRepository {
 
     if (!updated) {
       throw new Error(`Plan not found: id_plan=${entity.id_plan}`);
+    }
+
+    return PlanMapper.toDomain(updated);
+  }
+
+  async patch(id_plan: number, dto: PatchPlanDTO): Promise<Plan> {
+    this.logger.info("[Repository] PlanRepository.patch()", { id_plan });
+    this.logger.debug("[Repository] Patch DTO:", dto);
+
+    const updatePayload: Partial<Plan> = {};
+
+    if (dto.nombre !== undefined) updatePayload.nombre = dto.nombre;
+    if (dto.capacidad !== undefined) updatePayload.capacidad = dto.capacidad;
+    if (dto.capacidad_anterior !== undefined) {
+      updatePayload.capacidad_anterior = dto.capacidad_anterior;
+    }
+    if (dto.precio_full_price !== undefined) {
+      updatePayload.precio_full_price = dto.precio_full_price;
+    }
+    if (dto.precio_oferta !== undefined) {
+      updatePayload.precio_oferta = dto.precio_oferta;
+    }
+    if (dto.aumento !== undefined) updatePayload.aumento = dto.aumento;
+    if (dto.precio_sin_iva !== undefined) {
+      updatePayload.precio_sin_iva = dto.precio_sin_iva;
+    }
+
+    if (Object.keys(updatePayload).length === 0) {
+      throw new Error("No fields provided for patch");
+    }
+
+    await Models.PlanModel.update(updatePayload, {
+      where: { id_plan },
+    });
+
+    const updated = await Models.PlanModel.findByPk(id_plan);
+
+    if (!updated) {
+      throw new Error(`Plan not found: id_plan=${id_plan}`);
     }
 
     return PlanMapper.toDomain(updated);
