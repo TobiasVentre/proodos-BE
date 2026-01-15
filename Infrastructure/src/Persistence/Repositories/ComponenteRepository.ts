@@ -64,12 +64,9 @@ export class ComponenteRepository implements IComponenteRepository {
       nombre: entity.nombre,
       // en DB ya tenés default; si querés dejarlo a DB, eliminá esta línea
       fecha_creacion: new Date(),
+      estado: entity.estado ?? "ACTIVO",
+      fecha_baja: entity.fecha_baja ?? null,
     };
-
-    if (await this.resolveSoftDeleteSupport()) {
-      payload.estado = entity.estado ?? "ACTIVO";
-      payload.fecha_baja = entity.fecha_baja ?? null;
-    }
 
     const created = await Models.ComponenteModel.create(payload);
 
@@ -86,12 +83,9 @@ export class ComponenteRepository implements IComponenteRepository {
       id_tipo_variacion: entity.id_tipo_variacion,
       nombre: entity.nombre,
       fecha_creacion: entity.fecha_creacion,
+      estado: entity.estado,
+      fecha_baja: entity.fecha_baja ?? null,
     };
-
-    if (await this.resolveSoftDeleteSupport()) {
-      payload.estado = entity.estado;
-      payload.fecha_baja = entity.fecha_baja ?? null;
-    }
 
     await Models.ComponenteModel.update(payload, {
       where: { id_componente: entity.id_componente },
@@ -118,13 +112,8 @@ export class ComponenteRepository implements IComponenteRepository {
   if (dto.id_plan !== undefined) updatePayload.id_plan = dto.id_plan;
   if (dto.id_tipo_variacion !== undefined) updatePayload.id_tipo_variacion = dto.id_tipo_variacion;
   if (dto.nombre !== undefined) updatePayload.nombre = dto.nombre;
-  if (dto.estado !== undefined || dto.fecha_baja !== undefined) {
-    if (!(await this.resolveSoftDeleteSupport())) {
-      throw new Error("SOFT_DELETE_NOT_SUPPORTED");
-    }
-    if (dto.estado !== undefined) updatePayload.estado = dto.estado;
-    if (dto.fecha_baja !== undefined) updatePayload.fecha_baja = dto.fecha_baja;
-  }
+  if (dto.estado !== undefined) updatePayload.estado = dto.estado;
+  if (dto.fecha_baja !== undefined) updatePayload.fecha_baja = dto.fecha_baja;
 
   // Si no vino nada, no hacemos nada (o podés lanzar error 400 desde Service/Controller)
   if (Object.keys(updatePayload).length === 0) {
@@ -149,22 +138,14 @@ export class ComponenteRepository implements IComponenteRepository {
   }
 
   async softDelete(id_componente: number, fecha_baja: Date, estado: string): Promise<void> {
-    if (!(await this.resolveSoftDeleteSupport())) {
-      throw new Error("SOFT_DELETE_NOT_SUPPORTED");
-    }
-
     await Models.ComponenteModel.update({ fecha_baja, estado }, { where: { id_componente } });
   }
 
   async getById(id: number): Promise<Componente | null> {
     this.logger.info("[Repository] ComponenteRepository.getById(id)");
 
-    const attributes = await this.buildAttributes();
-    const supportsSoftDelete = await this.resolveSoftDeleteSupport();
-
     const row = await Models.ComponenteModel.findOne({
-      attributes,
-      where: supportsSoftDelete ? { id_componente: id, estado: "ACTIVO" } : { id_componente: id },
+      where: { id_componente: id, estado: "ACTIVO" },
       include: [
         { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
         { model: Models.TipoVariacionModel, as: "tipoVariacion", required: false },
@@ -182,8 +163,7 @@ export class ComponenteRepository implements IComponenteRepository {
     const supportsSoftDelete = await this.resolveSoftDeleteSupport();
 
     const rows = await Models.ComponenteModel.findAll({
-      attributes,
-      where: supportsSoftDelete ? { estado: "ACTIVO" } : undefined,
+      where: { estado: "ACTIVO" },
       order: [["id_componente", "DESC"]],
       include: [
         { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
@@ -202,8 +182,7 @@ export class ComponenteRepository implements IComponenteRepository {
     const supportsSoftDelete = await this.resolveSoftDeleteSupport();
 
     const rows = await Models.ComponenteModel.findAll({
-      attributes,
-      where: supportsSoftDelete ? { id_plan, estado: "ACTIVO" } : { id_plan },
+      where: { id_plan, estado: "ACTIVO" },
       order: [["id_componente", "DESC"]],
       include: [
         { model: Models.TipoComponenteModel, as: "tipoComponente", required: false },
