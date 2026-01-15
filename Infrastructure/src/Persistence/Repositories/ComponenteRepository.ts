@@ -4,12 +4,53 @@ import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { PatchComponenteDTO } from "@proodos/application/DTOs/Componente/PatchComponenteDTO";
 import { Componente } from "@proodos/domain/Entities/Componente";
 import { IComponenteRepository } from "@proodos/application/Interfaces/IComponenteRepository";
+import { sequelize } from "../../Config/SequelizeConfig";
 
 export class ComponenteRepository implements IComponenteRepository {
   private logger: ILogger;
+  private softDeleteSupported?: boolean;
 
   constructor(logger: ILogger) {
     this.logger = logger;
+  }
+
+  private async resolveSoftDeleteSupport(): Promise<boolean> {
+    if (this.softDeleteSupported !== undefined) {
+      return this.softDeleteSupported;
+    }
+
+    try {
+      const [rows] = await sequelize.query(
+        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'componente' AND COLUMN_NAME IN ('estado','fecha_baja')"
+      );
+      const columnNames = Array.isArray(rows)
+        ? rows.map((row: any) => String(row.COLUMN_NAME || "").toLowerCase())
+        : [];
+      this.softDeleteSupported =
+        columnNames.includes("estado") && columnNames.includes("fecha_baja");
+    } catch (error) {
+      this.logger.error("[Repository] Failed to resolve soft delete support", error);
+      this.softDeleteSupported = false;
+    }
+
+    return this.softDeleteSupported;
+  }
+
+  private async buildAttributes(): Promise<string[]> {
+    const baseAttributes = [
+      "id_componente",
+      "id_tipo_componente",
+      "id_plan",
+      "id_tipo_variacion",
+      "nombre",
+      "fecha_creacion",
+    ];
+
+    if (await this.resolveSoftDeleteSupport()) {
+      baseAttributes.push("estado", "fecha_baja");
+    }
+
+    return baseAttributes;
   }
 
   async create(entity: Componente): Promise<Componente> {
@@ -118,6 +159,9 @@ export class ComponenteRepository implements IComponenteRepository {
   async getAll(): Promise<Componente[]> {
     this.logger.info("[Repository] ComponenteRepository.getAll()");
 
+    const attributes = await this.buildAttributes();
+    const supportsSoftDelete = await this.resolveSoftDeleteSupport();
+
     const rows = await Models.ComponenteModel.findAll({
       where: { estado: "ACTIVO" },
       order: [["id_componente", "DESC"]],
@@ -133,6 +177,9 @@ export class ComponenteRepository implements IComponenteRepository {
 
   async getByPlan(id_plan: number): Promise<Componente[]> {
     this.logger.info("[Repository] ComponenteRepository.getByPlan(id_plan)");
+
+    const attributes = await this.buildAttributes();
+    const supportsSoftDelete = await this.resolveSoftDeleteSupport();
 
     const rows = await Models.ComponenteModel.findAll({
       where: { id_plan, estado: "ACTIVO" },
