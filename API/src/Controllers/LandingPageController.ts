@@ -64,6 +64,45 @@ export const createLandingPageController = ({
  *         schema:
  *           type: integer
  *         description: ID de la landing page
+ *     responses:
+ *       200:
+ *         description: Landing encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: OK
+ *                 data:
+ *                   $ref: '#/components/schemas/LandingPageDTO'
+ *       400:
+ *         description: ID inválido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: boolean
+ *                   example: true
+ *                 code:
+ *                   type: string
+ *                   example: VALIDATION_ERROR
+ *                 message:
+ *                   type: string
+ *                   example: Invalid id
+ *       404:
+ *         description: Landing no encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: LandingPage not found
  */
   landingPageController.get("/:id", async (req, res) => {
   console.log(`[Controller] GET /landings/${req.params.id}`);

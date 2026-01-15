@@ -60,3 +60,16 @@ export const planSchemas = {
     }
   }
 };
+
+export const landingSchemas = {
+  LandingPageDTO: {
+    type: "object",
+    required: ["id_landing", "URL", "estado", "segmento"],
+    properties: {
+      id_landing: { type: "integer", example: 10 },
+      URL: { type: "string", example: "https://www.movistar.com.ar/landing/oferta" },
+      estado: { type: "string", example: "ACTIVA" },
+      segmento: { type: "string", example: "HOGAR" }
+    }
+  }
+};
