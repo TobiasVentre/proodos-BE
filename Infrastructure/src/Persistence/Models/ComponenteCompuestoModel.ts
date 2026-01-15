@@ -10,10 +10,12 @@ export class ComponenteCompuestoModel extends Model {
         id_padre: {
           type: DataTypes.INTEGER,
           primaryKey: true,
+          field: "id_componente_padre",
         },
         id_hijo: {
           type: DataTypes.INTEGER,
           primaryKey: true,
+          field: "id_componente_hijo",
         },
       },
       {
