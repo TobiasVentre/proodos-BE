@@ -22,6 +22,7 @@ import { AssignLandingComponenteService } from "@proodos/application/Services/La
 import { ComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/ComponenteRepository";
 import { LandingComponenteRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingComponenteRepository";
 import { LandingPageRepository } from "@proodos/infrastructure/Persistence/Repositories/LandingPageRepository";
+import { PlanRepository } from "@proodos/infrastructure/Persistence/Repositories/PlanRepository";
 import { initModels } from "@proodos/infrastructure/Persistence/Sequelize";
 
 export type ApiUseCases = {
@@ -45,13 +46,14 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
   const componenteRepository = new ComponenteRepository(logger);
   const landingPageRepository = new LandingPageRepository(logger);
   const landingComponenteRepository = new LandingComponenteRepository();
+  const planRepository = new PlanRepository(logger);
 
   return {
     componente: {
-      createComponente: new CreateComponenteService(componenteRepository, logger),
+      createComponente: new CreateComponenteService(componenteRepository, planRepository, logger),
       getAllComponentes: new GetAllComponentesService(componenteRepository),
       getComponenteById: new GetComponenteByIdService(componenteRepository),
-      patchComponente: new PatchComponenteService(componenteRepository),
+      patchComponente: new PatchComponenteService(componenteRepository, planRepository),
     },
     landing: {
       createLandingPage: new CreateLandingPageService(landingPageRepository, logger),
