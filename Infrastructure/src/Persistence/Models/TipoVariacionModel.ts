@@ -7,6 +7,7 @@ export class TipoVariacionModel extends Model {
   descripcion!: string;
   css_url!: string;
   js_url!: string;
+  html!: string;
 
   static initModel(sequelize: Sequelize) {
     TipoVariacionModel.init(
@@ -26,15 +27,19 @@ export class TipoVariacionModel extends Model {
         },
         descripcion: {
           type: DataTypes.STRING(500),
-          allowNull: false,
+          allowNull: true,
         },
         css_url: {
           type: DataTypes.STRING(500),
-          allowNull: false,
+          allowNull: true,
         },
         js_url: {
           type: DataTypes.STRING(500),
-          allowNull: false,
+          allowNull: true,
+        },
+        html: {
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
       },
       {

@@ -3,6 +3,10 @@ import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { createComponenteController } from "../Controllers/ComponenteController";
 import { createLandingPageController } from "../Controllers/LandingPageController";
 import { createPlanController } from "../Controllers/PlanController";
+import { createTipoComponenteController } from "../Controllers/TipoComponenteController";
+import { createTipoElementoController } from "../Controllers/TipoElementoController";
+import { createTipoVariacionController } from "../Controllers/TipoVariacionController";
+import { createElementoComponenteController } from "../Controllers/ElementoComponenteController";
 import { buildApiUseCases } from "@proodos/api/CompositionRoot/ApiContainer";
 
 export const buildRoutes = async (logger: ILogger) => {
@@ -47,6 +51,53 @@ export const buildRoutes = async (logger: ILogger) => {
       patchPlanService: useCases.plan.patchPlan,
       updatePlanService: useCases.plan.updatePlan,
       getComponentesByPlanService: useCases.componente.getComponentesByPlan,
+    })
+  );
+  routes.use(
+    "/tipos-componente",
+    createTipoComponenteController({
+      createTipoComponenteService: useCases.tipoComponente.createTipoComponente,
+      getAllTiposComponenteService: useCases.tipoComponente.getAllTiposComponente,
+      getTipoComponenteByIdService: useCases.tipoComponente.getTipoComponenteById,
+      updateTipoComponenteService: useCases.tipoComponente.updateTipoComponente,
+      patchTipoComponenteService: useCases.tipoComponente.patchTipoComponente,
+    })
+  );
+  routes.use(
+    "/tipos-variacion",
+    createTipoVariacionController({
+      createTipoVariacionService: useCases.tipoVariacion.createTipoVariacion,
+      getAllTiposVariacionService: useCases.tipoVariacion.getAllTiposVariacion,
+      getTipoVariacionByIdService: useCases.tipoVariacion.getTipoVariacionById,
+      getVariacionesByTipoComponenteService:
+        useCases.tipoVariacion.getVariacionesByTipoComponente,
+      updateTipoVariacionService: useCases.tipoVariacion.updateTipoVariacion,
+      patchTipoVariacionService: useCases.tipoVariacion.patchTipoVariacion,
+    })
+  );
+  routes.use(
+    "/tipos-elemento",
+    createTipoElementoController({
+      createTipoElementoService: useCases.tipoElemento.createTipoElemento,
+      getAllTiposElementoService: useCases.tipoElemento.getAllTiposElemento,
+      getTipoElementoByIdService: useCases.tipoElemento.getTipoElementoById,
+      updateTipoElementoService: useCases.tipoElemento.updateTipoElemento,
+      patchTipoElementoService: useCases.tipoElemento.patchTipoElemento,
+      deleteTipoElementoService: useCases.tipoElemento.deleteTipoElemento,
+    })
+  );
+  routes.use(
+    "/elementos-componente",
+    createElementoComponenteController({
+      createElementoComponenteService: useCases.elementoComponente.createElementoComponente,
+      getAllElementosComponenteService: useCases.elementoComponente.getAllElementosComponente,
+      getElementoComponenteByIdService:
+        useCases.elementoComponente.getElementoComponenteById,
+      getElementosByComponenteService:
+        useCases.elementoComponente.getElementosByComponente,
+      updateElementoComponenteService: useCases.elementoComponente.updateElementoComponente,
+      patchElementoComponenteService: useCases.elementoComponente.patchElementoComponente,
+      deleteElementoComponenteService: useCases.elementoComponente.deleteElementoComponente,
     })
   );
 
