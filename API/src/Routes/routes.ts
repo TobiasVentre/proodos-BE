@@ -16,6 +16,8 @@ export const buildRoutes = async (logger: ILogger) => {
       getAllComponentesService: useCases.componente.getAllComponentes,
       getComponenteByIdService: useCases.componente.getComponenteById,
       patchComponenteService: useCases.componente.patchComponente,
+      deleteComponenteService: useCases.componente.deleteComponente,
+      getLandingsByComponenteService: useCases.componente.getLandingsByComponente,
     })
   );
   routes.use(
@@ -25,6 +27,8 @@ export const buildRoutes = async (logger: ILogger) => {
       getLandingPageByIdService: useCases.landing.getLandingPageById,
       getAllLandingPagesService: useCases.landing.getAllLandingPages,
       assignLandingComponenteService: useCases.landing.assignLandingComponente,
+      unassignLandingComponenteService: useCases.landing.unassignLandingComponente,
+      getLandingComponentesService: useCases.landing.getLandingComponentes,
     })
   );
   routes.use(
