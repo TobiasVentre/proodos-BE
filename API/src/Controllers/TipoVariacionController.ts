@@ -53,10 +53,11 @@ export const createTipoVariacionController = ({
       ? Number(idTipoComponenteRaw)
       : undefined;
 
-    if (idTipoComponenteRaw !== undefined) {
-      if (Number.isNaN(id_tipo_componente) || id_tipo_componente <= 0) {
-        return respondValidationError(res, "Invalid id_tipo_componente");
-      }
+    if (
+      id_tipo_componente !== undefined &&
+      (Number.isNaN(id_tipo_componente) || id_tipo_componente <= 0)
+    ) {
+      return respondValidationError(res, "Invalid id_tipo_componente");
     }
 
     try {

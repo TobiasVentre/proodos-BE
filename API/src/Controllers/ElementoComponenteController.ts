@@ -54,10 +54,11 @@ export const createElementoComponenteController = ({
     const idComponenteRaw = req.query?.id_componente;
     const id_componente = idComponenteRaw ? Number(idComponenteRaw) : undefined;
 
-    if (idComponenteRaw !== undefined) {
-      if (Number.isNaN(id_componente) || id_componente <= 0) {
-        return respondValidationError(res, "Invalid id_componente");
-      }
+    if (
+      id_componente !== undefined &&
+      (Number.isNaN(id_componente) || id_componente <= 0)
+    ) {
+      return respondValidationError(res, "Invalid id_componente");
     }
 
     try {
