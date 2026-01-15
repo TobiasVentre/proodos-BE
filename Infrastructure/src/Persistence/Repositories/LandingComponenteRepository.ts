@@ -56,14 +56,6 @@ export class LandingComponenteRepository implements ILandingComponenteRepository
     return rows.map((r) => LandingComponenteMapper.toDomain(r));
   }
 
-  async getByComponente(id_componente: number): Promise<LandingComponente[]> {
-    const rows = await LandingComponenteModel.findAll({
-      where: { id_componente },
-    });
-
-    return rows.map((r) => LandingComponenteMapper.toDomain(r));
-  }
-
   async exists(id_landing: number, id_componente: number): Promise<boolean> {
     const row = await LandingComponenteModel.findOne({
       where: { id_landing, id_componente },
