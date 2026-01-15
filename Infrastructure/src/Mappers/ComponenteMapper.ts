@@ -14,6 +14,8 @@ export class ComponenteMapper {
       id_tipo_variacion: model.id_tipo_variacion,
       nombre: model.nombre,
       fecha_creacion: model.fecha_creacion,
+      estado: model.estado,
+      fecha_baja: model.fecha_baja,
       plan: plan ? PlanMapper.toDomain(plan) : undefined,
     };
   }
