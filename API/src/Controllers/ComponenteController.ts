@@ -338,10 +338,6 @@ export const createComponenteController = ({
         return res.status(409).json({ error: "Componente assigned to landing" });
       }
 
-      if (error?.message === "SOFT_DELETE_NOT_SUPPORTED") {
-        return res.status(409).json({ error: "Soft delete not supported in database" });
-      }
-
       return handleControllerError(res, error);
     }
   });
