@@ -5,4 +5,5 @@ export interface IPlanRepository {
   update(plan: Plan): Promise<Plan>;
   getById(id_plan: number): Promise<Plan | null>;
   getAll(): Promise<Plan[]>;
+  exists(id_plan: number): Promise<boolean>;
 }

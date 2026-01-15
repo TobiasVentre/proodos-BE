@@ -71,4 +71,12 @@ export class PlanRepository implements IPlanRepository {
 
     return rows.map((row: any) => PlanMapper.toDomain(row));
   }
+
+  async exists(id_plan: number): Promise<boolean> {
+    this.logger.info("[Repository] PlanRepository.exists()");
+
+    const count = await Models.PlanModel.count({ where: { id_plan } });
+
+    return count > 0;
+  }
 }

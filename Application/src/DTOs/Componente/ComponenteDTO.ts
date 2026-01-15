@@ -1,3 +1,5 @@
+import { PlanDTO } from "../Plan/PlanDTO";
+
 export interface ComponenteDTO {
   id_componente: number;
   id_tipo_componente: number;
@@ -5,5 +7,5 @@ export interface ComponenteDTO {
   id_tipo_variacion: number;
   nombre: string;
   fecha_creacion: Date;
-  plan?: Record<string, unknown>;
+  plan?: PlanDTO;
 }
