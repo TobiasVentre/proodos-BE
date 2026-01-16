@@ -5,11 +5,13 @@
     "Domain",
     "Application",
     "Infrastructure",
-    "API"
+    "API",
+    "Tests"
   ],
   "scripts": {
     "build": "npm run build --workspaces",
-    "start": "npm run start --workspace API"
+    "start": "npm run start --workspace API",
+    "test": "npm run test --workspace Tests",
+    "test:coverage": "npm run test:coverage --workspace Tests"
   }
 }
-
