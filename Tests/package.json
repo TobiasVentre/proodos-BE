@@ -9,6 +9,7 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
+    "build": "tsc -p . --noEmit",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch"
