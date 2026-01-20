@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComponenteMapper = void 0;
+const PlanMapper_1 = require("./PlanMapper");
 class ComponenteMapper {
     static toDomain(model) {
         const plan = model.plan;
@@ -13,7 +14,7 @@ class ComponenteMapper {
             fecha_creacion: model.fecha_creacion,
             estado: model.estado,
             fecha_baja: model.fecha_baja,
-            plan: plan ? (typeof plan.toJSON === "function" ? plan.toJSON() : plan) : undefined,
+            plan: plan ? PlanMapper_1.PlanMapper.toDomain(plan) : undefined,
         };
     }
 }

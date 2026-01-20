@@ -39,7 +39,10 @@ class GetComponenteTreeService {
             const hijos = (childrenByParent.get(id) || [])
                 .map((childId) => buildTree(childId, visited))
                 .filter((node) => Boolean(node));
-            return Object.assign(Object.assign({}, componente), { hijos });
+            return {
+                ...componente,
+                hijos,
+            };
         };
         const tree = buildTree(root.id_componente, new Set());
         if (!tree) {

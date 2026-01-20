@@ -19,7 +19,12 @@ class PatchLandingPageService {
         if (Object.keys(dto).length === 0) {
             throw new Error("No fields provided for patch");
         }
-        const updated = Object.assign(Object.assign({}, existing), { URL: dto.URL !== undefined ? ensureNonEmptyString("URL", dto.URL) : existing.URL, estado: dto.estado !== undefined ? ensureNonEmptyString("estado", dto.estado) : existing.estado, segmento: dto.segmento !== undefined ? ensureNonEmptyString("segmento", dto.segmento) : existing.segmento });
+        const updated = {
+            ...existing,
+            URL: dto.URL !== undefined ? ensureNonEmptyString("URL", dto.URL) : existing.URL,
+            estado: dto.estado !== undefined ? ensureNonEmptyString("estado", dto.estado) : existing.estado,
+            segmento: dto.segmento !== undefined ? ensureNonEmptyString("segmento", dto.segmento) : existing.segmento,
+        };
         return this.landingPageRepository.update(updated);
     }
 }

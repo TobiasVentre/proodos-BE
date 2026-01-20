@@ -2,11 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateLandingPageService = void 0;
 class CreateLandingPageService {
-    constructor(landingPageRepository) {
+    constructor(landingPageRepository, logger) {
         this.landingPageRepository = landingPageRepository;
+        this.logger = logger;
     }
     async execute(dto) {
-        console.log("[Service] CreateLandingPageService.execute()");
+        this.logger.info("[Service] CreateLandingPageService.execute()");
         return await this.landingPageRepository.create(dto);
     }
 }

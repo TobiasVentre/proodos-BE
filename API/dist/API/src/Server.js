@@ -12,6 +12,21 @@ const ConsoleLogger_1 = require("./Logging/ConsoleLogger");
 const app = (0, express_1.default)();
 const logger = new ConsoleLogger_1.ConsoleLogger();
 app.use(express_1.default.json());
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    if (req.method === "OPTIONS") {
+        return res.sendStatus(204);
+    }
+    return next();
+});
+app.use((err, _req, res, next) => {
+    if (err instanceof SyntaxError && "body" in err) {
+        return res.status(400).json({ error: "Invalid JSON body" });
+    }
+    return next(err);
+});
 // Swagger
 (0, swagger_config_1.setupSwagger)(app);
 const startServer = async () => {

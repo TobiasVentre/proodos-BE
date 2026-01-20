@@ -46,12 +46,6 @@ class LandingComponenteRepository {
         });
         return rows.map((r) => LandingComponenteMapper_1.LandingComponenteMapper.toDomain(r));
     }
-    async getByComponente(id_componente) {
-        const rows = await Models_1.LandingComponenteModel.findAll({
-            where: { id_componente },
-        });
-        return rows.map((r) => LandingComponenteMapper_1.LandingComponenteMapper.toDomain(r));
-    }
     async exists(id_landing, id_componente) {
         const row = await Models_1.LandingComponenteModel.findOne({
             where: { id_landing, id_componente },

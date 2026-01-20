@@ -101,7 +101,9 @@ class ComponenteRepository {
             estado: entity.estado,
             fecha_baja: entity.fecha_baja ?? null,
         };
-        await Models.ComponenteModel.update(payload, { where: { id_componente: entity.id_componente } });
+        await Models.ComponenteModel.update(payload, {
+            where: { id_componente: entity.id_componente },
+        });
         const updated = await Models.ComponenteModel.findByPk(entity.id_componente);
         if (!updated) {
             // Para cumplir el contrato: Promise<Componente>

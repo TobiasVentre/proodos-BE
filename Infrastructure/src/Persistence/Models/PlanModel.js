@@ -10,6 +10,34 @@ class PlanModel extends sequelize_1.Model {
                 primaryKey: true,
                 autoIncrement: true,
             },
+            nombre: {
+                type: sequelize_1.DataTypes.STRING(100),
+                allowNull: false,
+            },
+            capacidad: {
+                type: sequelize_1.DataTypes.INTEGER,
+                allowNull: false,
+            },
+            capacidad_anterior: {
+                type: sequelize_1.DataTypes.INTEGER,
+                allowNull: false,
+            },
+            precio_full_price: {
+                type: sequelize_1.DataTypes.DECIMAL(10, 2),
+                allowNull: false,
+            },
+            precio_oferta: {
+                type: sequelize_1.DataTypes.DECIMAL(10, 2),
+                allowNull: false,
+            },
+            aumento: {
+                type: sequelize_1.DataTypes.DECIMAL(10, 2),
+                allowNull: false,
+            },
+            precio_sin_iva: {
+                type: sequelize_1.DataTypes.DECIMAL(10, 2),
+                allowNull: false,
+            },
         }, {
             sequelize,
             tableName: "plan",

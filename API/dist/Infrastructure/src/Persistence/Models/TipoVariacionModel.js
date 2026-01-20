@@ -20,15 +20,19 @@ class TipoVariacionModel extends sequelize_1.Model {
             },
             descripcion: {
                 type: sequelize_1.DataTypes.STRING(500),
-                allowNull: false,
+                allowNull: true,
             },
             css_url: {
                 type: sequelize_1.DataTypes.STRING(500),
-                allowNull: false,
+                allowNull: true,
             },
             js_url: {
                 type: sequelize_1.DataTypes.STRING(500),
-                allowNull: false,
+                allowNull: true,
+            },
+            html: {
+                type: sequelize_1.DataTypes.TEXT,
+                allowNull: true,
             },
         }, {
             sequelize,

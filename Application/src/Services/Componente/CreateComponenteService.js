@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateComponenteService = void 0;
-const ValidationError_1 = require("../../Errors/ValidationError");
+const ensurePlanExists_1 = require("./ensurePlanExists");
 class CreateComponenteService {
     constructor(componenteRepository, planRepository, logger) {
         this.componenteRepository = componenteRepository;
@@ -9,13 +9,8 @@ class CreateComponenteService {
         this.logger = logger;
     }
     async execute(dto) {
-        if (this.logger && this.logger.info) {
-            this.logger.info("[Service] CreateComponenteService.execute()");
-        }
-        const planExists = await this.planRepository.exists(dto.id_plan);
-        if (!planExists) {
-            throw new ValidationError_1.ValidationError("IC-04", "Plan no existe");
-        }
+        this.logger.info("[Service] CreateComponenteService.execute()");
+        await (0, ensurePlanExists_1.ensurePlanExists)(this.planRepository, dto.id_plan);
         return await this.componenteRepository.create(dto);
     }
 }

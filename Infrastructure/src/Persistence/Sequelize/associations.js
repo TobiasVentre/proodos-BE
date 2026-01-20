@@ -39,8 +39,16 @@ const initAssociations = () => {
         foreignKey: "id_componente",
         as: "componente",
     });
+    Models_1.ElementoComponenteModel.belongsTo(Models_1.TipoElementoModel, {
+        foreignKey: "id_tipo_elemento",
+        as: "tipoElemento",
+    });
     Models_1.ComponenteModel.hasMany(Models_1.ElementoComponenteModel, {
         foreignKey: "id_componente",
+        as: "elementos",
+    });
+    Models_1.TipoElementoModel.hasMany(Models_1.ElementoComponenteModel, {
+        foreignKey: "id_tipo_elemento",
         as: "elementos",
     });
     /**

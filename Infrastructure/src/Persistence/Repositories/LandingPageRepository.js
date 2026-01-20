@@ -4,7 +4,11 @@ exports.LandingPageRepository = void 0;
 const Models_1 = require("../Models");
 const LandingPageMapper_1 = require("../../Mappers/LandingPageMapper");
 class LandingPageRepository {
+    constructor(logger) {
+        this.logger = logger;
+    }
     async create(entity) {
+        this.logger.info("[Repository] LandingPageRepository.create()");
         const created = await Models_1.LandingPageModel.create({
             URL: entity.URL,
             estado: entity.estado,
@@ -13,6 +17,7 @@ class LandingPageRepository {
         return LandingPageMapper_1.LandingPageMapper.toDomain(created);
     }
     async update(entity) {
+        this.logger.info("[Repository] LandingPageRepository.update()", { id_landing: entity.id_landing });
         await Models_1.LandingPageModel.update({
             URL: entity.URL,
             estado: entity.estado,
@@ -24,15 +29,16 @@ class LandingPageRepository {
         return updated ? LandingPageMapper_1.LandingPageMapper.toDomain(updated) : null;
     }
     async delete(id_landing) {
+        this.logger.info("[Repository] LandingPageRepository.delete()", { id_landing });
         await Models_1.LandingPageModel.destroy({ where: { id_landing } });
     }
     async getById(id_landing) {
+        this.logger.info("[Repository] LandingPageRepository.getById()", { id_landing });
         const row = await Models_1.LandingPageModel.findByPk(id_landing);
-        console.log("[Repository] LandingPageRepository.getById()", { id_landing });
         return row ? LandingPageMapper_1.LandingPageMapper.toDomain(row) : null;
     }
     async getAll() {
-        console.log("[Repository] LandingPageRepository.getAll()");
+        this.logger.info("[Repository] LandingPageRepository.getAll()");
         const rows = await Models_1.LandingPageModel.findAll({
             order: [["id_landing", "DESC"]],
         });

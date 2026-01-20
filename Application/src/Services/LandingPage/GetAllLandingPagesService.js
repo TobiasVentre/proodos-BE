@@ -2,11 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GetAllLandingPagesService = void 0;
 class GetAllLandingPagesService {
-    constructor(landingPageRepository) {
+    constructor(landingPageRepository, logger) {
         this.landingPageRepository = landingPageRepository;
+        this.logger = logger;
     }
     async execute() {
-        console.log("[Service] GetAllLandingPagesService.execute()");
+        this.logger.info("[Service] GetAllLandingPagesService.execute()");
         return await this.landingPageRepository.getAll();
     }
 }
