@@ -1,13 +1,14 @@
 export class ListSectionRenderer {
-  constructor({ id, title, description, emptyMessage, fieldMap }) {
+  constructor({ id, title, description, emptyMessage, fieldMap, action }) {
     this.id = id;
     this.title = title;
     this.description = description;
     this.emptyMessage = emptyMessage;
     this.fieldMap = fieldMap;
+    this.action = action;
   }
 
-  render(items, { loading = false, error = null } = {}) {
+  render(items, { loading = false, error = null, selectedId = null } = {}) {
     const section = document.createElement("section");
     section.className = "section-card";
     section.id = this.id;
@@ -68,6 +69,11 @@ export class ListSectionRenderer {
     items.forEach((item) => {
       const card = document.createElement("article");
       card.className = "item-card";
+      if (selectedId && this.action?.idKey && item[this.action.idKey]) {
+        if (Number(item[this.action.idKey]) === Number(selectedId)) {
+          card.classList.add("item-card--selected");
+        }
+      }
 
       const title = document.createElement("h3");
       title.className = "item-title";
@@ -92,6 +98,16 @@ export class ListSectionRenderer {
         card.appendChild(statusPill);
       }
 
+      if (this.action?.label && this.action?.idKey && item[this.action.idKey]) {
+        const actionButton = document.createElement("button");
+        actionButton.type = "button";
+        actionButton.className = "ghost-button";
+        actionButton.textContent = this.action.label;
+        actionButton.dataset.action = "detail";
+        actionButton.dataset.id = item[this.action.idKey];
+        card.appendChild(actionButton);
+      }
+
       grid.appendChild(card);
     });
 
@@ -100,7 +116,11 @@ export class ListSectionRenderer {
   }
 
   getPrimaryText(item) {
-    return item.nombre || item.titulo || `ID ${item.id ?? item.id_plan ?? ""}`;
+    return (
+      item.nombre ||
+      item.titulo ||
+      `ID ${item.id_componente ?? item.id ?? item.id_plan ?? ""}`
+    );
   }
 
   getStatus(item) {
