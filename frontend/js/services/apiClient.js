@@ -15,4 +15,19 @@ export class ApiClient {
     const payload = await response.json();
     return payload?.data ?? payload;
   }
+
+  async post(endpoint, body) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+    const payload = await response.json();
+    return payload?.data ?? payload;
+  }
 }
