@@ -24,7 +24,6 @@ import { UpdateLandingPageCommand } from "@proodos/application/DTOs/LandingPage/
 const buildLandingPageRepository = (): jest.Mocked<ILandingPageRepository> => ({
   create: jest.fn(),
   update: jest.fn(),
-  patch: jest.fn(),
   delete: jest.fn(),
   getById: jest.fn(),
   getAll: jest.fn(),
@@ -205,8 +204,9 @@ describe("LandingPage services", () => {
   it("should get landing pages list", async () => {
     // Arrange
     const landingPageRepository = buildLandingPageRepository();
+    const logger = buildLogger();
     landingPageRepository.getAll.mockResolvedValue([{ id_landing: 1 }] as never);
-    const service = new GetAllLandingPagesService(landingPageRepository);
+    const service = new GetAllLandingPagesService(landingPageRepository, logger);
 
     // Act
     const result = await service.execute();
@@ -232,8 +232,9 @@ describe("LandingPage services", () => {
   it("should get landing page by id", async () => {
     // Arrange
     const landingPageRepository = buildLandingPageRepository();
+    const logger = buildLogger();
     landingPageRepository.getById.mockResolvedValue({ id_landing: 1 } as never);
-    const service = new GetLandingPageByIdService(landingPageRepository);
+    const service = new GetLandingPageByIdService(landingPageRepository, logger);
 
     // Act
     const result = await service.execute(1);

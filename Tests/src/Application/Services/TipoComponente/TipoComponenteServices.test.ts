@@ -82,8 +82,9 @@ describe("TipoComponente services", () => {
   it("should get tipo componente by id", async () => {
     // Arrange
     const repository = buildRepository();
+    const logger = buildLogger();
     repository.getById.mockResolvedValue({ id_tipo_componente: 4 } as never);
-    const service = new GetTipoComponenteByIdService(repository);
+    const service = new GetTipoComponenteByIdService(repository, logger);
 
     // Act
     const result = await service.execute(4);
@@ -95,8 +96,9 @@ describe("TipoComponente services", () => {
   it("should list tipos componente", async () => {
     // Arrange
     const repository = buildRepository();
+    const logger = buildLogger();
     repository.getAll.mockResolvedValue([{ id_tipo_componente: 5 }] as never);
-    const service = new GetAllTiposComponenteService(repository);
+    const service = new GetAllTiposComponenteService(repository, logger);
 
     // Act
     const result = await service.execute();

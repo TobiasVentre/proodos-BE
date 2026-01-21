@@ -92,8 +92,9 @@ describe("TipoElemento services", () => {
   it("should get tipo elemento by id", async () => {
     // Arrange
     const repository = buildRepository();
+    const logger = buildLogger();
     repository.getById.mockResolvedValue({ id_tipo_elemento: 5 } as never);
-    const service = new GetTipoElementoByIdService(repository);
+    const service = new GetTipoElementoByIdService(repository, logger);
 
     // Act
     const result = await service.execute(5);
@@ -105,8 +106,9 @@ describe("TipoElemento services", () => {
   it("should list tipos elemento", async () => {
     // Arrange
     const repository = buildRepository();
+    const logger = buildLogger();
     repository.getAll.mockResolvedValue([{ id_tipo_elemento: 6 }] as never);
-    const service = new GetAllTiposElementoService(repository);
+    const service = new GetAllTiposElementoService(repository, logger);
 
     // Act
     const result = await service.execute();
