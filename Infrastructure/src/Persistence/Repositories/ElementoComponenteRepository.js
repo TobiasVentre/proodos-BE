@@ -36,6 +36,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ElementoComponenteRepository = void 0;
 const Models = __importStar(require("../Models"));
 const ElementoComponenteMapper_1 = require("../../Mappers/ElementoComponenteMapper");
+const NotFoundError_1 = require("@proodos/application/Errors/NotFoundError");
+const ValidationError_1 = require("@proodos/application/Errors/ValidationError");
 class ElementoComponenteRepository {
     constructor(logger) {
         this.logger = logger;
@@ -70,7 +72,7 @@ class ElementoComponenteRepository {
         }, { where: { id_elemento: entity.id_elemento } });
         const updated = await Models.ElementoComponenteModel.findByPk(entity.id_elemento);
         if (!updated) {
-            throw new Error(`ElementoComponente not found: id_elemento=${entity.id_elemento}`);
+            throw new NotFoundError_1.NotFoundError(`ElementoComponente not found: id_elemento=${entity.id_elemento}`);
         }
         return ElementoComponenteMapper_1.ElementoComponenteMapper.toDomain(updated);
     }
@@ -99,14 +101,14 @@ class ElementoComponenteRepository {
         if (dto.css_url !== undefined)
             updatePayload.css_url = dto.css_url;
         if (Object.keys(updatePayload).length === 0) {
-            throw new Error("No fields provided for patch");
+            throw new ValidationError_1.ValidationError("VALIDATION_ERROR", "No fields provided for patch");
         }
         await Models.ElementoComponenteModel.update(updatePayload, {
             where: { id_elemento },
         });
         const updated = await Models.ElementoComponenteModel.findByPk(id_elemento);
         if (!updated) {
-            throw new Error(`ElementoComponente not found: id_elemento=${id_elemento}`);
+            throw new NotFoundError_1.NotFoundError(`ElementoComponente not found: id_elemento=${id_elemento}`);
         }
         return ElementoComponenteMapper_1.ElementoComponenteMapper.toDomain(updated);
     }

@@ -36,6 +36,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComponenteRepository = void 0;
 const Models = __importStar(require("../Models"));
 const ComponenteMapper_1 = require("../../Mappers/ComponenteMapper");
+const NotFoundError_1 = require("@proodos/application/Errors/NotFoundError");
+const ValidationError_1 = require("@proodos/application/Errors/ValidationError");
 const SequelizeConfig_1 = require("../../Config/SequelizeConfig");
 class ComponenteRepository {
     constructor(logger) {
@@ -107,7 +109,7 @@ class ComponenteRepository {
         const updated = await Models.ComponenteModel.findByPk(entity.id_componente);
         if (!updated) {
             // Para cumplir el contrato: Promise<Componente>
-            throw new Error(`Componente not found: id_componente=${entity.id_componente}`);
+            throw new NotFoundError_1.NotFoundError(`Componente not found: id_componente=${entity.id_componente}`);
         }
         return ComponenteMapper_1.ComponenteMapper.toDomain(updated);
     }
@@ -130,14 +132,14 @@ class ComponenteRepository {
             updatePayload.fecha_baja = dto.fecha_baja;
         // Si no vino nada, no hacemos nada (o podés lanzar error 400 desde Service/Controller)
         if (Object.keys(updatePayload).length === 0) {
-            throw new Error("No fields provided for patch");
+            throw new ValidationError_1.ValidationError("VALIDATION_ERROR", "No fields provided for patch");
         }
         await Models.ComponenteModel.update(updatePayload, {
             where: { id_componente },
         });
         const updated = await Models.ComponenteModel.findByPk(id_componente);
         if (!updated) {
-            throw new Error(`Componente not found: id_componente=${id_componente}`);
+            throw new NotFoundError_1.NotFoundError(`Componente not found: id_componente=${id_componente}`);
         }
         return ComponenteMapper_1.ComponenteMapper.toDomain(updated);
     }

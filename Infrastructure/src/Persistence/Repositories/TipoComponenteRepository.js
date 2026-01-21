@@ -36,6 +36,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TipoComponenteRepository = void 0;
 const Models = __importStar(require("../Models"));
 const TipoComponenteMapper_1 = require("../../Mappers/TipoComponenteMapper");
+const NotFoundError_1 = require("@proodos/application/Errors/NotFoundError");
+const ValidationError_1 = require("@proodos/application/Errors/ValidationError");
 class TipoComponenteRepository {
     constructor(logger) {
         this.logger = logger;
@@ -58,7 +60,7 @@ class TipoComponenteRepository {
         }, { where: { id_tipo_componente: entity.id_tipo_componente } });
         const updated = await Models.TipoComponenteModel.findByPk(entity.id_tipo_componente);
         if (!updated) {
-            throw new Error(`TipoComponente not found: id_tipo_componente=${entity.id_tipo_componente}`);
+            throw new NotFoundError_1.NotFoundError(`TipoComponente not found: id_tipo_componente=${entity.id_tipo_componente}`);
         }
         return TipoComponenteMapper_1.TipoComponenteMapper.toDomain(updated);
     }
@@ -73,14 +75,14 @@ class TipoComponenteRepository {
         if (dto.estado !== undefined)
             updatePayload.estado = dto.estado;
         if (Object.keys(updatePayload).length === 0) {
-            throw new Error("No fields provided for patch");
+            throw new ValidationError_1.ValidationError("VALIDATION_ERROR", "No fields provided for patch");
         }
         await Models.TipoComponenteModel.update(updatePayload, {
             where: { id_tipo_componente },
         });
         const updated = await Models.TipoComponenteModel.findByPk(id_tipo_componente);
         if (!updated) {
-            throw new Error(`TipoComponente not found: id_tipo_componente=${id_tipo_componente}`);
+            throw new NotFoundError_1.NotFoundError(`TipoComponente not found: id_tipo_componente=${id_tipo_componente}`);
         }
         return TipoComponenteMapper_1.TipoComponenteMapper.toDomain(updated);
     }

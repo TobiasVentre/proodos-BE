@@ -1,4 +1,5 @@
 import { ITipoComponenteRepository } from "../../Interfaces/ITipoComponenteRepository";
+import { NotFoundError } from "../../Errors/NotFoundError";
 
 export const ensureTipoComponenteExists = async (
   tipoComponenteRepository: ITipoComponenteRepository,
@@ -6,6 +7,6 @@ export const ensureTipoComponenteExists = async (
 ) => {
   const exists = await tipoComponenteRepository.exists(id_tipo_componente);
   if (!exists) {
-    throw new Error("TIPO_COMPONENTE_NOT_FOUND");
+    throw new NotFoundError("Tipo componente not found");
   }
 };

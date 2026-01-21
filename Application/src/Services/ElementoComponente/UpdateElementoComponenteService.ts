@@ -5,6 +5,7 @@ import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { ITipoElementoRepository } from "../../Interfaces/ITipoElementoRepository";
 import { UpdateElementoComponenteUseCase } from "../../Ports/ElementoComponenteUseCases";
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
+import { NotFoundError } from "../../Errors/NotFoundError";
 
 export class UpdateElementoComponenteService implements UpdateElementoComponenteUseCase {
   constructor(
@@ -16,14 +17,14 @@ export class UpdateElementoComponenteService implements UpdateElementoComponente
   async execute(dto: UpdateElementoComponenteDTO): Promise<ElementoComponente> {
     const componente = await this.componenteRepository.getById(dto.id_componente);
     if (!componente) {
-      throw new Error("COMPONENTE_NOT_FOUND");
+      throw new NotFoundError("Componente not found");
     }
 
     const tipoElementoExists = await this.tipoElementoRepository.exists(
       dto.id_tipo_elemento
     );
     if (!tipoElementoExists) {
-      throw new Error("TIPO_ELEMENTO_NOT_FOUND");
+      throw new NotFoundError("Tipo elemento not found");
     }
 
     const entity = mapUpdateElementoComponenteDTOToEntity(dto);

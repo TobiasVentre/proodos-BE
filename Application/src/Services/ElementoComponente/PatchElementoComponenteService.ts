@@ -4,6 +4,7 @@ import { ITipoElementoRepository } from "../../Interfaces/ITipoElementoRepositor
 import { PatchElementoComponenteUseCase } from "../../Ports/ElementoComponenteUseCases";
 import { PatchElementoComponenteDTO } from "../../DTOs/ElementoComponente/PatchElementoComponenteDTO";
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
+import { NotFoundError } from "../../Errors/NotFoundError";
 
 export class PatchElementoComponenteService implements PatchElementoComponenteUseCase {
   constructor(
@@ -19,7 +20,7 @@ export class PatchElementoComponenteService implements PatchElementoComponenteUs
     if (dto.id_componente !== undefined) {
       const componente = await this.componenteRepository.getById(dto.id_componente);
       if (!componente) {
-        throw new Error("COMPONENTE_NOT_FOUND");
+        throw new NotFoundError("Componente not found");
       }
     }
 
@@ -28,7 +29,7 @@ export class PatchElementoComponenteService implements PatchElementoComponenteUs
         dto.id_tipo_elemento
       );
       if (!tipoElementoExists) {
-        throw new Error("TIPO_ELEMENTO_NOT_FOUND");
+        throw new NotFoundError("Tipo elemento not found");
       }
     }
 

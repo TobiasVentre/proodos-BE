@@ -6,7 +6,7 @@ import {
   PatchTipoComponenteUseCase,
   UpdateTipoComponenteUseCase,
 } from "@proodos/application/Ports/TipoComponenteUseCases";
-import { handleControllerError, respondValidationError } from "./ControllerErrors";
+import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
 
 type TipoComponenteControllerDeps = {
   createTipoComponenteService: CreateTipoComponenteUseCase;
@@ -36,7 +36,7 @@ export const createTipoComponenteController = ({
    *       200:
    *         description: Lista de tipos de componente
    */
-  tipoComponenteController.get("/", async (req, res) => {
+  tipoComponenteController.get("/", async (req, res, next) => {
     console.log("[Controller] GET /tipos-componente");
 
     try {
@@ -48,7 +48,7 @@ export const createTipoComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -73,19 +73,19 @@ export const createTipoComponenteController = ({
    *       404:
    *         description: No encontrado
    */
-  tipoComponenteController.get("/:id", async (req, res) => {
+  tipoComponenteController.get("/:id", async (req, res, next) => {
     console.log(`[Controller] GET /tipos-componente/${req.params.id}`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
       const result = await getTipoComponenteByIdService.execute(id);
 
       if (!result) {
-        return res.status(404).json({ error: "Not found" });
+        return next(buildNotFoundError("Tipo componente not found"));
       }
 
       return res.status(200).json({
@@ -94,7 +94,7 @@ export const createTipoComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -123,14 +123,14 @@ export const createTipoComponenteController = ({
    *       200:
    *         description: Tipo de componente creado
    */
-  tipoComponenteController.post("/", async (req, res) => {
+  tipoComponenteController.post("/", async (req, res, next) => {
     console.log("[Controller] POST /tipos-componente");
 
     const { nombre, estado } = req.body || {};
     if (!nombre || !estado) {
-      return respondValidationError(res, "Missing required fields", {
+      return next(buildValidationError("Missing required fields", {
         required: ["nombre", "estado"],
-      });
+      }));
     }
 
     try {
@@ -142,7 +142,7 @@ export const createTipoComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -181,19 +181,19 @@ export const createTipoComponenteController = ({
    *       404:
    *         description: No encontrado
    */
-  tipoComponenteController.put("/:id", async (req, res) => {
+  tipoComponenteController.put("/:id", async (req, res, next) => {
     console.log(`[Controller] PUT /tipos-componente/${req.params.id}`);
 
     const id_tipo_componente = Number(req.params.id);
     if (Number.isNaN(id_tipo_componente) || id_tipo_componente <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     const { nombre, estado } = req.body || {};
     if (!nombre || !estado) {
-      return respondValidationError(res, "Missing required fields", {
+      return next(buildValidationError("Missing required fields", {
         required: ["nombre", "estado"],
-      });
+      }));
     }
 
     try {
@@ -209,12 +209,7 @@ export const createTipoComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -250,12 +245,12 @@ export const createTipoComponenteController = ({
    *       404:
    *         description: No encontrado
    */
-  tipoComponenteController.patch("/:id", async (req, res) => {
+  tipoComponenteController.patch("/:id", async (req, res, next) => {
     console.log(`[Controller] PATCH /tipos-componente/${req.params.id}`);
 
     const id_tipo_componente = Number(req.params.id);
     if (Number.isNaN(id_tipo_componente) || id_tipo_componente <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -270,15 +265,7 @@ export const createTipoComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-      if (String(error?.message || "").includes("No fields provided")) {
-        return respondValidationError(res, "No fields provided");
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 

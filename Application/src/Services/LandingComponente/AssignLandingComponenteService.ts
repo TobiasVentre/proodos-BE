@@ -4,6 +4,7 @@ import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { LandingComponente } from "@proodos/domain/Entities/LandingComponente";
 import { AssignLandingComponenteUseCase } from "../../Ports/LandingComponenteUseCases";
 import { ILogger } from "../../Interfaces/ILogger";
+import { NotFoundError } from "../../Errors/NotFoundError";
 
 export class AssignLandingComponenteService implements AssignLandingComponenteUseCase {
   constructor(
@@ -20,10 +21,10 @@ export class AssignLandingComponenteService implements AssignLandingComponenteUs
     this.logger.info("[Service] AssignLandingComponenteService.execute()", { id_landing, id_componente });
 
     const landing = await this.landingPageRepository.getById(id_landing);
-    if (!landing) throw new Error("LANDING_NOT_FOUND");
+    if (!landing) throw new NotFoundError("Landing not found");
 
     const componente = await this.componenteRepository.getById(id_componente);
-    if (!componente) throw new Error("COMPONENTE_NOT_FOUND");
+    if (!componente) throw new NotFoundError("Componente not found");
 
     const already = await this.landingComponenteRepository.exists(id_landing, id_componente);
     if (already) {

@@ -12,7 +12,7 @@ import {
   GetLandingComponentesUseCase,
   UnassignLandingComponenteUseCase,
 } from "@proodos/application/Ports/LandingComponenteUseCases";
-import { handleControllerError, respondValidationError } from "./ControllerErrors";
+import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
 
 type LandingPageControllerDeps = {
   createLandingPageService: CreateLandingPageUseCase;
@@ -51,7 +51,7 @@ export const createLandingPageController = ({
  *       200:
  *         description: Lista de landing pages
  */
-  landingPageController.get("/", async (req, res) => {
+  landingPageController.get("/", async (req, res, next) => {
   console.log("[Controller] GET /landings");
 
   try {
@@ -63,7 +63,7 @@ export const createLandingPageController = ({
     });
   } catch (error) {
     console.log("[Controller] ERROR:", error);
-    return handleControllerError(res, error);
+    return next(error);
   }
   });
 
@@ -121,19 +121,19 @@ export const createLandingPageController = ({
  *                   type: string
  *                   example: LandingPage not found
  */
-  landingPageController.get("/:id", async (req, res) => {
+  landingPageController.get("/:id", async (req, res, next) => {
   console.log(`[Controller] GET /landings/${req.params.id}`);
 
   const landingId = Number(req.params.id);
   if (Number.isNaN(landingId) || landingId <= 0) {
-    return respondValidationError(res, "Invalid id");
+    return next(buildValidationError("Invalid id"));
   }
 
   try {
     const result = await getLandingPageByIdService.execute(landingId);
 
     if (!result) {
-      return res.status(404).json({ error: "LandingPage not found" });
+      return next(buildNotFoundError("Landing not found"));
     }
 
     return res.json({
@@ -142,7 +142,7 @@ export const createLandingPageController = ({
     });
   } catch (error) {
     console.log("[Controller] ERROR:", error);
-    return handleControllerError(res, error);
+    return next(error);
   }
   });
 
@@ -179,7 +179,7 @@ export const createLandingPageController = ({
  *       400:
  *         description: Request inválida
  */
-  landingPageController.post("/", async (req, res) => {
+  landingPageController.post("/", async (req, res, next) => {
   console.log("[Controller] POST /landings");
   console.log("[Controller] Body:", req.body);
 
@@ -187,9 +187,9 @@ export const createLandingPageController = ({
 
   // Validación mínima
   if (!URL || !estado || !segmento) {
-    return respondValidationError(res, "Missing required fields", {
+    return next(buildValidationError("Missing required fields", {
       required: ["URL", "estado", "segmento"],
-    });
+    }));
   }
 
   try {
@@ -201,7 +201,7 @@ export const createLandingPageController = ({
     });
   } catch (error) {
     console.log("[Controller] ERROR:", error);
-    return handleControllerError(res, error);
+    return next(error);
   }
   });
 
@@ -243,20 +243,20 @@ export const createLandingPageController = ({
  *       404:
  *         description: Landing no encontrada
  */
-  landingPageController.put("/:id", async (req, res) => {
+  landingPageController.put("/:id", async (req, res, next) => {
   console.log(`[Controller] PUT /landings/${req.params.id}`);
 
   const id_landing = Number(req.params.id);
   if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return respondValidationError(res, "Invalid id");
+    return next(buildValidationError("Invalid id"));
   }
 
   const { URL, estado, segmento } = req.body || {};
 
   if (!URL || !estado || !segmento) {
-    return respondValidationError(res, "Missing required fields", {
+    return next(buildValidationError("Missing required fields", {
       required: ["URL", "estado", "segmento"],
-    });
+    }));
   }
 
   try {
@@ -273,10 +273,7 @@ export const createLandingPageController = ({
     });
   } catch (error: any) {
     console.log("[Controller] ERROR:", error);
-    if (error?.message === "LANDING_NOT_FOUND") {
-      return res.status(404).json({ error: "LandingPage not found" });
-    }
-    return handleControllerError(res, error);
+    return next(error);
   }
   });
 
@@ -314,12 +311,12 @@ export const createLandingPageController = ({
  *       404:
  *         description: Landing no encontrada
  */
-  landingPageController.patch("/:id", async (req, res) => {
+  landingPageController.patch("/:id", async (req, res, next) => {
   console.log(`[Controller] PATCH /landings/${req.params.id}`);
 
   const id_landing = Number(req.params.id);
   if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return respondValidationError(res, "Invalid id");
+    return next(buildValidationError("Invalid id"));
   }
 
   try {
@@ -331,13 +328,7 @@ export const createLandingPageController = ({
     });
   } catch (error: any) {
     console.log("[Controller] ERROR:", error);
-    if (error?.message === "LANDING_NOT_FOUND") {
-      return res.status(404).json({ error: "LandingPage not found" });
-    }
-    if (String(error?.message || "").includes("No fields provided")) {
-      return respondValidationError(res, "No fields provided");
-    }
-    return handleControllerError(res, error);
+    return next(error);
   }
   });
 
@@ -360,12 +351,12 @@ export const createLandingPageController = ({
  *       400:
  *         description: Request inválida
  */
-  landingPageController.delete("/:id", async (req, res) => {
+  landingPageController.delete("/:id", async (req, res, next) => {
   console.log(`[Controller] DELETE /landings/${req.params.id}`);
 
   const id_landing = Number(req.params.id);
   if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return respondValidationError(res, "Invalid id");
+    return next(buildValidationError("Invalid id"));
   }
 
   try {
@@ -373,7 +364,7 @@ export const createLandingPageController = ({
     return res.status(204).send();
   } catch (error: any) {
     console.log("[Controller] ERROR:", error);
-    return handleControllerError(res, error);
+    return next(error);
   }
   });
 
@@ -412,17 +403,17 @@ export const createLandingPageController = ({
  *       404:
  *         description: Landing o componente inexistente
  */
-  landingPageController.post("/:id/componentes", async (req, res) => {
+  landingPageController.post("/:id/componentes", async (req, res, next) => {
   console.log(`[Controller] POST /landings/${req.params.id}/componentes`);
 
   const id_landing = Number(req.params.id);
   const id_componente = Number(req.body?.id_componente);
 
   if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return respondValidationError(res, "Invalid landing id");
+    return next(buildValidationError("Invalid landing id"));
   }
   if (Number.isNaN(id_componente) || id_componente <= 0) {
-    return respondValidationError(res, "Invalid id_componente");
+    return next(buildValidationError("Invalid id_componente"));
   }
 
   try {
@@ -430,11 +421,8 @@ export const createLandingPageController = ({
 
     return res.status(result.existed ? 200 : 201).json({ message: "OK", data: result.data });
   } catch (error: any) {
-    if (error?.message === "LANDING_NOT_FOUND") return res.status(404).json({ error: "Landing not found" });
-    if (error?.message === "COMPONENTE_NOT_FOUND") return res.status(404).json({ error: "Componente not found" });
-
     console.log("[Controller] ERROR:", error);
-    return handleControllerError(res, error);
+    return next(error);
   }
   });
 
@@ -457,12 +445,12 @@ export const createLandingPageController = ({
  *       400:
  *         description: ID inválido
  */
-  landingPageController.get("/:id/componentes", async (req, res) => {
+  landingPageController.get("/:id/componentes", async (req, res, next) => {
   console.log(`[Controller] GET /landings/${req.params.id}/componentes`);
 
   const id_landing = Number(req.params.id);
   if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return respondValidationError(res, "Invalid landing id");
+    return next(buildValidationError("Invalid landing id"));
   }
 
   try {
@@ -474,7 +462,7 @@ export const createLandingPageController = ({
     });
   } catch (error) {
     console.log("[Controller] ERROR:", error);
-    return handleControllerError(res, error);
+    return next(error);
   }
   });
 
@@ -502,7 +490,7 @@ export const createLandingPageController = ({
  *       400:
  *         description: Request inválida
  */
-  landingPageController.delete("/:id/componentes/:id_componente", async (req, res) => {
+  landingPageController.delete("/:id/componentes/:id_componente", async (req, res, next) => {
   console.log(
     `[Controller] DELETE /landings/${req.params.id}/componentes/${req.params.id_componente}`
   );
@@ -511,10 +499,10 @@ export const createLandingPageController = ({
   const id_componente = Number(req.params.id_componente);
 
   if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return respondValidationError(res, "Invalid landing id");
+    return next(buildValidationError("Invalid landing id"));
   }
   if (Number.isNaN(id_componente) || id_componente <= 0) {
-    return respondValidationError(res, "Invalid id_componente");
+    return next(buildValidationError("Invalid id_componente"));
   }
 
   try {
@@ -522,7 +510,7 @@ export const createLandingPageController = ({
     return res.status(204).send();
   } catch (error) {
     console.log("[Controller] ERROR:", error);
-    return handleControllerError(res, error);
+    return next(error);
   }
   });
 

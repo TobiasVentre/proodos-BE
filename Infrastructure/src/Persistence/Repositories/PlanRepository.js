@@ -36,6 +36,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PlanRepository = void 0;
 const Models = __importStar(require("../Models"));
 const PlanMapper_1 = require("../../Mappers/PlanMapper");
+const NotFoundError_1 = require("@proodos/application/Errors/NotFoundError");
+const ValidationError_1 = require("@proodos/application/Errors/ValidationError");
 class PlanRepository {
     constructor(logger) {
         this.logger = logger;
@@ -68,7 +70,7 @@ class PlanRepository {
         }, { where: { id_plan: entity.id_plan } });
         const updated = await Models.PlanModel.findByPk(entity.id_plan);
         if (!updated) {
-            throw new Error(`Plan not found: id_plan=${entity.id_plan}`);
+            throw new NotFoundError_1.NotFoundError(`Plan not found: id_plan=${entity.id_plan}`);
         }
         return PlanMapper_1.PlanMapper.toDomain(updated);
     }
@@ -95,14 +97,14 @@ class PlanRepository {
             updatePayload.precio_sin_iva = dto.precio_sin_iva;
         }
         if (Object.keys(updatePayload).length === 0) {
-            throw new Error("No fields provided for patch");
+            throw new ValidationError_1.ValidationError("VALIDATION_ERROR", "No fields provided for patch");
         }
         await Models.PlanModel.update(updatePayload, {
             where: { id_plan },
         });
         const updated = await Models.PlanModel.findByPk(id_plan);
         if (!updated) {
-            throw new Error(`Plan not found: id_plan=${id_plan}`);
+            throw new NotFoundError_1.NotFoundError(`Plan not found: id_plan=${id_plan}`);
         }
         return PlanMapper_1.PlanMapper.toDomain(updated);
     }

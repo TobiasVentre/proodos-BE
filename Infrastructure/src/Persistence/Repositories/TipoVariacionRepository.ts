@@ -4,6 +4,8 @@ import { ITipoVariacionRepository } from "@proodos/application/Interfaces/ITipoV
 import { PatchTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/PatchTipoVariacionDTO";
 import { TipoVariacionMapper } from "../../Mappers/TipoVariacionMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
+import { ValidationError } from "@proodos/application/Errors/ValidationError";
 
 export class TipoVariacionRepository implements ITipoVariacionRepository {
   private logger: ILogger;
@@ -49,7 +51,9 @@ export class TipoVariacionRepository implements ITipoVariacionRepository {
     );
 
     if (!updated) {
-      throw new Error(`TipoVariacion not found: id_tipo_variacion=${entity.id_tipo_variacion}`);
+      throw new NotFoundError(
+        `TipoVariacion not found: id_tipo_variacion=${entity.id_tipo_variacion}`
+      );
     }
 
     return TipoVariacionMapper.toDomain(updated);
@@ -76,7 +80,7 @@ export class TipoVariacionRepository implements ITipoVariacionRepository {
     if (dto.html !== undefined) updatePayload.html = dto.html;
 
     if (Object.keys(updatePayload).length === 0) {
-      throw new Error("No fields provided for patch");
+      throw new ValidationError("VALIDATION_ERROR", "No fields provided for patch");
     }
 
     await Models.TipoVariacionModel.update(updatePayload, {
@@ -86,7 +90,9 @@ export class TipoVariacionRepository implements ITipoVariacionRepository {
     const updated = await Models.TipoVariacionModel.findByPk(id_tipo_variacion);
 
     if (!updated) {
-      throw new Error(`TipoVariacion not found: id_tipo_variacion=${id_tipo_variacion}`);
+      throw new NotFoundError(
+        `TipoVariacion not found: id_tipo_variacion=${id_tipo_variacion}`
+      );
     }
 
     return TipoVariacionMapper.toDomain(updated);

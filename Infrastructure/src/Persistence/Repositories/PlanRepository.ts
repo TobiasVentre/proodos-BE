@@ -4,6 +4,8 @@ import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { Plan } from "@proodos/domain/Entities/Plan";
 import { IPlanRepository } from "@proodos/application/Interfaces/IPlanRepository";
 import { PatchPlanDTO } from "@proodos/application/DTOs/Plan/PatchPlanDTO";
+import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
+import { ValidationError } from "@proodos/application/Errors/ValidationError";
 
 export class PlanRepository implements IPlanRepository {
   private logger: ILogger;
@@ -49,7 +51,7 @@ export class PlanRepository implements IPlanRepository {
     const updated = await Models.PlanModel.findByPk(entity.id_plan);
 
     if (!updated) {
-      throw new Error(`Plan not found: id_plan=${entity.id_plan}`);
+      throw new NotFoundError(`Plan not found: id_plan=${entity.id_plan}`);
     }
 
     return PlanMapper.toDomain(updated);
@@ -78,7 +80,7 @@ export class PlanRepository implements IPlanRepository {
     }
 
     if (Object.keys(updatePayload).length === 0) {
-      throw new Error("No fields provided for patch");
+      throw new ValidationError("VALIDATION_ERROR", "No fields provided for patch");
     }
 
     await Models.PlanModel.update(updatePayload, {
@@ -88,7 +90,7 @@ export class PlanRepository implements IPlanRepository {
     const updated = await Models.PlanModel.findByPk(id_plan);
 
     if (!updated) {
-      throw new Error(`Plan not found: id_plan=${id_plan}`);
+      throw new NotFoundError(`Plan not found: id_plan=${id_plan}`);
     }
 
     return PlanMapper.toDomain(updated);
