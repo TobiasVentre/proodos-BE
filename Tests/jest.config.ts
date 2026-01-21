@@ -5,6 +5,7 @@ const config: Config = {
   testEnvironment: "node",
   rootDir: "..",
   testMatch: ["<rootDir>/Tests/src/**/*.test.ts"],
+  moduleFileExtensions: ["ts", "tsx", "json", "node"],
   moduleNameMapper: {
     "^@proodos/domain/(.*)$": "<rootDir>/Domain/src/$1",
     "^@proodos/application/(.*)$": "<rootDir>/Application/src/$1",
@@ -16,6 +17,7 @@ const config: Config = {
     "<rootDir>/Domain/src/**/*.ts",
     "!**/*.d.ts"
   ],
+  coverageProvider: "babel",
   coverageDirectory: "<rootDir>/Tests/coverage",
   coverageReporters: ["text", "html", "lcov"]
 };
