@@ -13,7 +13,6 @@ import { ILogger } from "@proodos/application/Interfaces/ILogger";
 const buildLandingPageRepository = (): jest.Mocked<ILandingPageRepository> => ({
   create: jest.fn(),
   update: jest.fn(),
-  patch: jest.fn(),
   delete: jest.fn(),
   getById: jest.fn(),
   getAll: jest.fn(),

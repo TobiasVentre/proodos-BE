@@ -47,6 +47,28 @@ const buildLogger = (): jest.Mocked<ILogger> => ({
   debug: jest.fn(),
 });
 
+const buildComponente = (
+  overrides: Partial<{
+    id_componente: number;
+    id_tipo_componente: number;
+    id_plan: number;
+    id_tipo_variacion: number;
+    nombre: string;
+    fecha_creacion: Date;
+    estado: string;
+    fecha_baja?: Date | null;
+  }> = {}
+) => ({
+  id_componente: 1,
+  id_tipo_componente: 10,
+  id_plan: 1,
+  id_tipo_variacion: 2,
+  nombre: "Hero",
+  fecha_creacion: new Date("2024-01-01T00:00:00.000Z"),
+  estado: "ACTIVO",
+  ...overrides,
+});
+
 describe("Componente services", () => {
   it("should create componente after ensuring plan exists", async () => {
     // Arrange
@@ -54,12 +76,12 @@ describe("Componente services", () => {
     const planRepository = buildPlanRepository();
     const logger = buildLogger();
     const dto: CreateComponenteDTO = {
+      id_tipo_componente: 10,
       id_plan: 1,
+      id_tipo_variacion: 2,
       nombre: "Hero",
-      descripcion: "desc",
-      estado: "ACTIVO",
     };
-    const created = { id_componente: 1, ...dto };
+    const created = buildComponente({ id_componente: 1, ...dto });
     planRepository.exists.mockResolvedValue(true);
     componenteRepository.create.mockResolvedValue(created);
 
@@ -86,12 +108,12 @@ describe("Componente services", () => {
     const componenteRepository = buildComponenteRepository();
     const dto: UpdateComponenteDTO = {
       id_componente: 10,
+      id_tipo_componente: 3,
       id_plan: 2,
+      id_tipo_variacion: 4,
       nombre: "Banner",
-      descripcion: "desc",
-      estado: "ACTIVO",
     };
-    const updated = { ...dto };
+    const updated = buildComponente({ ...dto });
     componenteRepository.update.mockResolvedValue(updated);
     const service = new UpdateComponenteService(componenteRepository);
 
@@ -111,7 +133,7 @@ describe("Componente services", () => {
       id_plan: 5,
       nombre: "Nuevo",
     };
-    const patched = { id_componente: 2, id_plan: 5, nombre: "Nuevo" };
+    const patched = buildComponente({ id_componente: 2, id_plan: 5, nombre: "Nuevo" });
     planRepository.exists.mockResolvedValue(true);
     componenteRepository.patch.mockResolvedValue(patched);
     const service = new PatchComponenteService(
@@ -133,7 +155,7 @@ describe("Componente services", () => {
     const componenteRepository = buildComponenteRepository();
     const planRepository = buildPlanRepository();
     const dto: PatchComponenteDTO = { nombre: "Solo nombre" };
-    const patched = { id_componente: 3, nombre: "Solo nombre" };
+    const patched = buildComponente({ id_componente: 3, nombre: "Solo nombre" });
     componenteRepository.patch.mockResolvedValue(patched);
     const service = new PatchComponenteService(
       componenteRepository,

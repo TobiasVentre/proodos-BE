@@ -136,8 +136,9 @@ describe("TipoVariacion services", () => {
   it("should get tipo variacion by id", async () => {
     // Arrange
     const variacionRepository = buildVariacionRepository();
+    const logger = buildLogger();
     variacionRepository.getById.mockResolvedValue({ id_tipo_variacion: 5 } as never);
-    const service = new GetTipoVariacionByIdService(variacionRepository);
+    const service = new GetTipoVariacionByIdService(variacionRepository, logger);
 
     // Act
     const result = await service.execute(5);
@@ -149,8 +150,9 @@ describe("TipoVariacion services", () => {
   it("should list tipos variacion", async () => {
     // Arrange
     const variacionRepository = buildVariacionRepository();
+    const logger = buildLogger();
     variacionRepository.getAll.mockResolvedValue([{ id_tipo_variacion: 6 }] as never);
-    const service = new GetAllTiposVariacionService(variacionRepository);
+    const service = new GetAllTiposVariacionService(variacionRepository, logger);
 
     // Act
     const result = await service.execute();
@@ -162,10 +164,11 @@ describe("TipoVariacion services", () => {
   it("should list variaciones by tipo componente", async () => {
     // Arrange
     const variacionRepository = buildVariacionRepository();
+    const logger = buildLogger();
     variacionRepository.getByTipoComponente.mockResolvedValue([
       { id_tipo_variacion: 7, id_tipo_componente: 2 },
     ] as never);
-    const service = new GetVariacionesByTipoComponenteService(variacionRepository);
+    const service = new GetVariacionesByTipoComponenteService(variacionRepository, logger);
 
     // Act
     const result = await service.execute(2);

@@ -52,6 +52,47 @@ const buildLogger = (): jest.Mocked<ILogger> => ({
   debug: jest.fn(),
 });
 
+const buildElementoBase = (
+  overrides: Partial<{
+    id_componente: number;
+    id_tipo_elemento: number;
+    nombre: string;
+    icono_img: string;
+    descripcion: string;
+    link: string;
+    orden: number;
+    css_url: string;
+  }> = {}
+): CreateElementoComponenteDTO => ({
+  id_componente: 1,
+  id_tipo_elemento: 2,
+  nombre: "Header",
+  icono_img: "icon.png",
+  descripcion: "desc",
+  link: "https://example.com",
+  orden: 1,
+  css_url: "styles.css",
+  ...overrides,
+});
+
+const buildElementoComponente = (
+  overrides: Partial<{
+    id_elemento: number;
+    id_componente: number;
+    id_tipo_elemento: number;
+    nombre: string;
+    icono_img: string;
+    descripcion: string;
+    link: string;
+    orden: number;
+    css_url: string;
+  }> = {}
+) => ({
+  id_elemento: 1,
+  ...buildElementoBase(),
+  ...overrides,
+});
+
 describe("ElementoComponente services", () => {
   it("should create elemento componente when componente and tipo exist", async () => {
     // Arrange
@@ -59,16 +100,7 @@ describe("ElementoComponente services", () => {
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
     const logger = buildLogger();
-    const dto: CreateElementoComponenteDTO = {
-      id_componente: 1,
-      id_tipo_elemento: 2,
-      nombre: "Header",
-      icono_img: "icon.png",
-      descripcion: "desc",
-      link: "https://example.com",
-      orden: 1,
-      css_url: "styles.css",
-    };
+    const dto = buildElementoBase();
     const created = { id_elemento: 9, ...dto };
     componenteRepository.getById.mockResolvedValue({ id_componente: 1 } as never);
     tipoElementoRepository.exists.mockResolvedValue(true);
@@ -97,11 +129,7 @@ describe("ElementoComponente services", () => {
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
     const logger = buildLogger();
-    const dto: CreateElementoComponenteDTO = {
-      id_componente: 99,
-      id_tipo_elemento: 2,
-      nombre: "Header",
-    };
+    const dto = buildElementoBase({ id_componente: 99 });
     componenteRepository.getById.mockResolvedValue(null);
     const service = new CreateElementoComponenteService(
       elementoRepository,
@@ -123,19 +151,23 @@ describe("ElementoComponente services", () => {
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
     const dto: UpdateElementoComponenteDTO = {
+      ...buildElementoBase({
+        id_componente: 2,
+        id_tipo_elemento: 3,
+        nombre: "Hero",
+      }),
       id_elemento: 1,
-      id_componente: 2,
-      id_tipo_elemento: 3,
-      nombre: "Hero",
     };
     componenteRepository.getById.mockResolvedValue({ id_componente: 2 } as never);
     tipoElementoRepository.exists.mockResolvedValue(true);
-    elementoRepository.update.mockResolvedValue({
-      id_elemento: 1,
-      id_componente: 2,
-      id_tipo_elemento: 3,
-      nombre: "Hero",
-    } as never);
+    elementoRepository.update.mockResolvedValue(
+      buildElementoComponente({
+        id_elemento: 1,
+        id_componente: 2,
+        id_tipo_elemento: 3,
+        nombre: "Hero",
+      })
+    );
     const service = new UpdateElementoComponenteService(
       elementoRepository,
       componenteRepository,
@@ -156,7 +188,7 @@ describe("ElementoComponente services", () => {
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
     const dto: PatchElementoComponenteDTO = { id_componente: 5, id_tipo_elemento: 6 };
-    elementoRepository.patch.mockResolvedValue({ id_elemento: 3 } as never);
+    elementoRepository.patch.mockResolvedValue(buildElementoComponente({ id_elemento: 3 }));
     componenteRepository.getById.mockResolvedValue({ id_componente: 5 } as never);
     tipoElementoRepository.exists.mockResolvedValue(true);
     const service = new PatchElementoComponenteService(
@@ -188,8 +220,9 @@ describe("ElementoComponente services", () => {
   it("should get elemento componente by id", async () => {
     // Arrange
     const elementoRepository = buildElementoRepository();
+    const logger = buildLogger();
     elementoRepository.getById.mockResolvedValue({ id_elemento: 4 } as never);
-    const service = new GetElementoComponenteByIdService(elementoRepository);
+    const service = new GetElementoComponenteByIdService(elementoRepository, logger);
 
     // Act
     const result = await service.execute(4);
@@ -202,8 +235,9 @@ describe("ElementoComponente services", () => {
   it("should list elementos componente", async () => {
     // Arrange
     const elementoRepository = buildElementoRepository();
+    const logger = buildLogger();
     elementoRepository.getAll.mockResolvedValue([{ id_elemento: 1 }] as never);
-    const service = new GetAllElementosComponenteService(elementoRepository);
+    const service = new GetAllElementosComponenteService(elementoRepository, logger);
 
     // Act
     const result = await service.execute();
@@ -216,10 +250,11 @@ describe("ElementoComponente services", () => {
   it("should list elementos by componente", async () => {
     // Arrange
     const elementoRepository = buildElementoRepository();
+    const logger = buildLogger();
     elementoRepository.getByComponente.mockResolvedValue([
       { id_elemento: 1, id_componente: 2 },
     ] as never);
-    const service = new GetElementosByComponenteService(elementoRepository);
+    const service = new GetElementosByComponenteService(elementoRepository, logger);
 
     // Act
     const result = await service.execute(2);
