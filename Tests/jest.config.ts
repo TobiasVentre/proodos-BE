@@ -5,7 +5,7 @@ const config: Config = {
   testEnvironment: "node",
   rootDir: "..",
   testMatch: ["<rootDir>/Tests/src/**/*.test.ts"],
-  moduleFileExtensions: ["ts", "tsx", "json", "node"],
+  moduleFileExtensions: ["ts", "tsx", "js", "json", "node"],
   moduleNameMapper: {
     "^@proodos/domain/(.*)$": "<rootDir>/Domain/src/$1",
     "^@proodos/application/(.*)$": "<rootDir>/Application/src/$1",
