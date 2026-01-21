@@ -1,9 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PatchLandingPageService = void 0;
+const NotFoundError_1 = require("../../Errors/NotFoundError");
+const ValidationError_1 = require("../../Errors/ValidationError");
 const ensureNonEmptyString = (field, value) => {
     if (typeof value !== "string" || value.trim().length === 0) {
-        throw new Error(`${field} must be a non-empty string`);
+        throw new ValidationError_1.ValidationError("VALIDATION_ERROR", `${field} must be a non-empty string`, {
+            field,
+        });
     }
     return value.trim();
 };
@@ -14,10 +18,12 @@ class PatchLandingPageService {
     async execute(id_landing, dto) {
         const existing = await this.landingPageRepository.getById(id_landing);
         if (!existing) {
-            throw new Error("LANDING_NOT_FOUND");
+            throw new NotFoundError_1.NotFoundError("Landing not found");
         }
         if (Object.keys(dto).length === 0) {
-            throw new Error("No fields provided for patch");
+            throw new ValidationError_1.ValidationError("VALIDATION_ERROR", "No fields provided", {
+                required: ["URL", "estado", "segmento"],
+            });
         }
         const updated = {
             ...existing,

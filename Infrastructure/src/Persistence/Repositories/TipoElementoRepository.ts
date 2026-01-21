@@ -4,6 +4,8 @@ import { ITipoElementoRepository } from "@proodos/application/Interfaces/ITipoEl
 import { PatchTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/PatchTipoElementoDTO";
 import { TipoElementoMapper } from "../../Mappers/TipoElementoMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
+import { ValidationError } from "@proodos/application/Errors/ValidationError";
 
 export class TipoElementoRepository implements ITipoElementoRepository {
   private logger: ILogger;
@@ -37,7 +39,9 @@ export class TipoElementoRepository implements ITipoElementoRepository {
     const updated = await Models.TipoElementoModel.findByPk(entity.id_tipo_elemento);
 
     if (!updated) {
-      throw new Error(`TipoElemento not found: id_tipo_elemento=${entity.id_tipo_elemento}`);
+      throw new NotFoundError(
+        `TipoElemento not found: id_tipo_elemento=${entity.id_tipo_elemento}`
+      );
     }
 
     return TipoElementoMapper.toDomain(updated);
@@ -57,7 +61,7 @@ export class TipoElementoRepository implements ITipoElementoRepository {
     if (dto.nombre !== undefined) updatePayload.nombre = dto.nombre;
 
     if (Object.keys(updatePayload).length === 0) {
-      throw new Error("No fields provided for patch");
+      throw new ValidationError("VALIDATION_ERROR", "No fields provided for patch");
     }
 
     await Models.TipoElementoModel.update(updatePayload, {
@@ -67,7 +71,9 @@ export class TipoElementoRepository implements ITipoElementoRepository {
     const updated = await Models.TipoElementoModel.findByPk(id_tipo_elemento);
 
     if (!updated) {
-      throw new Error(`TipoElemento not found: id_tipo_elemento=${id_tipo_elemento}`);
+      throw new NotFoundError(
+        `TipoElemento not found: id_tipo_elemento=${id_tipo_elemento}`
+      );
     }
 
     return TipoElementoMapper.toDomain(updated);

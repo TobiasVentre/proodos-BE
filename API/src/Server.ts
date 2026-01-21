@@ -6,6 +6,7 @@ import express from "express";
 import { setupSwagger } from "./Swagger/swagger.config";
 import { buildRoutes } from "./Routes/routes";
 import { ConsoleLogger } from "./Logging/ConsoleLogger";
+import { errorHandler } from "./Middleware/ErrorHandler";
 
 
 const app = express();
@@ -23,19 +24,13 @@ app.use((req, res, next) => {
 
   return next();
 });
-app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (err instanceof SyntaxError && "body" in err) {
-    return res.status(400).json({ error: "Invalid JSON body" });
-  }
-  return next(err);
-});
-
 // Swagger
 setupSwagger(app);
 
 const startServer = async () => {
   // API Routes
   app.use("/api", await buildRoutes(logger));
+  app.use(errorHandler);
 
   const PORT = 3000;
   app.listen(PORT, () => {

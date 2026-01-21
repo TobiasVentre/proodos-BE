@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GetComponenteTreeService = void 0;
+const NotFoundError_1 = require("../../Errors/NotFoundError");
 class GetComponenteTreeService {
     constructor(componenteRepository, compuestoRepository) {
         this.componenteRepository = componenteRepository;
@@ -9,7 +10,7 @@ class GetComponenteTreeService {
     async execute(id_padre) {
         const root = await this.componenteRepository.getById(id_padre);
         if (!root) {
-            throw new Error("COMPONENTE_NOT_FOUND");
+            throw new NotFoundError_1.NotFoundError("Componente not found");
         }
         const [componentes, relaciones] = await Promise.all([
             this.componenteRepository.getAll(),
@@ -46,7 +47,7 @@ class GetComponenteTreeService {
         };
         const tree = buildTree(root.id_componente, new Set());
         if (!tree) {
-            throw new Error("COMPONENTE_NOT_FOUND");
+            throw new NotFoundError_1.NotFoundError("Componente not found");
         }
         return tree;
     }

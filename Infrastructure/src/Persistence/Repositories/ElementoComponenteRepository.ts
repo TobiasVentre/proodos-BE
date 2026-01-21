@@ -4,6 +4,8 @@ import { IElementoComponenteRepository } from "@proodos/application/Interfaces/I
 import { PatchElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/PatchElementoComponenteDTO";
 import { ElementoComponenteMapper } from "../../Mappers/ElementoComponenteMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
+import { ValidationError } from "@proodos/application/Errors/ValidationError";
 
 export class ElementoComponenteRepository implements IElementoComponenteRepository {
   private logger: ILogger;
@@ -51,7 +53,9 @@ export class ElementoComponenteRepository implements IElementoComponenteReposito
     const updated = await Models.ElementoComponenteModel.findByPk(entity.id_elemento);
 
     if (!updated) {
-      throw new Error(`ElementoComponente not found: id_elemento=${entity.id_elemento}`);
+      throw new NotFoundError(
+        `ElementoComponente not found: id_elemento=${entity.id_elemento}`
+      );
     }
 
     return ElementoComponenteMapper.toDomain(updated);
@@ -82,7 +86,7 @@ export class ElementoComponenteRepository implements IElementoComponenteReposito
     if (dto.css_url !== undefined) updatePayload.css_url = dto.css_url;
 
     if (Object.keys(updatePayload).length === 0) {
-      throw new Error("No fields provided for patch");
+      throw new ValidationError("VALIDATION_ERROR", "No fields provided for patch");
     }
 
     await Models.ElementoComponenteModel.update(updatePayload, {
@@ -92,7 +96,7 @@ export class ElementoComponenteRepository implements IElementoComponenteReposito
     const updated = await Models.ElementoComponenteModel.findByPk(id_elemento);
 
     if (!updated) {
-      throw new Error(`ElementoComponente not found: id_elemento=${id_elemento}`);
+      throw new NotFoundError(`ElementoComponente not found: id_elemento=${id_elemento}`);
     }
 
     return ElementoComponenteMapper.toDomain(updated);

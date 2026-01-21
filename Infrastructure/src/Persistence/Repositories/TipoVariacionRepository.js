@@ -36,6 +36,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TipoVariacionRepository = void 0;
 const Models = __importStar(require("../Models"));
 const TipoVariacionMapper_1 = require("../../Mappers/TipoVariacionMapper");
+const NotFoundError_1 = require("@proodos/application/Errors/NotFoundError");
+const ValidationError_1 = require("@proodos/application/Errors/ValidationError");
 class TipoVariacionRepository {
     constructor(logger) {
         this.logger = logger;
@@ -66,7 +68,7 @@ class TipoVariacionRepository {
         }, { where: { id_tipo_variacion: entity.id_tipo_variacion } });
         const updated = await Models.TipoVariacionModel.findByPk(entity.id_tipo_variacion);
         if (!updated) {
-            throw new Error(`TipoVariacion not found: id_tipo_variacion=${entity.id_tipo_variacion}`);
+            throw new NotFoundError_1.NotFoundError(`TipoVariacion not found: id_tipo_variacion=${entity.id_tipo_variacion}`);
         }
         return TipoVariacionMapper_1.TipoVariacionMapper.toDomain(updated);
     }
@@ -90,14 +92,14 @@ class TipoVariacionRepository {
         if (dto.html !== undefined)
             updatePayload.html = dto.html;
         if (Object.keys(updatePayload).length === 0) {
-            throw new Error("No fields provided for patch");
+            throw new ValidationError_1.ValidationError("VALIDATION_ERROR", "No fields provided for patch");
         }
         await Models.TipoVariacionModel.update(updatePayload, {
             where: { id_tipo_variacion },
         });
         const updated = await Models.TipoVariacionModel.findByPk(id_tipo_variacion);
         if (!updated) {
-            throw new Error(`TipoVariacion not found: id_tipo_variacion=${id_tipo_variacion}`);
+            throw new NotFoundError_1.NotFoundError(`TipoVariacion not found: id_tipo_variacion=${id_tipo_variacion}`);
         }
         return TipoVariacionMapper_1.TipoVariacionMapper.toDomain(updated);
     }

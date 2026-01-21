@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LandingComponenteRepository = void 0;
 const Models_1 = require("../Models");
 const LandingComponenteMapper_1 = require("../../Mappers/LandingComponenteMapper");
+const NotFoundError_1 = require("@proodos/application/Errors/NotFoundError");
 class LandingComponenteRepository {
     async assign(entity) {
         await Models_1.LandingComponenteModel.create({
@@ -17,7 +18,7 @@ class LandingComponenteRepository {
             ],
         });
         if (!created) {
-            throw new Error("LANDING_COMPONENTE_NOT_FOUND");
+            throw new NotFoundError_1.NotFoundError("Landing componente not found");
         }
         return LandingComponenteMapper_1.LandingComponenteMapper.toDomain(created);
     }

@@ -1,10 +1,13 @@
 import { LandingPage } from "@proodos/domain/Entities/LandingPage";
 import { CreateLandingPageCommand } from "../../DTOs/LandingPage/CreateLandingPageCommand";
 import { UpdateLandingPageCommand } from "../../DTOs/LandingPage/UpdateLandingPageCommand";
+import { ValidationError } from "../../Errors/ValidationError";
 
 const ensureNonEmptyString = (field: string, value: string): string => {
   if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`${field} must be a non-empty string`);
+    throw new ValidationError("VALIDATION_ERROR", `${field} must be a non-empty string`, {
+      field,
+    });
   }
 
   return value.trim();
@@ -12,7 +15,9 @@ const ensureNonEmptyString = (field: string, value: string): string => {
 
 const ensurePositiveInteger = (field: string, value: number): number => {
   if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
-    throw new Error(`${field} must be a positive integer`);
+    throw new ValidationError("VALIDATION_ERROR", `${field} must be a positive integer`, {
+      field,
+    });
   }
 
   return value;

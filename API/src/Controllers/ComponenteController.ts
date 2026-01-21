@@ -11,7 +11,7 @@ import {
   UnassignComponenteHijoUseCase,
 } from "@proodos/application/Ports/ComponenteUseCases";
 import { GetLandingsByComponenteUseCase } from "@proodos/application/Ports/LandingComponenteUseCases";
-import { handleControllerError, respondValidationError } from "./ControllerErrors";
+import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
 
 type ComponenteControllerDeps = {
   createComponenteService: CreateComponenteUseCase;
@@ -87,7 +87,7 @@ export const createComponenteController = ({
    *                         nullable: true
    *                         additionalProperties: true
    */
-  componenteController.get("/", async (req, res) => {
+  componenteController.get("/", async (req, res, next) => {
     console.log("[Controller] GET /componentes");
 
     try {
@@ -99,7 +99,7 @@ export const createComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -158,19 +158,19 @@ export const createComponenteController = ({
    *       404:
    *         description: No encontrado
    */
-  componenteController.get("/:id", async (req, res) => {
+  componenteController.get("/:id", async (req, res, next) => {
     console.log(`[Controller] GET /componentes/${req.params.id}`);
 
     try {
       const id = Number(req.params.id);
       if (Number.isNaN(id) || id <= 0) {
-        return respondValidationError(res, "Invalid id");
+        return next(buildValidationError("Invalid id"));
       }
 
       const result = await getComponenteByIdService.execute(id);
 
       if (!result) {
-        return res.status(404).json({ error: "Not found" });
+        return next(buildNotFoundError("Componente not found"));
       }
 
       return res.status(200).json({
@@ -179,7 +179,7 @@ export const createComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -213,7 +213,7 @@ export const createComponenteController = ({
    *       200:
    *         description: Componente creado
    */
-  componenteController.post("/", async (req, res) => {
+  componenteController.post("/", async (req, res, next) => {
     console.log("[Controller] POST /componentes");
 
     try {
@@ -225,7 +225,7 @@ export const createComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
   /**
@@ -264,13 +264,13 @@ export const createComponenteController = ({
    *       404:
    *         description: No encontrado
    */
-  componenteController.patch("/:id", async (req, res) => {
+  componenteController.patch("/:id", async (req, res, next) => {
     console.log(`[Controller] PATCH /componentes/${req.params.id}`);
 
     try {
       const id = Number(req.params.id);
       if (Number.isNaN(id) || id <= 0) {
-        return respondValidationError(res, "Invalid id");
+        return next(buildValidationError("Invalid id"));
       }
 
       const result = await patchComponenteService.execute(id, req.body);
@@ -281,15 +281,7 @@ export const createComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-      if (String(error?.message || "").includes("No fields provided")) {
-        return respondValidationError(res, "No fields provided");
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -316,12 +308,12 @@ export const createComponenteController = ({
    *       409:
    *         description: Componente asignado a una landing
    */
-  componenteController.patch("/:id/baja", async (req, res) => {
+  componenteController.patch("/:id/baja", async (req, res, next) => {
     console.log(`[Controller] PATCH /componentes/${req.params.id}/baja`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -329,16 +321,7 @@ export const createComponenteController = ({
       return res.status(200).json({ message: "OK" });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (error?.message === "COMPONENTE_NOT_FOUND") {
-        return res.status(404).json({ error: "Not found" });
-      }
-
-      if (error?.message === "COMPONENTE_ASSIGNED") {
-        return res.status(409).json({ error: "Componente assigned to landing" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -361,12 +344,12 @@ export const createComponenteController = ({
    *       400:
    *         description: ID inválido
    */
-  componenteController.get("/:id/landings", async (req, res) => {
+  componenteController.get("/:id/landings", async (req, res, next) => {
     console.log(`[Controller] GET /componentes/${req.params.id}/landings`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -378,7 +361,7 @@ export const createComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -403,12 +386,12 @@ export const createComponenteController = ({
    *       404:
    *         description: No encontrado
    */
-  componenteController.get("/:id/arbol", async (req, res) => {
+  componenteController.get("/:id/arbol", async (req, res, next) => {
     console.log(`[Controller] GET /componentes/${req.params.id}/arbol`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -420,12 +403,7 @@ export const createComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (error?.message === "COMPONENTE_NOT_FOUND") {
-        return res.status(404).json({ error: "Not found" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -464,17 +442,17 @@ export const createComponenteController = ({
    *       404:
    *         description: Componente inexistente
    */
-  componenteController.post("/:id/hijos", async (req, res) => {
+  componenteController.post("/:id/hijos", async (req, res, next) => {
     console.log(`[Controller] POST /componentes/${req.params.id}/hijos`);
 
     const id_padre = Number(req.params.id);
     const id_hijo = Number(req.body?.id_hijo);
 
     if (Number.isNaN(id_padre) || id_padre <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
     if (Number.isNaN(id_hijo) || id_hijo <= 0) {
-      return respondValidationError(res, "Invalid id_hijo");
+      return next(buildValidationError("Invalid id_hijo"));
     }
 
     try {
@@ -483,15 +461,7 @@ export const createComponenteController = ({
       return res.status(result.created ? 201 : 200).json({ message: "OK" });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (error?.message === "COMPONENTE_PADRE_NOT_FOUND") {
-        return res.status(404).json({ error: "Parent componente not found" });
-      }
-      if (error?.message === "COMPONENTE_HIJO_NOT_FOUND") {
-        return res.status(404).json({ error: "Child componente not found" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -519,7 +489,7 @@ export const createComponenteController = ({
    *       400:
    *         description: Request inválida
    */
-  componenteController.delete("/:id/hijos/:id_hijo", async (req, res) => {
+  componenteController.delete("/:id/hijos/:id_hijo", async (req, res, next) => {
     console.log(
       `[Controller] DELETE /componentes/${req.params.id}/hijos/${req.params.id_hijo}`
     );
@@ -528,10 +498,10 @@ export const createComponenteController = ({
     const id_hijo = Number(req.params.id_hijo);
 
     if (Number.isNaN(id_padre) || id_padre <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
     if (Number.isNaN(id_hijo) || id_hijo <= 0) {
-      return respondValidationError(res, "Invalid id_hijo");
+      return next(buildValidationError("Invalid id_hijo"));
     }
 
     try {
@@ -539,7 +509,7 @@ export const createComponenteController = ({
       return res.status(204).send();
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -566,12 +536,12 @@ export const createComponenteController = ({
    *       409:
    *         description: Componente asignado a una landing
    */
-  componenteController.delete("/:id", async (req, res) => {
+  componenteController.delete("/:id", async (req, res, next) => {
     console.log(`[Controller] DELETE /componentes/${req.params.id}`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -579,16 +549,7 @@ export const createComponenteController = ({
       return res.status(204).send();
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (error?.message === "COMPONENTE_NOT_FOUND") {
-        return res.status(404).json({ error: "Not found" });
-      }
-
-      if (error?.message === "COMPONENTE_ASSIGNED") {
-        return res.status(409).json({ error: "Componente assigned to landing" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 

@@ -7,7 +7,7 @@ import {
   PatchTipoVariacionUseCase,
   UpdateTipoVariacionUseCase,
 } from "@proodos/application/Ports/TipoVariacionUseCases";
-import { handleControllerError, respondValidationError } from "./ControllerErrors";
+import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
 
 type TipoVariacionControllerDeps = {
   createTipoVariacionService: CreateTipoVariacionUseCase;
@@ -45,7 +45,7 @@ export const createTipoVariacionController = ({
    *       200:
    *         description: Lista de variaciones
    */
-  tipoVariacionController.get("/", async (req, res) => {
+  tipoVariacionController.get("/", async (req, res, next) => {
     console.log("[Controller] GET /tipos-variacion");
 
     const idTipoComponenteRaw = req.query?.id_tipo_componente;
@@ -57,7 +57,7 @@ export const createTipoVariacionController = ({
       id_tipo_componente !== undefined &&
       (Number.isNaN(id_tipo_componente) || id_tipo_componente <= 0)
     ) {
-      return respondValidationError(res, "Invalid id_tipo_componente");
+      return next(buildValidationError("Invalid id_tipo_componente"));
     }
 
     try {
@@ -71,7 +71,7 @@ export const createTipoVariacionController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -96,19 +96,19 @@ export const createTipoVariacionController = ({
    *       404:
    *         description: No encontrado
    */
-  tipoVariacionController.get("/:id", async (req, res) => {
+  tipoVariacionController.get("/:id", async (req, res, next) => {
     console.log(`[Controller] GET /tipos-variacion/${req.params.id}`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
       const result = await getTipoVariacionByIdService.execute(id);
 
       if (!result) {
-        return res.status(404).json({ error: "Not found" });
+        return next(buildNotFoundError("Tipo variacion not found"));
       }
 
       return res.status(200).json({
@@ -117,7 +117,7 @@ export const createTipoVariacionController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -154,14 +154,14 @@ export const createTipoVariacionController = ({
    *       200:
    *         description: Variación creada
    */
-  tipoVariacionController.post("/", async (req, res) => {
+  tipoVariacionController.post("/", async (req, res, next) => {
     console.log("[Controller] POST /tipos-variacion");
 
     const { id_tipo_componente, nombre } = req.body || {};
     if (!id_tipo_componente || !nombre) {
-      return respondValidationError(res, "Missing required fields", {
+      return next(buildValidationError("Missing required fields", {
         required: ["id_tipo_componente", "nombre"],
-      });
+      }));
     }
 
     try {
@@ -173,12 +173,7 @@ export const createTipoVariacionController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (error?.message === "TIPO_COMPONENTE_NOT_FOUND") {
-        return res.status(404).json({ error: "Tipo componente not found" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -225,19 +220,19 @@ export const createTipoVariacionController = ({
    *       404:
    *         description: No encontrado
    */
-  tipoVariacionController.put("/:id", async (req, res) => {
+  tipoVariacionController.put("/:id", async (req, res, next) => {
     console.log(`[Controller] PUT /tipos-variacion/${req.params.id}`);
 
     const id_tipo_variacion = Number(req.params.id);
     if (Number.isNaN(id_tipo_variacion) || id_tipo_variacion <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     const { id_tipo_componente, nombre } = req.body || {};
     if (!id_tipo_componente || !nombre) {
-      return respondValidationError(res, "Missing required fields", {
+      return next(buildValidationError("Missing required fields", {
         required: ["id_tipo_componente", "nombre"],
-      });
+      }));
     }
 
     try {
@@ -252,15 +247,7 @@ export const createTipoVariacionController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (error?.message === "TIPO_COMPONENTE_NOT_FOUND") {
-        return res.status(404).json({ error: "Tipo componente not found" });
-      }
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -304,12 +291,12 @@ export const createTipoVariacionController = ({
    *       404:
    *         description: No encontrado
    */
-  tipoVariacionController.patch("/:id", async (req, res) => {
+  tipoVariacionController.patch("/:id", async (req, res, next) => {
     console.log(`[Controller] PATCH /tipos-variacion/${req.params.id}`);
 
     const id_tipo_variacion = Number(req.params.id);
     if (Number.isNaN(id_tipo_variacion) || id_tipo_variacion <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -324,18 +311,7 @@ export const createTipoVariacionController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (error?.message === "TIPO_COMPONENTE_NOT_FOUND") {
-        return res.status(404).json({ error: "Tipo componente not found" });
-      }
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-      if (String(error?.message || "").includes("No fields provided")) {
-        return respondValidationError(res, "No fields provided");
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 

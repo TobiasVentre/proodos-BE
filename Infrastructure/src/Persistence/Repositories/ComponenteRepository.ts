@@ -4,6 +4,8 @@ import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { PatchComponenteDTO } from "@proodos/application/DTOs/Componente/PatchComponenteDTO";
 import { Componente } from "@proodos/domain/Entities/Componente";
 import { IComponenteRepository } from "@proodos/application/Interfaces/IComponenteRepository";
+import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
+import { ValidationError } from "@proodos/application/Errors/ValidationError";
 import { sequelize } from "../../Config/SequelizeConfig";
 
 export class ComponenteRepository implements IComponenteRepository {
@@ -95,7 +97,7 @@ export class ComponenteRepository implements IComponenteRepository {
 
     if (!updated) {
       // Para cumplir el contrato: Promise<Componente>
-      throw new Error(`Componente not found: id_componente=${entity.id_componente}`);
+      throw new NotFoundError(`Componente not found: id_componente=${entity.id_componente}`);
     }
 
     return ComponenteMapper.toDomain(updated);
@@ -117,7 +119,7 @@ export class ComponenteRepository implements IComponenteRepository {
 
   // Si no vino nada, no hacemos nada (o podés lanzar error 400 desde Service/Controller)
   if (Object.keys(updatePayload).length === 0) {
-    throw new Error("No fields provided for patch");
+    throw new ValidationError("VALIDATION_ERROR", "No fields provided for patch");
   }
 
   await Models.ComponenteModel.update(updatePayload, {
@@ -127,7 +129,7 @@ export class ComponenteRepository implements IComponenteRepository {
   const updated = await Models.ComponenteModel.findByPk(id_componente);
 
   if (!updated) {
-    throw new Error(`Componente not found: id_componente=${id_componente}`);
+    throw new NotFoundError(`Componente not found: id_componente=${id_componente}`);
   }
 
   return ComponenteMapper.toDomain(updated);

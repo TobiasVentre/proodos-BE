@@ -3,6 +3,7 @@ import { LandingComponente } from "@proodos/domain/Entities/LandingComponente";
 
 import { LandingComponenteModel, LandingPageModel, ComponenteModel } from "../Models";
 import { LandingComponenteMapper } from "../../Mappers/LandingComponenteMapper";
+import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
 
 export class LandingComponenteRepository implements ILandingComponenteRepository {
   async assign(entity: LandingComponente): Promise<LandingComponente> {
@@ -20,7 +21,7 @@ export class LandingComponenteRepository implements ILandingComponenteRepository
     });
 
     if (!created) {
-      throw new Error("LANDING_COMPONENTE_NOT_FOUND");
+      throw new NotFoundError("Landing componente not found");
     }
 
     return LandingComponenteMapper.toDomain(created);

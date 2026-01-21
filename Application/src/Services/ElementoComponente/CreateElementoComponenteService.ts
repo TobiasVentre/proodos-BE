@@ -6,6 +6,7 @@ import { ITipoElementoRepository } from "../../Interfaces/ITipoElementoRepositor
 import { CreateElementoComponenteUseCase } from "../../Ports/ElementoComponenteUseCases";
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
 import { ILogger } from "../../Interfaces/ILogger";
+import { NotFoundError } from "../../Errors/NotFoundError";
 
 export class CreateElementoComponenteService implements CreateElementoComponenteUseCase {
   constructor(
@@ -20,14 +21,14 @@ export class CreateElementoComponenteService implements CreateElementoComponente
 
     const componente = await this.componenteRepository.getById(dto.id_componente);
     if (!componente) {
-      throw new Error("COMPONENTE_NOT_FOUND");
+      throw new NotFoundError("Componente not found");
     }
 
     const tipoElementoExists = await this.tipoElementoRepository.exists(
       dto.id_tipo_elemento
     );
     if (!tipoElementoExists) {
-      throw new Error("TIPO_ELEMENTO_NOT_FOUND");
+      throw new NotFoundError("Tipo elemento not found");
     }
 
     const entity = mapCreateElementoComponenteDTOToEntity(dto);
