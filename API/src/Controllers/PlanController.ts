@@ -7,7 +7,7 @@ import {
   UpdatePlanUseCase,
 } from "@proodos/application/Ports/PlanUseCases";
 import { GetComponentesByPlanUseCase } from "@proodos/application/Ports/ComponenteUseCases";
-import { handleControllerError, respondValidationError } from "./ControllerErrors";
+import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
 
 const requiredPlanFields = [
   "nombre",
@@ -49,7 +49,7 @@ export const createPlanController = ({
    *       200:
    *         description: Lista de planes
    */
-  planController.get("/", async (req, res) => {
+  planController.get("/", async (req, res, next) => {
     console.log("[Controller] GET /planes");
 
     try {
@@ -61,7 +61,7 @@ export const createPlanController = ({
       });
     } catch (error) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -86,19 +86,19 @@ export const createPlanController = ({
    *       404:
    *         description: No encontrado
    */
-  planController.get("/:id", async (req, res) => {
+  planController.get("/:id", async (req, res, next) => {
     console.log(`[Controller] GET /planes/${req.params.id}`);
 
     try {
       const id = Number(req.params.id);
       if (Number.isNaN(id) || id <= 0) {
-        return respondValidationError(res, "Invalid id");
+        return next(buildValidationError("Invalid id"));
       }
 
       const result = await getPlanByIdService.execute(id);
 
       if (!result) {
-        return res.status(404).json({ error: "Not found" });
+        return next(buildNotFoundError("Plan not found"));
       }
 
       return res.status(200).json({
@@ -107,7 +107,7 @@ export const createPlanController = ({
       });
     } catch (error) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -132,19 +132,19 @@ export const createPlanController = ({
    *       404:
    *         description: Plan no encontrado
    */
-  planController.get("/:id/componentes", async (req, res) => {
+  planController.get("/:id/componentes", async (req, res, next) => {
     console.log(`[Controller] GET /planes/${req.params.id}/componentes`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
       const plan = await getPlanByIdService.execute(id);
 
       if (!plan) {
-        return res.status(404).json({ error: "Not found" });
+        return next(buildNotFoundError("Plan not found"));
       }
 
       const result = await getComponentesByPlanService.execute(id);
@@ -155,7 +155,7 @@ export const createPlanController = ({
       });
     } catch (error) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -176,7 +176,7 @@ export const createPlanController = ({
    *       200:
    *         description: Plan creado
    */
-  planController.post("/", async (req, res) => {
+  planController.post("/", async (req, res, next) => {
     console.log("[Controller] POST /planes");
 
     const missingFields = requiredPlanFields.filter(
@@ -184,9 +184,11 @@ export const createPlanController = ({
     );
 
     if (missingFields.length > 0) {
-      return respondValidationError(res, "Missing required fields", {
-        required: missingFields,
-      });
+      return next(
+        buildValidationError("Missing required fields", {
+          required: missingFields,
+        })
+      );
     }
 
     try {
@@ -198,7 +200,7 @@ export const createPlanController = ({
       });
     } catch (error) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -229,12 +231,12 @@ export const createPlanController = ({
    *       404:
    *         description: No encontrado
    */
-  planController.patch("/:id", async (req, res) => {
+  planController.patch("/:id", async (req, res, next) => {
     console.log(`[Controller] PATCH /planes/${req.params.id}`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -246,15 +248,7 @@ export const createPlanController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-      if (String(error?.message || "").includes("No fields provided")) {
-        return respondValidationError(res, "No fields provided");
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -285,12 +279,12 @@ export const createPlanController = ({
    *       404:
    *         description: No encontrado
    */
-  planController.put("/:id", async (req, res) => {
+  planController.put("/:id", async (req, res, next) => {
     console.log(`[Controller] PUT /planes/${req.params.id}`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     const missingFields = requiredPlanFields.filter(
@@ -298,9 +292,11 @@ export const createPlanController = ({
     );
 
     if (missingFields.length > 0) {
-      return respondValidationError(res, "Missing required fields", {
-        required: missingFields,
-      });
+      return next(
+        buildValidationError("Missing required fields", {
+          required: missingFields,
+        })
+      );
     }
 
     try {
@@ -315,12 +311,7 @@ export const createPlanController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 

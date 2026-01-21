@@ -1,10 +1,14 @@
 import { ILandingPageRepository } from "../../Interfaces/ILandingPageRepository";
 import { PatchLandingPageDTO } from "../../DTOs/LandingPage/PatchLandingPageDTO";
 import { LandingPage } from "@proodos/domain/Entities/LandingPage";
+import { NotFoundError } from "../../Errors/NotFoundError";
+import { ValidationError } from "../../Errors/ValidationError";
 
 const ensureNonEmptyString = (field: string, value: string): string => {
   if (typeof value !== "string" || value.trim().length === 0) {
-    throw new Error(`${field} must be a non-empty string`);
+    throw new ValidationError("VALIDATION_ERROR", `${field} must be a non-empty string`, {
+      field,
+    });
   }
 
   return value.trim();
@@ -17,11 +21,13 @@ export class PatchLandingPageService {
     const existing = await this.landingPageRepository.getById(id_landing);
 
     if (!existing) {
-      throw new Error("LANDING_NOT_FOUND");
+      throw new NotFoundError("Landing not found");
     }
 
     if (Object.keys(dto).length === 0) {
-      throw new Error("No fields provided for patch");
+      throw new ValidationError("VALIDATION_ERROR", "No fields provided", {
+        required: ["URL", "estado", "segmento"],
+      });
     }
 
     const updated: LandingPage = {

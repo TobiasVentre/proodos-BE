@@ -8,7 +8,7 @@ import {
   PatchElementoComponenteUseCase,
   UpdateElementoComponenteUseCase,
 } from "@proodos/application/Ports/ElementoComponenteUseCases";
-import { handleControllerError, respondValidationError } from "./ControllerErrors";
+import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
 
 type ElementoComponenteControllerDeps = {
   createElementoComponenteService: CreateElementoComponenteUseCase;
@@ -48,7 +48,7 @@ export const createElementoComponenteController = ({
    *       200:
    *         description: Lista de elementos
    */
-  elementoComponenteController.get("/", async (req, res) => {
+  elementoComponenteController.get("/", async (req, res, next) => {
     console.log("[Controller] GET /elementos-componente");
 
     const idComponenteRaw = req.query?.id_componente;
@@ -58,7 +58,7 @@ export const createElementoComponenteController = ({
       id_componente !== undefined &&
       (Number.isNaN(id_componente) || id_componente <= 0)
     ) {
-      return respondValidationError(res, "Invalid id_componente");
+      return next(buildValidationError("Invalid id_componente"));
     }
 
     try {
@@ -72,7 +72,7 @@ export const createElementoComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -97,19 +97,19 @@ export const createElementoComponenteController = ({
    *       404:
    *         description: No encontrado
    */
-  elementoComponenteController.get("/:id", async (req, res) => {
+  elementoComponenteController.get("/:id", async (req, res, next) => {
     console.log(`[Controller] GET /elementos-componente/${req.params.id}`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
       const result = await getElementoComponenteByIdService.execute(id);
 
       if (!result) {
-        return res.status(404).json({ error: "Not found" });
+        return next(buildNotFoundError("Elemento componente not found"));
       }
 
       return res.status(200).json({
@@ -118,7 +118,7 @@ export const createElementoComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -165,7 +165,7 @@ export const createElementoComponenteController = ({
    *       200:
    *         description: Elemento creado
    */
-  elementoComponenteController.post("/", async (req, res) => {
+  elementoComponenteController.post("/", async (req, res, next) => {
     console.log("[Controller] POST /elementos-componente");
 
     const {
@@ -189,7 +189,7 @@ export const createElementoComponenteController = ({
       orden === undefined ||
       !css_url
     ) {
-      return respondValidationError(res, "Missing required fields", {
+      return next(buildValidationError("Missing required fields", {
         required: [
           "id_componente",
           "id_tipo_elemento",
@@ -200,7 +200,7 @@ export const createElementoComponenteController = ({
           "orden",
           "css_url",
         ],
-      });
+      }));
     }
 
     try {
@@ -212,15 +212,7 @@ export const createElementoComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (error?.message === "COMPONENTE_NOT_FOUND") {
-        return res.status(404).json({ error: "Componente not found" });
-      }
-      if (error?.message === "TIPO_ELEMENTO_NOT_FOUND") {
-        return res.status(404).json({ error: "Tipo elemento not found" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -277,12 +269,12 @@ export const createElementoComponenteController = ({
    *       404:
    *         description: No encontrado
    */
-  elementoComponenteController.put("/:id", async (req, res) => {
+  elementoComponenteController.put("/:id", async (req, res, next) => {
     console.log(`[Controller] PUT /elementos-componente/${req.params.id}`);
 
     const id_elemento = Number(req.params.id);
     if (Number.isNaN(id_elemento) || id_elemento <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     const {
@@ -306,7 +298,7 @@ export const createElementoComponenteController = ({
       orden === undefined ||
       !css_url
     ) {
-      return respondValidationError(res, "Missing required fields", {
+      return next(buildValidationError("Missing required fields", {
         required: [
           "id_componente",
           "id_tipo_elemento",
@@ -317,7 +309,7 @@ export const createElementoComponenteController = ({
           "orden",
           "css_url",
         ],
-      });
+      }));
     }
 
     try {
@@ -333,17 +325,7 @@ export const createElementoComponenteController = ({
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
 
-      if (error?.message === "COMPONENTE_NOT_FOUND") {
-        return res.status(404).json({ error: "Componente not found" });
-      }
-      if (error?.message === "TIPO_ELEMENTO_NOT_FOUND") {
-        return res.status(404).json({ error: "Tipo elemento not found" });
-      }
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -391,12 +373,12 @@ export const createElementoComponenteController = ({
    *       404:
    *         description: No encontrado
    */
-  elementoComponenteController.patch("/:id", async (req, res) => {
+  elementoComponenteController.patch("/:id", async (req, res, next) => {
     console.log(`[Controller] PATCH /elementos-componente/${req.params.id}`);
 
     const id_elemento = Number(req.params.id);
     if (Number.isNaN(id_elemento) || id_elemento <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -411,21 +393,7 @@ export const createElementoComponenteController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (error?.message === "COMPONENTE_NOT_FOUND") {
-        return res.status(404).json({ error: "Componente not found" });
-      }
-      if (error?.message === "TIPO_ELEMENTO_NOT_FOUND") {
-        return res.status(404).json({ error: "Tipo elemento not found" });
-      }
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-      if (String(error?.message || "").includes("No fields provided")) {
-        return respondValidationError(res, "No fields provided");
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -448,12 +416,12 @@ export const createElementoComponenteController = ({
    *       400:
    *         description: ID inválido
    */
-  elementoComponenteController.delete("/:id", async (req, res) => {
+  elementoComponenteController.delete("/:id", async (req, res, next) => {
     console.log(`[Controller] DELETE /elementos-componente/${req.params.id}`);
 
     const id_elemento = Number(req.params.id);
     if (Number.isNaN(id_elemento) || id_elemento <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -461,7 +429,7 @@ export const createElementoComponenteController = ({
       return res.status(204).send();
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 

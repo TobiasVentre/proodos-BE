@@ -1,16 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LandingPageMapper = void 0;
+const ValidationError_1 = require("../../Errors/ValidationError");
 const LandingPage_1 = require("@proodos/domain/Entities/LandingPage");
 const ensureNonEmptyString = (field, value) => {
     if (typeof value !== "string" || value.trim().length === 0) {
-        throw new Error(`${field} must be a non-empty string`);
+        throw new ValidationError_1.ValidationError("VALIDATION_ERROR", `${field} must be a non-empty string`, {
+            field,
+        });
     }
     return value.trim();
 };
 const ensurePositiveInteger = (field, value) => {
     if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
-        throw new Error(`${field} must be a positive integer`);
+        throw new ValidationError_1.ValidationError("VALIDATION_ERROR", `${field} must be a positive integer`, {
+            field,
+        });
     }
     return value;
 };

@@ -1,7 +1,7 @@
 import { ValidationError } from "@proodos/application/Errors/ValidationError";
 
 describe("ValidationError", () => {
-  it("should set name, message, and code", () => {
+  it("should set name, message, code, and status", () => {
     // Arrange
     const expectedCode = "VALIDATION_ERROR";
     const expectedMessage = "Plan no existe";
@@ -14,5 +14,6 @@ describe("ValidationError", () => {
     expect(error.name).toBe("ValidationError");
     expect(error.code).toBe(expectedCode);
     expect(error.message).toBe(expectedMessage);
+    expect(error.status).toBe(400);
   });
 });

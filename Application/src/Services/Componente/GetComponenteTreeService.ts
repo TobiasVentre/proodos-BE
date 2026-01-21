@@ -1,6 +1,7 @@
 import { Componente } from "@proodos/domain/Entities/Componente";
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { IComponenteCompuestoRepository } from "../../Interfaces/IComponenteCompuestoRepository";
+import { NotFoundError } from "../../Errors/NotFoundError";
 
 export type ComponenteTreeNode = Componente & { hijos: ComponenteTreeNode[] };
 
@@ -13,7 +14,7 @@ export class GetComponenteTreeService {
   async execute(id_padre: number): Promise<ComponenteTreeNode> {
     const root = await this.componenteRepository.getById(id_padre);
     if (!root) {
-      throw new Error("COMPONENTE_NOT_FOUND");
+      throw new NotFoundError("Componente not found");
     }
 
     const [componentes, relaciones] = await Promise.all([
@@ -59,7 +60,7 @@ export class GetComponenteTreeService {
     const tree = buildTree(root.id_componente, new Set<number>());
 
     if (!tree) {
-      throw new Error("COMPONENTE_NOT_FOUND");
+      throw new NotFoundError("Componente not found");
     }
 
     return tree;

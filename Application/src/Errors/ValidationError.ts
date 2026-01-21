@@ -1,9 +1,8 @@
-export class ValidationError extends Error {
-  readonly code: string;
+import { AppError, ErrorDetails } from "./AppError";
 
-  constructor(code: string, message: string) {
-    super(message);
-    this.code = code;
+export class ValidationError extends AppError {
+  constructor(code: string, message: string, details?: ErrorDetails) {
+    super(code, message, 400, details);
     this.name = "ValidationError";
   }
 }

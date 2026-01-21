@@ -7,7 +7,7 @@ import {
   PatchTipoElementoUseCase,
   UpdateTipoElementoUseCase,
 } from "@proodos/application/Ports/TipoElementoUseCases";
-import { handleControllerError, respondValidationError } from "./ControllerErrors";
+import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
 
 type TipoElementoControllerDeps = {
   createTipoElementoService: CreateTipoElementoUseCase;
@@ -39,7 +39,7 @@ export const createTipoElementoController = ({
    *       200:
    *         description: Lista de tipos de elemento
    */
-  tipoElementoController.get("/", async (req, res) => {
+  tipoElementoController.get("/", async (req, res, next) => {
     console.log("[Controller] GET /tipos-elemento");
 
     try {
@@ -51,7 +51,7 @@ export const createTipoElementoController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -76,19 +76,19 @@ export const createTipoElementoController = ({
    *       404:
    *         description: No encontrado
    */
-  tipoElementoController.get("/:id", async (req, res) => {
+  tipoElementoController.get("/:id", async (req, res, next) => {
     console.log(`[Controller] GET /tipos-elemento/${req.params.id}`);
 
     const id = Number(req.params.id);
     if (Number.isNaN(id) || id <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
       const result = await getTipoElementoByIdService.execute(id);
 
       if (!result) {
-        return res.status(404).json({ error: "Not found" });
+        return next(buildNotFoundError("Tipo elemento not found"));
       }
 
       return res.status(200).json({
@@ -97,7 +97,7 @@ export const createTipoElementoController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -123,14 +123,14 @@ export const createTipoElementoController = ({
    *       200:
    *         description: Tipo de elemento creado
    */
-  tipoElementoController.post("/", async (req, res) => {
+  tipoElementoController.post("/", async (req, res, next) => {
     console.log("[Controller] POST /tipos-elemento");
 
     const { nombre } = req.body || {};
     if (!nombre) {
-      return respondValidationError(res, "Missing required fields", {
+      return next(buildValidationError("Missing required fields", {
         required: ["nombre"],
-      });
+      }));
     }
 
     try {
@@ -142,7 +142,7 @@ export const createTipoElementoController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -178,19 +178,19 @@ export const createTipoElementoController = ({
    *       404:
    *         description: No encontrado
    */
-  tipoElementoController.put("/:id", async (req, res) => {
+  tipoElementoController.put("/:id", async (req, res, next) => {
     console.log(`[Controller] PUT /tipos-elemento/${req.params.id}`);
 
     const id_tipo_elemento = Number(req.params.id);
     if (Number.isNaN(id_tipo_elemento) || id_tipo_elemento <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     const { nombre } = req.body || {};
     if (!nombre) {
-      return respondValidationError(res, "Missing required fields", {
+      return next(buildValidationError("Missing required fields", {
         required: ["nombre"],
-      });
+      }));
     }
 
     try {
@@ -205,12 +205,7 @@ export const createTipoElementoController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -244,12 +239,12 @@ export const createTipoElementoController = ({
    *       404:
    *         description: No encontrado
    */
-  tipoElementoController.patch("/:id", async (req, res) => {
+  tipoElementoController.patch("/:id", async (req, res, next) => {
     console.log(`[Controller] PATCH /tipos-elemento/${req.params.id}`);
 
     const id_tipo_elemento = Number(req.params.id);
     if (Number.isNaN(id_tipo_elemento) || id_tipo_elemento <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -264,15 +259,7 @@ export const createTipoElementoController = ({
       });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-
-      if (String(error?.message || "").includes("not found")) {
-        return res.status(404).json({ error: "Not found" });
-      }
-      if (String(error?.message || "").includes("No fields provided")) {
-        return respondValidationError(res, "No fields provided");
-      }
-
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 
@@ -295,12 +282,12 @@ export const createTipoElementoController = ({
    *       400:
    *         description: ID inválido
    */
-  tipoElementoController.delete("/:id", async (req, res) => {
+  tipoElementoController.delete("/:id", async (req, res, next) => {
     console.log(`[Controller] DELETE /tipos-elemento/${req.params.id}`);
 
     const id_tipo_elemento = Number(req.params.id);
     if (Number.isNaN(id_tipo_elemento) || id_tipo_elemento <= 0) {
-      return respondValidationError(res, "Invalid id");
+      return next(buildValidationError("Invalid id"));
     }
 
     try {
@@ -308,7 +295,7 @@ export const createTipoElementoController = ({
       return res.status(204).send();
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
-      return handleControllerError(res, error);
+      return next(error);
     }
   });
 

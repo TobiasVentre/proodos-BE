@@ -1,5 +1,7 @@
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { ILandingComponenteRepository } from "../../Interfaces/ILandingComponenteRepository";
+import { ConflictError } from "../../Errors/ConflictError";
+import { NotFoundError } from "../../Errors/NotFoundError";
 
 export class DeleteComponenteService {
   constructor(
@@ -11,7 +13,7 @@ export class DeleteComponenteService {
     const componente = await this.componenteRepository.getById(id_componente);
 
     if (!componente) {
-      throw new Error("COMPONENTE_NOT_FOUND");
+      throw new NotFoundError("Componente not found");
     }
 
     const isAssigned = await this.landingComponenteRepository.existsByComponente(
@@ -19,7 +21,7 @@ export class DeleteComponenteService {
     );
 
     if (isAssigned) {
-      throw new Error("COMPONENTE_ASSIGNED");
+      throw new ConflictError("Componente is assigned to a landing");
     }
 
     await this.componenteRepository.delete(id_componente);
