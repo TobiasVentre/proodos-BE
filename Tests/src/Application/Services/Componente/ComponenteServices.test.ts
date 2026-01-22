@@ -271,6 +271,54 @@ describe("Componente services", () => {
     );
   });
 
+  it("should throw NotFoundError when componente does not exist on soft delete", async () => {
+    // Arrange
+    const componenteRepository = buildComponenteRepository();
+    const landingComponenteRepository: jest.Mocked<ILandingComponenteRepository> = {
+      assign: jest.fn(),
+      unassign: jest.fn(),
+      getByLanding: jest.fn(),
+      getByComponente: jest.fn(),
+      exists: jest.fn(),
+      existsByComponente: jest.fn(),
+    };
+    componenteRepository.getById.mockResolvedValue(null);
+    const service = new SoftDeleteComponenteService(
+      componenteRepository,
+      landingComponenteRepository
+    );
+
+    // Act
+    const action = () => service.execute(5);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("should throw ConflictError when componente is assigned on soft delete", async () => {
+    // Arrange
+    const componenteRepository = buildComponenteRepository();
+    const landingComponenteRepository: jest.Mocked<ILandingComponenteRepository> = {
+      assign: jest.fn(),
+      unassign: jest.fn(),
+      getByLanding: jest.fn(),
+      getByComponente: jest.fn(),
+      exists: jest.fn(),
+      existsByComponente: jest.fn().mockResolvedValue(true),
+    };
+    componenteRepository.getById.mockResolvedValue({ id_componente: 5 } as never);
+    const service = new SoftDeleteComponenteService(
+      componenteRepository,
+      landingComponenteRepository
+    );
+
+    // Act
+    const action = () => service.execute(5);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(ConflictError);
+  });
+
   it("should fetch componentes list", async () => {
     // Arrange
     const componenteRepository = buildComponenteRepository();
@@ -340,6 +388,50 @@ describe("Componente services", () => {
     expect(result).toEqual({ created: true });
   });
 
+  it("should throw NotFoundError when parent componente does not exist", async () => {
+    // Arrange
+    const componenteRepository = buildComponenteRepository();
+    const compuestoRepository: jest.Mocked<IComponenteCompuestoRepository> = {
+      assign: jest.fn(),
+      unassign: jest.fn(),
+      getAll: jest.fn(),
+    };
+    componenteRepository.getById.mockResolvedValue(null);
+    const service = new AssignComponenteHijoService(
+      componenteRepository,
+      compuestoRepository
+    );
+
+    // Act
+    const action = () => service.execute(1, 2);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("should throw NotFoundError when child componente does not exist", async () => {
+    // Arrange
+    const componenteRepository = buildComponenteRepository();
+    const compuestoRepository: jest.Mocked<IComponenteCompuestoRepository> = {
+      assign: jest.fn(),
+      unassign: jest.fn(),
+      getAll: jest.fn(),
+    };
+    componenteRepository.getById
+      .mockResolvedValueOnce({ id_componente: 1 } as never)
+      .mockResolvedValueOnce(null);
+    const service = new AssignComponenteHijoService(
+      componenteRepository,
+      compuestoRepository
+    );
+
+    // Act
+    const action = () => service.execute(1, 2);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
   it("should unassign componente hijo", async () => {
     // Arrange
     const compuestoRepository: jest.Mocked<IComponenteCompuestoRepository> = {
@@ -375,6 +467,70 @@ describe("Componente services", () => {
 
     // Assert
     await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("should ignore missing child componentes when building tree", async () => {
+    // Arrange
+    const componenteRepository = buildComponenteRepository();
+    const compuestoRepository: jest.Mocked<IComponenteCompuestoRepository> = {
+      assign: jest.fn(),
+      unassign: jest.fn(),
+      getAll: jest.fn(),
+    };
+    componenteRepository.getById.mockResolvedValue({
+      id_componente: 1,
+      nombre: "Root",
+    } as never);
+    componenteRepository.getAll.mockResolvedValue([
+      { id_componente: 1, nombre: "Root" },
+    ] as never);
+    compuestoRepository.getAll.mockResolvedValue([
+      { id_padre: 1, id_hijo: 99 },
+    ] as never);
+    const service = new GetComponenteTreeService(
+      componenteRepository,
+      compuestoRepository
+    );
+
+    // Act
+    const result = await service.execute(1);
+
+    // Assert
+    expect(result.hijos).toHaveLength(0);
+  });
+
+  it("should prevent cycles when building tree", async () => {
+    // Arrange
+    const componenteRepository = buildComponenteRepository();
+    const compuestoRepository: jest.Mocked<IComponenteCompuestoRepository> = {
+      assign: jest.fn(),
+      unassign: jest.fn(),
+      getAll: jest.fn(),
+    };
+    componenteRepository.getById.mockResolvedValue({
+      id_componente: 1,
+      nombre: "Root",
+    } as never);
+    componenteRepository.getAll.mockResolvedValue([
+      { id_componente: 1, nombre: "Root" },
+      { id_componente: 2, nombre: "Child" },
+    ] as never);
+    compuestoRepository.getAll.mockResolvedValue([
+      { id_padre: 1, id_hijo: 2 },
+      { id_padre: 2, id_hijo: 1 },
+    ] as never);
+    const service = new GetComponenteTreeService(
+      componenteRepository,
+      compuestoRepository
+    );
+
+    // Act
+    const result = await service.execute(1);
+
+    // Assert
+    expect(result.hijos).toHaveLength(1);
+    expect(result.hijos[0].id_componente).toBe(2);
+    expect(result.hijos[0].hijos).toHaveLength(0);
   });
 
   it("should build componente tree", async () => {

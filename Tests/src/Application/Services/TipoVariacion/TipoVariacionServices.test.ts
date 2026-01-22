@@ -133,6 +133,26 @@ describe("TipoVariacion services", () => {
     expect(result.id_tipo_variacion).toBe(4);
   });
 
+  it("should validate tipo componente when patching with id_tipo_componente", async () => {
+    // Arrange
+    const variacionRepository = buildVariacionRepository();
+    const tipoComponenteRepository = buildTipoComponenteRepository();
+    const dto: PatchTipoVariacionDTO = { id_tipo_componente: 9 };
+    tipoComponenteRepository.exists.mockResolvedValue(true);
+    variacionRepository.patch.mockResolvedValue({ id_tipo_variacion: 10 } as never);
+    const service = new PatchTipoVariacionService(
+      variacionRepository,
+      tipoComponenteRepository
+    );
+
+    // Act
+    const result = await service.execute(10, dto);
+
+    // Assert
+    expect(tipoComponenteRepository.exists).toHaveBeenCalledWith(9);
+    expect(result.id_tipo_variacion).toBe(10);
+  });
+
   it("should get tipo variacion by id", async () => {
     // Arrange
     const variacionRepository = buildVariacionRepository();

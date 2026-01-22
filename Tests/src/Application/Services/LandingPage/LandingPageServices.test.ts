@@ -176,6 +176,24 @@ describe("LandingPage services", () => {
     await expect(action()).rejects.toBeInstanceOf(ValidationError);
   });
 
+  it("should throw ValidationError when patching with invalid field values", async () => {
+    // Arrange
+    const landingPageRepository = buildLandingPageRepository();
+    landingPageRepository.getById.mockResolvedValue({
+      id_landing: 7,
+      URL: "https://old.com",
+      estado: "ACTIVO",
+      segmento: "retail",
+    } as never);
+    const service = new PatchLandingPageService(landingPageRepository);
+
+    // Act
+    const action = () => service.execute(7, { URL: " " });
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(ValidationError);
+  });
+
   it("should delete landing page", async () => {
     // Arrange
     const landingPageRepository = buildLandingPageRepository();

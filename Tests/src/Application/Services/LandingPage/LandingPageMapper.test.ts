@@ -23,6 +23,21 @@ describe("LandingPageMapper", () => {
     });
   });
 
+  it("should throw ValidationError for invalid create data", () => {
+    // Arrange
+    const dto: CreateLandingPageCommand = {
+      URL: "",
+      estado: " ",
+      segmento: "retail",
+    };
+
+    // Act
+    const action = () => LandingPageMapper.fromCreateCommand(dto);
+
+    // Assert
+    expect(action).toThrow(ValidationError);
+  });
+
   it("should throw ValidationError for invalid update data", () => {
     // Arrange
     const dto: UpdateLandingPageCommand = {
