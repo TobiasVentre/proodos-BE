@@ -123,6 +123,31 @@ describe("LandingComponente services", () => {
     expect(result.data).toEqual({ id_landing: 5, id_componente: 7 });
   });
 
+  it("should return created false when componente already assigned (variant service)", async () => {
+    // Arrange
+    const landingPageRepository = buildLandingPageRepository();
+    const componenteRepository = buildComponenteRepository();
+    const landingComponenteRepository = buildLandingComponenteRepository();
+    const logger = buildLogger();
+    landingPageRepository.getById.mockResolvedValue({ id_landing: 5 } as never);
+    componenteRepository.getById.mockResolvedValue({ id_componente: 7 } as never);
+    landingComponenteRepository.exists.mockResolvedValue(true);
+
+    const service = new AssignComponenteToLandingService(
+      landingPageRepository,
+      componenteRepository,
+      landingComponenteRepository,
+      logger
+    );
+
+    // Act
+    const result = await service.execute(5, 7);
+
+    // Assert
+    expect(result.created).toBe(false);
+    expect(result.data).toEqual({ id_landing: 5, id_componente: 7 });
+  });
+
   it("should throw NotFoundError when landing does not exist", async () => {
     // Arrange
     const landingPageRepository = buildLandingPageRepository();

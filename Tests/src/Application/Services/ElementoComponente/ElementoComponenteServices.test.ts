@@ -145,6 +145,29 @@ describe("ElementoComponente services", () => {
     await expect(action()).rejects.toBeInstanceOf(NotFoundError);
   });
 
+  it("should throw NotFoundError when tipo elemento does not exist on create", async () => {
+    // Arrange
+    const elementoRepository = buildElementoRepository();
+    const componenteRepository = buildComponenteRepository();
+    const tipoElementoRepository = buildTipoElementoRepository();
+    const logger = buildLogger();
+    const dto = buildElementoBase({ id_tipo_elemento: 99 });
+    componenteRepository.getById.mockResolvedValue({ id_componente: 1 } as never);
+    tipoElementoRepository.exists.mockResolvedValue(false);
+    const service = new CreateElementoComponenteService(
+      elementoRepository,
+      componenteRepository,
+      tipoElementoRepository,
+      logger
+    );
+
+    // Act
+    const action = () => service.execute(dto);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
   it("should update elemento componente when dependencies exist", async () => {
     // Arrange
     const elementoRepository = buildElementoRepository();
@@ -182,6 +205,53 @@ describe("ElementoComponente services", () => {
     expect(result.id_elemento).toBe(1);
   });
 
+  it("should throw NotFoundError when componente does not exist on update", async () => {
+    // Arrange
+    const elementoRepository = buildElementoRepository();
+    const componenteRepository = buildComponenteRepository();
+    const tipoElementoRepository = buildTipoElementoRepository();
+    const dto: UpdateElementoComponenteDTO = {
+      ...buildElementoBase({ id_componente: 200 }),
+      id_elemento: 10,
+    };
+    componenteRepository.getById.mockResolvedValue(null);
+    const service = new UpdateElementoComponenteService(
+      elementoRepository,
+      componenteRepository,
+      tipoElementoRepository
+    );
+
+    // Act
+    const action = () => service.execute(dto);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("should throw NotFoundError when tipo elemento does not exist on update", async () => {
+    // Arrange
+    const elementoRepository = buildElementoRepository();
+    const componenteRepository = buildComponenteRepository();
+    const tipoElementoRepository = buildTipoElementoRepository();
+    const dto: UpdateElementoComponenteDTO = {
+      ...buildElementoBase({ id_tipo_elemento: 300 }),
+      id_elemento: 11,
+    };
+    componenteRepository.getById.mockResolvedValue({ id_componente: 1 } as never);
+    tipoElementoRepository.exists.mockResolvedValue(false);
+    const service = new UpdateElementoComponenteService(
+      elementoRepository,
+      componenteRepository,
+      tipoElementoRepository
+    );
+
+    // Act
+    const action = () => service.execute(dto);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
   it("should patch elemento componente and validate references", async () => {
     // Arrange
     const elementoRepository = buildElementoRepository();
@@ -203,6 +273,46 @@ describe("ElementoComponente services", () => {
     // Assert
     expect(elementoRepository.patch).toHaveBeenCalledWith(3, dto);
     expect(result.id_elemento).toBe(3);
+  });
+
+  it("should throw NotFoundError when componente does not exist on patch", async () => {
+    // Arrange
+    const elementoRepository = buildElementoRepository();
+    const componenteRepository = buildComponenteRepository();
+    const tipoElementoRepository = buildTipoElementoRepository();
+    const dto: PatchElementoComponenteDTO = { id_componente: 99 };
+    componenteRepository.getById.mockResolvedValue(null);
+    const service = new PatchElementoComponenteService(
+      elementoRepository,
+      componenteRepository,
+      tipoElementoRepository
+    );
+
+    // Act
+    const action = () => service.execute(3, dto);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("should throw NotFoundError when tipo elemento does not exist on patch", async () => {
+    // Arrange
+    const elementoRepository = buildElementoRepository();
+    const componenteRepository = buildComponenteRepository();
+    const tipoElementoRepository = buildTipoElementoRepository();
+    const dto: PatchElementoComponenteDTO = { id_tipo_elemento: 44 };
+    tipoElementoRepository.exists.mockResolvedValue(false);
+    const service = new PatchElementoComponenteService(
+      elementoRepository,
+      componenteRepository,
+      tipoElementoRepository
+    );
+
+    // Act
+    const action = () => service.execute(3, dto);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("should delete elemento componente", async () => {
