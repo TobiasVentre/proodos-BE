@@ -148,6 +148,51 @@ describe("LandingComponente services", () => {
     expect(result.data).toEqual({ id_landing: 5, id_componente: 7 });
   });
 
+  it("should throw NotFoundError when landing does not exist (variant service)", async () => {
+    // Arrange
+    const landingPageRepository = buildLandingPageRepository();
+    const componenteRepository = buildComponenteRepository();
+    const landingComponenteRepository = buildLandingComponenteRepository();
+    const logger = buildLogger();
+    landingPageRepository.getById.mockResolvedValue(null);
+
+    const service = new AssignComponenteToLandingService(
+      landingPageRepository,
+      componenteRepository,
+      landingComponenteRepository,
+      logger
+    );
+
+    // Act
+    const action = () => service.execute(1, 2);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("should throw NotFoundError when componente does not exist (variant service)", async () => {
+    // Arrange
+    const landingPageRepository = buildLandingPageRepository();
+    const componenteRepository = buildComponenteRepository();
+    const landingComponenteRepository = buildLandingComponenteRepository();
+    const logger = buildLogger();
+    landingPageRepository.getById.mockResolvedValue({ id_landing: 1 } as never);
+    componenteRepository.getById.mockResolvedValue(null);
+
+    const service = new AssignComponenteToLandingService(
+      landingPageRepository,
+      componenteRepository,
+      landingComponenteRepository,
+      logger
+    );
+
+    // Act
+    const action = () => service.execute(1, 2);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
   it("should throw NotFoundError when landing does not exist", async () => {
     // Arrange
     const landingPageRepository = buildLandingPageRepository();
@@ -155,6 +200,29 @@ describe("LandingComponente services", () => {
     const landingComponenteRepository = buildLandingComponenteRepository();
     const logger = buildLogger();
     landingPageRepository.getById.mockResolvedValue(null);
+
+    const service = new AssignLandingComponenteService(
+      landingPageRepository,
+      componenteRepository,
+      landingComponenteRepository,
+      logger
+    );
+
+    // Act
+    const action = () => service.execute(1, 2);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("should throw NotFoundError when componente does not exist", async () => {
+    // Arrange
+    const landingPageRepository = buildLandingPageRepository();
+    const componenteRepository = buildComponenteRepository();
+    const landingComponenteRepository = buildLandingComponenteRepository();
+    const logger = buildLogger();
+    landingPageRepository.getById.mockResolvedValue({ id_landing: 1 } as never);
+    componenteRepository.getById.mockResolvedValue(null);
 
     const service = new AssignLandingComponenteService(
       landingPageRepository,
