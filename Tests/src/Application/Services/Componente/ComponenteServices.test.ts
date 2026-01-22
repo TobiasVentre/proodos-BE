@@ -499,6 +499,36 @@ describe("Componente services", () => {
     expect(result.hijos).toHaveLength(0);
   });
 
+  it("should throw NotFoundError when root id changes during tree build", async () => {
+    // Arrange
+    const componenteRepository = buildComponenteRepository();
+    const compuestoRepository: jest.Mocked<IComponenteCompuestoRepository> = {
+      assign: jest.fn(),
+      unassign: jest.fn(),
+      getAll: jest.fn(),
+    };
+    let accessCount = 0;
+    const root = { nombre: "Root" } as { id_componente: number; nombre: string };
+    Object.defineProperty(root, "id_componente", {
+      get: () => (accessCount++ === 0 ? 1 : 2),
+    });
+    componenteRepository.getById.mockResolvedValue(root as never);
+    componenteRepository.getAll.mockResolvedValue([
+      { id_componente: 1, nombre: "Root" },
+    ] as never);
+    compuestoRepository.getAll.mockResolvedValue([] as never);
+    const service = new GetComponenteTreeService(
+      componenteRepository,
+      compuestoRepository
+    );
+
+    // Act
+    const action = () => service.execute(1);
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+  });
+
   it("should prevent cycles when building tree", async () => {
     // Arrange
     const componenteRepository = buildComponenteRepository();
