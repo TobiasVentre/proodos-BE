@@ -194,6 +194,42 @@ describe("LandingPage services", () => {
     await expect(action()).rejects.toBeInstanceOf(ValidationError);
   });
 
+  it("should throw ValidationError when patching with invalid estado", async () => {
+    // Arrange
+    const landingPageRepository = buildLandingPageRepository();
+    landingPageRepository.getById.mockResolvedValue({
+      id_landing: 8,
+      URL: "https://old.com",
+      estado: "ACTIVO",
+      segmento: "retail",
+    } as never);
+    const service = new PatchLandingPageService(landingPageRepository);
+
+    // Act
+    const action = () => service.execute(8, { estado: "   " });
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("should throw ValidationError when patching with invalid segmento", async () => {
+    // Arrange
+    const landingPageRepository = buildLandingPageRepository();
+    landingPageRepository.getById.mockResolvedValue({
+      id_landing: 9,
+      URL: "https://old.com",
+      estado: "ACTIVO",
+      segmento: "retail",
+    } as never);
+    const service = new PatchLandingPageService(landingPageRepository);
+
+    // Act
+    const action = () => service.execute(9, { segmento: "" });
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(ValidationError);
+  });
+
   it("should delete landing page", async () => {
     // Arrange
     const landingPageRepository = buildLandingPageRepository();
