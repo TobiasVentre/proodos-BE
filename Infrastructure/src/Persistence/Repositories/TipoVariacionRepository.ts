@@ -40,4 +40,8 @@ export class TipoVariacionRepository implements ITipoVariacionRepository {
   async getByTipoComponente(id_tipo_componente: number): Promise<TipoVariacion[]> {
     return this.queryRepository.getByTipoComponente(id_tipo_componente);
   }
+
+  async delete(id_tipo_variacion: number): Promise<void> {
+    return this.commandRepository.delete(id_tipo_variacion);
+  }
 }

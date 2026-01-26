@@ -8,4 +8,5 @@ export interface ITipoComponenteRepository {
   getById(id_tipo_componente: number): Promise<TipoComponente | null>;
   getAll(): Promise<TipoComponente[]>;
   exists(id_tipo_componente: number): Promise<boolean>;
+  delete(id_tipo_componente: number): Promise<void>;
 }

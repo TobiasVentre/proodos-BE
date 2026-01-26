@@ -8,4 +8,5 @@ export interface ITipoVariacionRepository {
   getById(id_tipo_variacion: number): Promise<TipoVariacion | null>;
   getAll(): Promise<TipoVariacion[]>;
   getByTipoComponente(id_tipo_componente: number): Promise<TipoVariacion[]>;
+  delete(id_tipo_variacion: number): Promise<void>;
 }

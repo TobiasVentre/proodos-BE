@@ -90,4 +90,10 @@ export class PlanCommandRepository {
 
     return PlanMapper.toDomain(updated);
   }
+
+  async delete(id_plan: number): Promise<void> {
+    this.logger.info("[Repository] PlanCommandRepository.delete()", { id_plan });
+
+    await Models.PlanModel.destroy({ where: { id_plan } });
+  }
 }

@@ -93,4 +93,12 @@ export class TipoVariacionCommandRepository {
 
     return TipoVariacionMapper.toDomain(updated);
   }
+
+  async delete(id_tipo_variacion: number): Promise<void> {
+    this.logger.info("[Repository] TipoVariacionCommandRepository.delete()", {
+      id_tipo_variacion,
+    });
+
+    await Models.TipoVariacionModel.destroy({ where: { id_tipo_variacion } });
+  }
 }

@@ -21,6 +21,7 @@ import {
 } from "@proodos/application/Ports/LandingPageUseCases";
 import {
   CreatePlanUseCase,
+  DeletePlanUseCase,
   GetAllPlansUseCase,
   GetPlanByIdUseCase,
   PatchPlanUseCase,
@@ -28,6 +29,7 @@ import {
 } from "@proodos/application/Ports/PlanUseCases";
 import {
   CreateTipoComponenteUseCase,
+  DeleteTipoComponenteUseCase,
   GetAllTiposComponenteUseCase,
   GetTipoComponenteByIdUseCase,
   PatchTipoComponenteUseCase,
@@ -35,6 +37,7 @@ import {
 } from "@proodos/application/Ports/TipoComponenteUseCases";
 import {
   CreateTipoVariacionUseCase,
+  DeleteTipoVariacionUseCase,
   GetAllTiposVariacionUseCase,
   GetTipoVariacionByIdUseCase,
   GetVariacionesByTipoComponenteUseCase,
@@ -87,17 +90,20 @@ import { GetAllPlansService } from "@proodos/application/Services/Plan/GetAllPla
 import { GetPlanByIdService } from "@proodos/application/Services/Plan/GetPlanByIdService";
 import { PatchPlanService } from "@proodos/application/Services/Plan/PatchPlanService";
 import { UpdatePlanService } from "@proodos/application/Services/Plan/UpdatePlanService";
+import { DeletePlanService } from "@proodos/application/Services/Plan/DeletePlanService";
 import { CreateTipoComponenteService } from "@proodos/application/Services/TipoComponente/CreateTipoComponenteService";
 import { GetAllTiposComponenteService } from "@proodos/application/Services/TipoComponente/GetAllTiposComponenteService";
 import { GetTipoComponenteByIdService } from "@proodos/application/Services/TipoComponente/GetTipoComponenteByIdService";
 import { UpdateTipoComponenteService } from "@proodos/application/Services/TipoComponente/UpdateTipoComponenteService";
 import { PatchTipoComponenteService } from "@proodos/application/Services/TipoComponente/PatchTipoComponenteService";
+import { DeleteTipoComponenteService } from "@proodos/application/Services/TipoComponente/DeleteTipoComponenteService";
 import { CreateTipoVariacionService } from "@proodos/application/Services/TipoVariacion/CreateTipoVariacionService";
 import { GetAllTiposVariacionService } from "@proodos/application/Services/TipoVariacion/GetAllTiposVariacionService";
 import { GetTipoVariacionByIdService } from "@proodos/application/Services/TipoVariacion/GetTipoVariacionByIdService";
 import { GetVariacionesByTipoComponenteService } from "@proodos/application/Services/TipoVariacion/GetVariacionesByTipoComponenteService";
 import { UpdateTipoVariacionService } from "@proodos/application/Services/TipoVariacion/UpdateTipoVariacionService";
 import { PatchTipoVariacionService } from "@proodos/application/Services/TipoVariacion/PatchTipoVariacionService";
+import { DeleteTipoVariacionService } from "@proodos/application/Services/TipoVariacion/DeleteTipoVariacionService";
 import { CreateTipoElementoService } from "@proodos/application/Services/TipoElemento/CreateTipoElementoService";
 import { GetAllTiposElementoService } from "@proodos/application/Services/TipoElemento/GetAllTiposElementoService";
 import { GetTipoElementoByIdService } from "@proodos/application/Services/TipoElemento/GetTipoElementoByIdService";
@@ -155,6 +161,7 @@ export type ApiUseCases = {
     getPlanById: GetPlanByIdUseCase;
     patchPlan: PatchPlanUseCase;
     updatePlan: UpdatePlanUseCase;
+    deletePlan: DeletePlanUseCase;
   };
   tipoComponente: {
     createTipoComponente: CreateTipoComponenteUseCase;
@@ -162,6 +169,7 @@ export type ApiUseCases = {
     getTipoComponenteById: GetTipoComponenteByIdUseCase;
     updateTipoComponente: UpdateTipoComponenteUseCase;
     patchTipoComponente: PatchTipoComponenteUseCase;
+    deleteTipoComponente: DeleteTipoComponenteUseCase;
   };
   tipoVariacion: {
     createTipoVariacion: CreateTipoVariacionUseCase;
@@ -170,6 +178,7 @@ export type ApiUseCases = {
     getVariacionesByTipoComponente: GetVariacionesByTipoComponenteUseCase;
     updateTipoVariacion: UpdateTipoVariacionUseCase;
     patchTipoVariacion: PatchTipoVariacionUseCase;
+    deleteTipoVariacion: DeleteTipoVariacionUseCase;
   };
   tipoElemento: {
     createTipoElemento: CreateTipoElementoUseCase;
@@ -253,6 +262,7 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
       getPlanById: new GetPlanByIdService(planRepository, logger),
       patchPlan: new PatchPlanService(planRepository, logger),
       updatePlan: new UpdatePlanService(planRepository, logger),
+      deletePlan: new DeletePlanService(planRepository),
     },
     tipoComponente: {
       createTipoComponente: new CreateTipoComponenteService(
@@ -269,6 +279,7 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
       ),
       updateTipoComponente: new UpdateTipoComponenteService(tipoComponenteRepository),
       patchTipoComponente: new PatchTipoComponenteService(tipoComponenteRepository),
+      deleteTipoComponente: new DeleteTipoComponenteService(tipoComponenteRepository),
     },
     tipoVariacion: {
       createTipoVariacion: new CreateTipoVariacionService(
@@ -296,6 +307,7 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
         tipoVariacionRepository,
         tipoComponenteRepository
       ),
+      deleteTipoVariacion: new DeleteTipoVariacionService(tipoVariacionRepository),
     },
     tipoElemento: {
       createTipoElemento: new CreateTipoElementoService(tipoElementoRepository, logger),

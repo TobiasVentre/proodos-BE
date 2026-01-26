@@ -22,3 +22,7 @@ export interface UpdatePlanUseCase {
 export interface PatchPlanUseCase {
   execute(id_plan: number, dto: PatchPlanDTO): Promise<Plan>;
 }
+
+export interface DeletePlanUseCase {
+  execute(id_plan: number): Promise<void>;
+}

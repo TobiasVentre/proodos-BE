@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   CreatePlanUseCase,
+  DeletePlanUseCase,
   GetAllPlansUseCase,
   GetPlanByIdUseCase,
   PatchPlanUseCase,
@@ -25,6 +26,7 @@ type PlanControllerDeps = {
   getPlanByIdService: GetPlanByIdUseCase;
   patchPlanService: PatchPlanUseCase;
   updatePlanService: UpdatePlanUseCase;
+  deletePlanService: DeletePlanUseCase;
   getComponentesByPlanService: GetComponentesByPlanUseCase;
 };
 
@@ -34,6 +36,7 @@ export const createPlanController = ({
   getPlanByIdService,
   patchPlanService,
   updatePlanService,
+  deletePlanService,
   getComponentesByPlanService,
 }: PlanControllerDeps) => {
   const planController = Router();
@@ -309,6 +312,42 @@ export const createPlanController = ({
         message: "OK",
         data: result,
       });
+    } catch (error: any) {
+      console.log("[Controller] ERROR:", error);
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/planes/{id}:
+   *   delete:
+   *     tags:
+   *       - Planes
+   *     summary: Elimina un plan
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       204:
+   *         description: Eliminado
+   *       400:
+   *         description: ID inválido
+   */
+  planController.delete("/:id", async (req, res, next) => {
+    console.log(`[Controller] DELETE /planes/${req.params.id}`);
+
+    const id = Number(req.params.id);
+    if (Number.isNaN(id) || id <= 0) {
+      return next(buildValidationError("Invalid id"));
+    }
+
+    try {
+      await deletePlanService.execute(id);
+      return res.status(204).send();
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
       return next(error);
