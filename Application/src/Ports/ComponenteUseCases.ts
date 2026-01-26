@@ -45,3 +45,11 @@ export interface UnassignComponenteHijoUseCase {
 export interface GetComponenteTreeUseCase {
   execute(id_padre: number): Promise<ComponenteTreeNode>;
 }
+
+export interface AssignPlanToComponenteUseCase {
+  execute(id_componente: number, id_plan: number): Promise<Componente>;
+}
+
+export interface UnassignPlanFromComponenteUseCase {
+  execute(id_componente: number): Promise<Componente>;
+}

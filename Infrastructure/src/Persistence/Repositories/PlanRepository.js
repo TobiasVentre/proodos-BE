@@ -17,6 +17,9 @@ class PlanRepository {
     async patch(id_plan, dto) {
         return this.commandRepository.patch(id_plan, dto);
     }
+    async patchFull(id_plan, dto) {
+        return this.commandRepository.patchFull(id_plan, dto);
+    }
     async getById(id_plan) {
         return this.queryRepository.getById(id_plan);
     }

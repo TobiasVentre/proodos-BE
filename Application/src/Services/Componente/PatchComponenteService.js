@@ -8,7 +8,7 @@ class PatchComponenteService {
         this.planRepository = planRepository;
     }
     async execute(id_componente, dto) {
-        if (dto.id_plan !== undefined) {
+        if (dto.id_plan !== undefined && dto.id_plan !== null) {
             await (0, ensurePlanExists_1.ensurePlanExists)(this.planRepository, dto.id_plan);
         }
         return this.repo.patch(id_componente, dto);

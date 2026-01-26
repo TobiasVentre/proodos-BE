@@ -1,5 +1,4 @@
-export class Plan {
-  id_plan!: number;
+export interface PatchPlanFullDTO {
   segmento?: string | null;
   producto?: string | null;
   bonete?: string | null;

@@ -2,6 +2,7 @@ import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { Plan } from "@proodos/domain/Entities/Plan";
 import { IPlanRepository } from "@proodos/application/Interfaces/IPlanRepository";
 import { PatchPlanDTO } from "@proodos/application/DTOs/Plan/PatchPlanDTO";
+import { PatchPlanFullDTO } from "@proodos/application/DTOs/Plan/PatchPlanFullDTO";
 import { PlanCommandRepository } from "./Commands/PlanCommandRepository";
 import { PlanQueryRepository } from "./Queries/PlanQueryRepository";
 
@@ -24,6 +25,10 @@ export class PlanRepository implements IPlanRepository {
 
   async patch(id_plan: number, dto: PatchPlanDTO): Promise<Plan> {
     return this.commandRepository.patch(id_plan, dto);
+  }
+
+  async patchFull(id_plan: number, dto: PatchPlanFullDTO): Promise<Plan> {
+    return this.commandRepository.patchFull(id_plan, dto);
   }
 
   async getById(id_plan: number): Promise<Plan | null> {

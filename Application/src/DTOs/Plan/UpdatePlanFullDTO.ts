@@ -1,5 +1,5 @@
-export class Plan {
-  id_plan!: number;
+export interface UpdatePlanFullDTO {
+  id_plan: number;
   segmento?: string | null;
   producto?: string | null;
   bonete?: string | null;

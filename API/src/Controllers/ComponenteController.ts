@@ -9,6 +9,8 @@ import {
   SoftDeleteComponenteUseCase,
   AssignComponenteHijoUseCase,
   UnassignComponenteHijoUseCase,
+  AssignPlanToComponenteUseCase,
+  UnassignPlanFromComponenteUseCase,
 } from "@proodos/application/Ports/ComponenteUseCases";
 import { GetLandingsByComponenteUseCase } from "@proodos/application/Ports/LandingComponenteUseCases";
 import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
@@ -24,6 +26,8 @@ type ComponenteControllerDeps = {
   assignComponenteHijoService: AssignComponenteHijoUseCase;
   unassignComponenteHijoService: UnassignComponenteHijoUseCase;
   getComponenteTreeService: GetComponenteTreeUseCase;
+  assignPlanToComponenteService: AssignPlanToComponenteUseCase;
+  unassignPlanFromComponenteService: UnassignPlanFromComponenteUseCase;
 };
 
 export const createComponenteController = ({
@@ -37,6 +41,8 @@ export const createComponenteController = ({
   assignComponenteHijoService,
   unassignComponenteHijoService,
   getComponenteTreeService,
+  assignPlanToComponenteService,
+  unassignPlanFromComponenteService,
 }: ComponenteControllerDeps) => {
   const componenteController = Router();
 
@@ -319,6 +325,106 @@ export const createComponenteController = ({
     try {
       await softDeleteComponenteService.execute(id);
       return res.status(200).json({ message: "OK" });
+    } catch (error: any) {
+      console.log("[Controller] ERROR:", error);
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/componentes/{id}/plan:
+   *   post:
+   *     tags:
+   *       - Componentes
+   *     summary: Asocia un plan a un componente
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - id_plan
+   *             properties:
+   *               id_plan:
+   *                 type: integer
+   *     responses:
+   *       200:
+   *         description: Plan asociado
+   *       400:
+   *         description: Request inválida
+   *       404:
+   *         description: Componente o plan inexistente
+   */
+  componenteController.post("/:id/plan", async (req, res, next) => {
+    console.log(`[Controller] POST /componentes/${req.params.id}/plan`);
+
+    const id_componente = Number(req.params.id);
+    const id_plan = Number(req.body?.id_plan);
+
+    if (Number.isNaN(id_componente) || id_componente <= 0) {
+      return next(buildValidationError("Invalid id"));
+    }
+    if (Number.isNaN(id_plan) || id_plan <= 0) {
+      return next(buildValidationError("Invalid id_plan"));
+    }
+
+    try {
+      const result = await assignPlanToComponenteService.execute(id_componente, id_plan);
+
+      return res.status(200).json({
+        message: "OK",
+        data: result,
+      });
+    } catch (error: any) {
+      console.log("[Controller] ERROR:", error);
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/componentes/{id}/plan:
+   *   delete:
+   *     tags:
+   *       - Componentes
+   *     summary: Desasocia un plan de un componente
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       200:
+   *         description: Plan desasociado
+   *       400:
+   *         description: Request inválida
+   *       404:
+   *         description: Componente inexistente
+   */
+  componenteController.delete("/:id/plan", async (req, res, next) => {
+    console.log(`[Controller] DELETE /componentes/${req.params.id}/plan`);
+
+    const id_componente = Number(req.params.id);
+    if (Number.isNaN(id_componente) || id_componente <= 0) {
+      return next(buildValidationError("Invalid id"));
+    }
+
+    try {
+      const result = await unassignPlanFromComponenteService.execute(id_componente);
+
+      return res.status(200).json({
+        message: "OK",
+        data: result,
+      });
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
       return next(error);

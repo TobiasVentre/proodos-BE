@@ -3,7 +3,7 @@ import { Model, DataTypes, Sequelize } from "sequelize";
 export class ComponenteModel extends Model {
   id_componente!: number;
   id_tipo_componente!: number;
-  id_plan!: number;
+  id_plan!: number | null;
   id_tipo_variacion!: number;
   nombre!: string;
   fecha_creacion!: Date;
@@ -24,7 +24,7 @@ export class ComponenteModel extends Model {
         },
         id_plan: {
           type: DataTypes.INTEGER,
-          allowNull: false,
+          allowNull: true,
         },
         id_tipo_variacion: {
           type: DataTypes.INTEGER,

@@ -10,6 +10,8 @@ import {
   PatchComponenteUseCase,
   AssignComponenteHijoUseCase,
   UnassignComponenteHijoUseCase,
+  AssignPlanToComponenteUseCase,
+  UnassignPlanFromComponenteUseCase,
 } from "@proodos/application/Ports/ComponenteUseCases";
 import {
   CreateLandingPageUseCase,
@@ -21,10 +23,12 @@ import {
 } from "@proodos/application/Ports/LandingPageUseCases";
 import {
   CreatePlanUseCase,
+  CreatePlanFullUseCase,
   DeletePlanUseCase,
   GetAllPlansUseCase,
   GetPlanByIdUseCase,
   PatchPlanUseCase,
+  PatchPlanFullUseCase,
   UpdatePlanUseCase,
 } from "@proodos/application/Ports/PlanUseCases";
 import {
@@ -75,7 +79,9 @@ import { GetComponenteByIdService } from "@proodos/application/Services/Componen
 import { PatchComponenteService } from "@proodos/application/Services/Componente/PatchComponenteService";
 import { SoftDeleteComponenteService } from "@proodos/application/Services/Componente/SoftDeleteComponenteService";
 import { AssignComponenteHijoService } from "@proodos/application/Services/Componente/AssignComponenteHijoService";
+import { AssignPlanToComponenteService } from "@proodos/application/Services/Componente/AssignPlanToComponenteService";
 import { UnassignComponenteHijoService } from "@proodos/application/Services/Componente/UnassignComponenteHijoService";
+import { UnassignPlanFromComponenteService } from "@proodos/application/Services/Componente/UnassignPlanFromComponenteService";
 import { GetComponenteTreeService } from "@proodos/application/Services/Componente/GetComponenteTreeService";
 import { GetLandingComponentesService } from "@proodos/application/Services/LandingComponente/GetLandingComponentesService";
 import { GetLandingsByComponenteService } from "@proodos/application/Services/LandingComponente/GetLandingsByComponenteService";
@@ -86,9 +92,11 @@ import { PatchLandingPageService } from "@proodos/application/Services/LandingPa
 import { UpdateLandingPageService } from "@proodos/application/Services/LandingPage/UpdateLandingPageService";
 import { DeleteLandingPageService } from "@proodos/application/Services/LandingPage/DeleteLandingPageService";
 import { CreatePlanService } from "@proodos/application/Services/Plan/CreatePlanService";
+import { CreatePlanFullService } from "@proodos/application/Services/Plan/CreatePlanFullService";
 import { GetAllPlansService } from "@proodos/application/Services/Plan/GetAllPlansService";
 import { GetPlanByIdService } from "@proodos/application/Services/Plan/GetPlanByIdService";
 import { PatchPlanService } from "@proodos/application/Services/Plan/PatchPlanService";
+import { PatchPlanFullService } from "@proodos/application/Services/Plan/PatchPlanFullService";
 import { UpdatePlanService } from "@proodos/application/Services/Plan/UpdatePlanService";
 import { DeletePlanService } from "@proodos/application/Services/Plan/DeletePlanService";
 import { CreateTipoComponenteService } from "@proodos/application/Services/TipoComponente/CreateTipoComponenteService";
@@ -143,6 +151,8 @@ export type ApiUseCases = {
     assignComponenteHijo: AssignComponenteHijoUseCase;
     unassignComponenteHijo: UnassignComponenteHijoUseCase;
     getComponenteTree: GetComponenteTreeUseCase;
+    assignPlanToComponente: AssignPlanToComponenteUseCase;
+    unassignPlanFromComponente: UnassignPlanFromComponenteUseCase;
   };
   landing: {
     createLandingPage: CreateLandingPageUseCase;
@@ -157,9 +167,11 @@ export type ApiUseCases = {
   };
   plan: {
     createPlan: CreatePlanUseCase;
+    createPlanFull: CreatePlanFullUseCase;
     getAllPlans: GetAllPlansUseCase;
     getPlanById: GetPlanByIdUseCase;
     patchPlan: PatchPlanUseCase;
+    patchPlanFull: PatchPlanFullUseCase;
     updatePlan: UpdatePlanUseCase;
     deletePlan: DeletePlanUseCase;
   };
@@ -237,6 +249,11 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
         componenteRepository,
         componenteCompuestoRepository
       ),
+      assignPlanToComponente: new AssignPlanToComponenteService(
+        componenteRepository,
+        planRepository
+      ),
+      unassignPlanFromComponente: new UnassignPlanFromComponenteService(componenteRepository),
     },
     landing: {
       createLandingPage: new CreateLandingPageService(landingPageRepository, logger),
@@ -258,9 +275,11 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
     },
     plan: {
       createPlan: new CreatePlanService(planRepository, logger),
+      createPlanFull: new CreatePlanFullService(planRepository, logger),
       getAllPlans: new GetAllPlansService(planRepository, logger),
       getPlanById: new GetPlanByIdService(planRepository, logger),
       patchPlan: new PatchPlanService(planRepository, logger),
+      patchPlanFull: new PatchPlanFullService(planRepository, logger),
       updatePlan: new UpdatePlanService(planRepository, logger),
       deletePlan: new DeletePlanService(planRepository),
     },
