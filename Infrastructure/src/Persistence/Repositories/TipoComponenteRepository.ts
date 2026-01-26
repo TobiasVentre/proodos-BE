@@ -40,4 +40,8 @@ export class TipoComponenteRepository implements ITipoComponenteRepository {
   async exists(id_tipo_componente: number): Promise<boolean> {
     return this.queryRepository.exists(id_tipo_componente);
   }
+
+  async delete(id_tipo_componente: number): Promise<void> {
+    return this.commandRepository.delete(id_tipo_componente);
+  }
 }

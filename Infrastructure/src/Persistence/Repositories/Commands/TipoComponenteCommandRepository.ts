@@ -78,4 +78,12 @@ export class TipoComponenteCommandRepository {
 
     return TipoComponenteMapper.toDomain(updated);
   }
+
+  async delete(id_tipo_componente: number): Promise<void> {
+    this.logger.info("[Repository] TipoComponenteCommandRepository.delete()", {
+      id_tipo_componente,
+    });
+
+    await Models.TipoComponenteModel.destroy({ where: { id_tipo_componente } });
+  }
 }

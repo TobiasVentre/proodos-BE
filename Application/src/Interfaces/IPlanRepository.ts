@@ -8,4 +8,5 @@ export interface IPlanRepository {
   getById(id_plan: number): Promise<Plan | null>;
   getAll(): Promise<Plan[]>;
   exists(id_plan: number): Promise<boolean>;
+  delete(id_plan: number): Promise<void>;
 }

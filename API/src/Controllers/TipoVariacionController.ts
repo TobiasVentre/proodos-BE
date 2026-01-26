@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   CreateTipoVariacionUseCase,
+  DeleteTipoVariacionUseCase,
   GetAllTiposVariacionUseCase,
   GetTipoVariacionByIdUseCase,
   GetVariacionesByTipoComponenteUseCase,
@@ -16,6 +17,7 @@ type TipoVariacionControllerDeps = {
   getVariacionesByTipoComponenteService: GetVariacionesByTipoComponenteUseCase;
   updateTipoVariacionService: UpdateTipoVariacionUseCase;
   patchTipoVariacionService: PatchTipoVariacionUseCase;
+  deleteTipoVariacionService: DeleteTipoVariacionUseCase;
 };
 
 export const createTipoVariacionController = ({
@@ -25,6 +27,7 @@ export const createTipoVariacionController = ({
   getVariacionesByTipoComponenteService,
   updateTipoVariacionService,
   patchTipoVariacionService,
+  deleteTipoVariacionService,
 }: TipoVariacionControllerDeps) => {
   const tipoVariacionController = Router();
 
@@ -309,6 +312,42 @@ export const createTipoVariacionController = ({
         message: "OK",
         data: result,
       });
+    } catch (error: any) {
+      console.log("[Controller] ERROR:", error);
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/tipos-variacion/{id}:
+   *   delete:
+   *     tags:
+   *       - Tipos de Variación
+   *     summary: Elimina una variación
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       204:
+   *         description: Eliminada
+   *       400:
+   *         description: ID inválido
+   */
+  tipoVariacionController.delete("/:id", async (req, res, next) => {
+    console.log(`[Controller] DELETE /tipos-variacion/${req.params.id}`);
+
+    const id_tipo_variacion = Number(req.params.id);
+    if (Number.isNaN(id_tipo_variacion) || id_tipo_variacion <= 0) {
+      return next(buildValidationError("Invalid id"));
+    }
+
+    try {
+      await deleteTipoVariacionService.execute(id_tipo_variacion);
+      return res.status(204).send();
     } catch (error: any) {
       console.log("[Controller] ERROR:", error);
       return next(error);

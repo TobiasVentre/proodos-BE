@@ -50,6 +50,7 @@ export const buildRoutes = async (logger: ILogger) => {
       getPlanByIdService: useCases.plan.getPlanById,
       patchPlanService: useCases.plan.patchPlan,
       updatePlanService: useCases.plan.updatePlan,
+      deletePlanService: useCases.plan.deletePlan,
       getComponentesByPlanService: useCases.componente.getComponentesByPlan,
     })
   );
@@ -61,6 +62,7 @@ export const buildRoutes = async (logger: ILogger) => {
       getTipoComponenteByIdService: useCases.tipoComponente.getTipoComponenteById,
       updateTipoComponenteService: useCases.tipoComponente.updateTipoComponente,
       patchTipoComponenteService: useCases.tipoComponente.patchTipoComponente,
+      deleteTipoComponenteService: useCases.tipoComponente.deleteTipoComponente,
     })
   );
   routes.use(
@@ -73,6 +75,7 @@ export const buildRoutes = async (logger: ILogger) => {
         useCases.tipoVariacion.getVariacionesByTipoComponente,
       updateTipoVariacionService: useCases.tipoVariacion.updateTipoVariacion,
       patchTipoVariacionService: useCases.tipoVariacion.patchTipoVariacion,
+      deleteTipoVariacionService: useCases.tipoVariacion.deleteTipoVariacion,
     })
   );
   routes.use(

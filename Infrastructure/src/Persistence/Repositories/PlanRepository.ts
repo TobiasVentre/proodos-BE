@@ -37,4 +37,8 @@ export class PlanRepository implements IPlanRepository {
   async exists(id_plan: number): Promise<boolean> {
     return this.queryRepository.exists(id_plan);
   }
+
+  async delete(id_plan: number): Promise<void> {
+    return this.commandRepository.delete(id_plan);
+  }
 }

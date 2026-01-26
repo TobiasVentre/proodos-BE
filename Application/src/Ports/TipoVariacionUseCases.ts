@@ -29,3 +29,7 @@ export interface PatchTipoVariacionUseCase {
     dto: PatchTipoVariacionDTO
   ): Promise<TipoVariacion>;
 }
+
+export interface DeleteTipoVariacionUseCase {
+  execute(id_tipo_variacion: number): Promise<void>;
+}

@@ -25,3 +25,7 @@ export interface PatchTipoComponenteUseCase {
     dto: PatchTipoComponenteDTO
   ): Promise<TipoComponente>;
 }
+
+export interface DeleteTipoComponenteUseCase {
+  execute(id_tipo_componente: number): Promise<void>;
+}
