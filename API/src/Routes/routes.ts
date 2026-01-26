@@ -26,6 +26,8 @@ export const buildRoutes = async (logger: ILogger) => {
       assignComponenteHijoService: useCases.componente.assignComponenteHijo,
       unassignComponenteHijoService: useCases.componente.unassignComponenteHijo,
       getComponenteTreeService: useCases.componente.getComponenteTree,
+      assignPlanToComponenteService: useCases.componente.assignPlanToComponente,
+      unassignPlanFromComponenteService: useCases.componente.unassignPlanFromComponente,
     })
   );
   routes.use(
@@ -46,9 +48,11 @@ export const buildRoutes = async (logger: ILogger) => {
     "/planes",
     createPlanController({
       createPlanService: useCases.plan.createPlan,
+      createPlanFullService: useCases.plan.createPlanFull,
       getAllPlansService: useCases.plan.getAllPlans,
       getPlanByIdService: useCases.plan.getPlanById,
       patchPlanService: useCases.plan.patchPlan,
+      patchPlanFullService: useCases.plan.patchPlanFull,
       updatePlanService: useCases.plan.updatePlan,
       deletePlanService: useCases.plan.deletePlan,
       getComponentesByPlanService: useCases.componente.getComponentesByPlan,

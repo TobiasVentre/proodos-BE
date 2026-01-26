@@ -1,5 +1,4 @@
-export class Plan {
-  id_plan!: number;
+export interface CreatePlanFullDTO {
   segmento?: string | null;
   producto?: string | null;
   bonete?: string | null;

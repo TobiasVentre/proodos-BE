@@ -14,10 +14,10 @@ class ComponenteModel extends sequelize_1.Model {
                 type: sequelize_1.DataTypes.INTEGER,
                 allowNull: false,
             },
-            id_plan: {
-                type: sequelize_1.DataTypes.INTEGER,
-                allowNull: false,
-            },
+        id_plan: {
+            type: sequelize_1.DataTypes.INTEGER,
+            allowNull: true,
+        },
             id_tipo_variacion: {
                 type: sequelize_1.DataTypes.INTEGER,
                 allowNull: false,

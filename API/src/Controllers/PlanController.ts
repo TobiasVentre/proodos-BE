@@ -1,10 +1,12 @@
 import { Router } from "express";
 import {
   CreatePlanUseCase,
+  CreatePlanFullUseCase,
   DeletePlanUseCase,
   GetAllPlansUseCase,
   GetPlanByIdUseCase,
   PatchPlanUseCase,
+  PatchPlanFullUseCase,
   UpdatePlanUseCase,
 } from "@proodos/application/Ports/PlanUseCases";
 import { GetComponentesByPlanUseCase } from "@proodos/application/Ports/ComponenteUseCases";
@@ -22,9 +24,11 @@ const requiredPlanFields = [
 
 type PlanControllerDeps = {
   createPlanService: CreatePlanUseCase;
+  createPlanFullService: CreatePlanFullUseCase;
   getAllPlansService: GetAllPlansUseCase;
   getPlanByIdService: GetPlanByIdUseCase;
   patchPlanService: PatchPlanUseCase;
+  patchPlanFullService: PatchPlanFullUseCase;
   updatePlanService: UpdatePlanUseCase;
   deletePlanService: DeletePlanUseCase;
   getComponentesByPlanService: GetComponentesByPlanUseCase;
@@ -32,9 +36,11 @@ type PlanControllerDeps = {
 
 export const createPlanController = ({
   createPlanService,
+  createPlanFullService,
   getAllPlansService,
   getPlanByIdService,
   patchPlanService,
+  patchPlanFullService,
   updatePlanService,
   deletePlanService,
   getComponentesByPlanService,
@@ -209,6 +215,39 @@ export const createPlanController = ({
 
   /**
    * @openapi
+   * /api/planes/full:
+   *   post:
+   *     tags:
+   *       - Planes
+   *     summary: Crea un nuevo plan con todos los campos opcionales
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/CreatePlanFullDTO'
+   *     responses:
+   *       200:
+   *         description: Plan creado
+   */
+  planController.post("/full", async (req, res, next) => {
+    console.log("[Controller] POST /planes/full");
+
+    try {
+      const result = await createPlanFullService.execute(req.body);
+
+      return res.status(200).json({
+        message: "OK",
+        data: result,
+      });
+    } catch (error) {
+      console.log("[Controller] ERROR:", error);
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
    * /api/planes/{id}:
    *   patch:
    *     tags:
@@ -244,6 +283,54 @@ export const createPlanController = ({
 
     try {
       const result = await patchPlanService.execute(id, req.body);
+
+      return res.status(200).json({
+        message: "OK",
+        data: result,
+      });
+    } catch (error: any) {
+      console.log("[Controller] ERROR:", error);
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/planes/{id}/full:
+   *   patch:
+   *     tags:
+   *       - Planes
+   *     summary: Actualiza parcialmente un plan con todos los campos
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/PatchPlanFullDTO'
+   *     responses:
+   *       200:
+   *         description: Plan actualizado parcialmente
+   *       400:
+   *         description: Request inválida
+   *       404:
+   *         description: No encontrado
+   */
+  planController.patch("/:id/full", async (req, res, next) => {
+    console.log(`[Controller] PATCH /planes/${req.params.id}/full`);
+
+    const id = Number(req.params.id);
+    if (Number.isNaN(id) || id <= 0) {
+      return next(buildValidationError("Invalid id"));
+    }
+
+    try {
+      const result = await patchPlanFullService.execute(id, req.body);
 
       return res.status(200).json({
         message: "OK",
