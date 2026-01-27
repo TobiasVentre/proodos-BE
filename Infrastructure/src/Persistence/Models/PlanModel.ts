@@ -181,7 +181,7 @@ export class PlanModel extends Model {
           allowNull: true,
         },
         icono_tag_1: {
-          type: DataTypes.STRING(255),
+          type: DataTypes.TEXT,
           allowNull: true,
         },
         pre_beneficio_2_titulo: {
@@ -209,7 +209,7 @@ export class PlanModel extends Model {
           allowNull: true,
         },
         icono_bonete: {
-          type: DataTypes.STRING(255),
+          type: DataTypes.TEXT,
           allowNull: true,
         },
         precio_sin_iva: {
