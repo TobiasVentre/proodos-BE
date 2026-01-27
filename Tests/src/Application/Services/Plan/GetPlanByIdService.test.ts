@@ -21,9 +21,11 @@ describe("GetPlanByIdService", () => {
       create: jest.fn(),
       update: jest.fn(),
       patch: jest.fn(),
+      patchFull: jest.fn(),
       getById: jest.fn().mockResolvedValue(plan),
       getAll: jest.fn(),
       exists: jest.fn(),
+      delete: jest.fn(),
     };
 
     const logger: jest.Mocked<ILogger> = {

@@ -9,9 +9,11 @@ describe("ensurePlanExists", () => {
       create: jest.fn(),
       update: jest.fn(),
       patch: jest.fn(),
+      patchFull: jest.fn(),
       getById: jest.fn(),
       getAll: jest.fn(),
-      exists: jest.fn().mockResolvedValue(false)
+      exists: jest.fn().mockResolvedValue(false),
+      delete: jest.fn(),
     };
 
     // Act
@@ -31,9 +33,11 @@ describe("ensurePlanExists", () => {
       create: jest.fn(),
       update: jest.fn(),
       patch: jest.fn(),
+      patchFull: jest.fn(),
       getById: jest.fn(),
       getAll: jest.fn(),
-      exists: jest.fn().mockResolvedValue(true)
+      exists: jest.fn().mockResolvedValue(true),
+      delete: jest.fn(),
     };
 
     // Act

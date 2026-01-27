@@ -35,9 +35,11 @@ const buildPlanRepository = (): jest.Mocked<IPlanRepository> => ({
   create: jest.fn(),
   update: jest.fn(),
   patch: jest.fn(),
+  patchFull: jest.fn(),
   getById: jest.fn(),
   getAll: jest.fn(),
   exists: jest.fn(),
+  delete: jest.fn(),
 });
 
 const buildLogger = (): jest.Mocked<ILogger> => ({
