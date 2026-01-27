@@ -20,6 +20,7 @@ const buildVariacionRepository = (): jest.Mocked<ITipoVariacionRepository> => ({
   getById: jest.fn(),
   getAll: jest.fn(),
   getByTipoComponente: jest.fn(),
+  delete: jest.fn(),
 });
 
 const buildTipoComponenteRepository = (): jest.Mocked<ITipoComponenteRepository> => ({
@@ -29,6 +30,7 @@ const buildTipoComponenteRepository = (): jest.Mocked<ITipoComponenteRepository>
   getById: jest.fn(),
   getAll: jest.fn(),
   exists: jest.fn(),
+  delete: jest.fn(),
 });
 
 const buildLogger = (): jest.Mocked<ILogger> => ({

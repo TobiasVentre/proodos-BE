@@ -16,6 +16,7 @@ const buildRepository = (): jest.Mocked<ITipoComponenteRepository> => ({
   getById: jest.fn(),
   getAll: jest.fn(),
   exists: jest.fn(),
+  delete: jest.fn(),
 });
 
 const buildLogger = (): jest.Mocked<ILogger> => ({
