@@ -2,7 +2,7 @@ import * as Models from "../../Models";
 import { ComponenteMapper } from "../../../Mappers/ComponenteMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { Componente } from "@proodos/domain/Entities/Componente";
-import { sequelize } from "../../Config/SequelizeConfig";
+import { sequelize } from "../../../Config/SequelizeConfig";
 
 export class ComponenteQueryRepository {
   private softDeleteSupported?: boolean;
