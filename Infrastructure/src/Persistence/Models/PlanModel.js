@@ -139,7 +139,7 @@ class PlanModel extends sequelize_1.Model {
                 allowNull: true,
             },
             icono_tag_1: {
-                type: sequelize_1.DataTypes.STRING(255),
+                type: sequelize_1.DataTypes.TEXT,
                 allowNull: true,
             },
             pre_beneficio_2_titulo: {
@@ -167,7 +167,7 @@ class PlanModel extends sequelize_1.Model {
                 allowNull: true,
             },
             icono_bonete: {
-                type: sequelize_1.DataTypes.STRING(255),
+                type: sequelize_1.DataTypes.TEXT,
                 allowNull: true,
             },
             precio_sin_iva: {
