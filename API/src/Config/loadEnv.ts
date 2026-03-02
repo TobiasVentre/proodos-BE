@@ -19,18 +19,21 @@ function findRepoRoot(startDir: string): string {
 
 export function loadEnv() {
   const root = findRepoRoot(process.cwd());
-  const envPath = path.join(root, ".env");
+  const envPath = process.env.ENV_FILE
+    ? path.resolve(process.cwd(), process.env.ENV_FILE)
+    : path.join(root, ".env");
 
-  if (!fs.existsSync(envPath)) {
-    throw new Error(`[ENV] No se encontró .env en: ${envPath}`);
+  if (fs.existsSync(envPath)) {
+    const result = dotenv.config({ path: envPath, override: true });
+    if (result.error) {
+      throw new Error(`[ENV] Error leyendo .env (${envPath}): ${result.error.message}`);
+    }
+    console.log("[ENV] Loaded:", envPath);
+  } else {
+    console.warn(
+      `[ENV] No se encontró archivo .env (${envPath}). Se usarán variables del entorno del sistema.`
+    );
   }
-
-  const result = dotenv.config({ path: envPath, override: true });
-  if (result.error) {
-    throw new Error(`[ENV] Error leyendo .env (${envPath}): ${result.error.message}`);
-  }
-
-  console.log("[ENV] Loaded:", envPath);
   console.log("[ENV] DB:", {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -42,6 +45,6 @@ export function loadEnv() {
   const required = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"];
   const missing = required.filter((k) => !process.env[k] || String(process.env[k]).trim() === "");
   if (missing.length) {
-    throw new Error(`[ENV] Faltan variables: ${missing.join(", ")} (archivo: ${envPath})`);
+    throw new Error(`[ENV] Faltan variables: ${missing.join(", ")}`);
   }
 }

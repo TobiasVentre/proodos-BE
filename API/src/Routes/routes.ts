@@ -7,7 +7,7 @@ import { createTipoComponenteController } from "../Controllers/TipoComponenteCon
 import { createTipoElementoController } from "../Controllers/TipoElementoController";
 import { createTipoVariacionController } from "../Controllers/TipoVariacionController";
 import { createElementoComponenteController } from "../Controllers/ElementoComponenteController";
-import { buildApiUseCases } from "@proodos/api/CompositionRoot/ApiContainer";
+import { buildApiUseCases } from "../CompositionRoot/ApiContainer";
 
 export const buildRoutes = async (logger: ILogger) => {
   const routes = Router();

@@ -8,7 +8,11 @@
     "API"
   ],
   "scripts": {
-    "build": "npm run build --workspace Domain && npm run build --workspace Application && npm run build --workspace Infrastructure && npm run build --workspace API",
-    "start": "npm run start --workspace API"
+    "clean": "node -e \"['Domain/dist','Application/dist','Infrastructure/dist','API/dist'].forEach(p=>require('fs').rmSync(p,{recursive:true,force:true}))\"",
+    "build": "npm run clean && npm run build --workspace Domain && npm run build --workspace Application && npm run build --workspace Infrastructure && npm run build --workspace API",
+    "start": "npm run start --workspace API",
+    "db:migrate": "npm run db:migrate --workspace Infrastructure",
+    "db:migrate:undo": "npm run db:migrate:undo --workspace Infrastructure",
+    "start:api": "npm run start --workspace API"
   }
 }

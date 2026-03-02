@@ -1,9 +1,19 @@
-
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@proodos/domain/*": ["../Domain/dist/*"],
+      "@proodos/application/*": ["../Application/dist/*"],
+      "@proodos/infrastructure/*": ["../Infrastructure/dist/*"],
+      "@proodos/api/*": ["src/*"]
+    },
+    "rootDir": "src",
     "outDir": "./dist",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "**/*.test.ts"]
 }

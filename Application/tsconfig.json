@@ -1,4 +1,16 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["src"]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@proodos/domain/*": ["../Domain/dist/*"]
+    },
+    "rootDir": "src",
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "**/*.test.ts"]
 }

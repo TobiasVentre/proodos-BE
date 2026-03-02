@@ -1,8 +1,18 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["src"],
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@proodos/domain/*": ["../Domain/dist/*"],
+      "@proodos/application/*": ["../Application/dist/*"]
+    },
+    "rootDir": "src",
+    "outDir": "dist",
     "moduleResolution": "node",
-    "resolveJsonModule": true
-  }
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "**/*.test.ts"]
 }

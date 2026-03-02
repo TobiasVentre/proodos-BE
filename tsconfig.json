@@ -5,14 +5,15 @@
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
-      "@proodos/domain/*": ["Domain/src/*"],
-      "@proodos/application/*": ["Application/src/*"],
-      "@proodos/infrastructure/*": ["Infrastructure/src/*"],
-      "@proodos/api/*": ["API/src/*"]
+      "@proodos/domain/*": ["Domain/dist/*", "Domain/src/*"],
+      "@proodos/application/*": ["Application/dist/*", "Application/src/*"],
+      "@proodos/infrastructure/*": ["Infrastructure/dist/*", "Infrastructure/src/*"],
+      "@proodos/api/*": ["API/dist/*", "API/src/*"]
     },
     "strict": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowJs": false
   }
 }
 

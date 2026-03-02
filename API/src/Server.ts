@@ -11,10 +11,13 @@ import { errorHandler } from "./Middleware/ErrorHandler";
 
 const app = express();
 const logger = new ConsoleLogger();
+const PORT = Number(process.env.PORT || 8000);
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
+const ENABLE_SWAGGER = String(process.env.ENABLE_SWAGGER ?? "true").toLowerCase() !== "false";
 
 app.use(express.json());
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", CORS_ORIGIN);
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
@@ -24,17 +27,23 @@ app.use((req, res, next) => {
 
   return next();
 });
-// Swagger
-setupSwagger(app);
+
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+if (ENABLE_SWAGGER) {
+  setupSwagger(app);
+}
 
 const startServer = async () => {
   // API Routes
   app.use("/api", await buildRoutes(logger));
   app.use(errorHandler);
 
-  const PORT = 3000;
   app.listen(PORT, () => {
-    logger.info(`API Running on http://localhost:${PORT}/docs`);
+    const docsPath = ENABLE_SWAGGER ? "/docs" : "";
+    logger.info(`API Running on http://localhost:${PORT}${docsPath}`);
   });
 };
 

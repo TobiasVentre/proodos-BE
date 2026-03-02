@@ -5,10 +5,12 @@ node_modules/
 # Build
 dist/
 **/dist/
+*.tsbuildinfo
 
 # Env
 .env
 .env.*
+!.env.example
 
 # Logs
 npm-debug.log*
@@ -24,4 +26,18 @@ Thumbs.db
 .idea/
 
 # Coverage
-Test/coverage
+Tests/coverage/
+coverage/
+
+# Accidental TS emits inside source folders
+Domain/src/**/*.js
+Domain/src/**/*.js.map
+Application/src/**/*.js
+Application/src/**/*.js.map
+Infrastructure/src/**/*.js
+Infrastructure/src/**/*.js.map
+API/src/**/*.js
+API/src/**/*.js.map
+
+# Keep Sequelize migrations in JS (source of truth)
+!Infrastructure/src/Persistence/Migrations/*.js
