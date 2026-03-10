@@ -1,21 +1,23 @@
-import { CreateComponenteDTO } from "../../DTOs/Componente/CreateComponenteDTO";
+import { ICreateComponenteDTO } from "../../DTOs/Componente/ICreateComponenteDTO";
+import { mapCreateComponenteDTOToEntity } from "../../DTOs/Componente/ComponenteDTOMapper";
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { Componente } from "@proodos/domain/Entities/Componente";
-import { CreateComponenteUseCase } from "../../Ports/ComponenteUseCases";
+import { ICreateComponenteUseCase } from "../../Ports/IComponenteUseCases";
 import { ILogger } from "../../Interfaces/ILogger";
 import { IPlanRepository } from "../../Interfaces/IPlanRepository";
 import { ensurePlanExists } from "./ensurePlanExists";
 
-export class CreateComponenteService implements CreateComponenteUseCase {
+export class CreateComponenteService implements ICreateComponenteUseCase {
   constructor(
     private readonly componenteRepository: IComponenteRepository,
     private readonly planRepository: IPlanRepository,
     private readonly logger: ILogger
   ) {}
 
-  async execute(dto: CreateComponenteDTO): Promise<Componente> {
+  async execute(dto: ICreateComponenteDTO): Promise<Componente> {
     this.logger.info("[Service] CreateComponenteService.execute()");
     await ensurePlanExists(this.planRepository, dto.id_plan);
-    return await this.componenteRepository.create(dto as Componente);
+    const entity = mapCreateComponenteDTOToEntity(dto);
+    return this.componenteRepository.create(entity);
   }
 }

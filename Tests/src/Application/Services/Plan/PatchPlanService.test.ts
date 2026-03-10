@@ -1,5 +1,5 @@
 import { PatchPlanService } from "@proodos/application/Services/Plan/PatchPlanService";
-import { PatchPlanDTO } from "@proodos/application/DTOs/Plan/PatchPlanDTO";
+import { IPatchPlanDTO } from "@proodos/application/DTOs/Plan/IPatchPlanDTO";
 import { IPlanRepository } from "@proodos/application/Interfaces/IPlanRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { Plan } from "@proodos/domain/Entities/Plan";
@@ -7,7 +7,7 @@ import { Plan } from "@proodos/domain/Entities/Plan";
 describe("PatchPlanService", () => {
   it("should log the action and patch the plan", async () => {
     // Arrange
-    const dto: PatchPlanDTO = {
+    const dto: IPatchPlanDTO = {
       nombre: "Plan Ajustado",
       precio_oferta: 75,
     };
@@ -26,6 +26,7 @@ describe("PatchPlanService", () => {
     const planRepository: jest.Mocked<IPlanRepository> = {
       create: jest.fn(),
       update: jest.fn(),
+      updateFull: jest.fn(),
       patch: jest.fn().mockResolvedValue(patchedPlan),
       patchFull: jest.fn(),
       getById: jest.fn(),

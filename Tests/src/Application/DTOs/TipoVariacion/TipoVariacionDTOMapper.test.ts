@@ -2,13 +2,13 @@ import {
   mapCreateTipoVariacionDTOToEntity,
   mapUpdateTipoVariacionDTOToEntity,
 } from "@proodos/application/DTOs/TipoVariacion/TipoVariacionDTOMapper";
-import { CreateTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/CreateTipoVariacionDTO";
-import { UpdateTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/UpdateTipoVariacionDTO";
+import { ICreateTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/ICreateTipoVariacionDTO";
+import { IUpdateTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/IUpdateTipoVariacionDTO";
 
 describe("TipoVariacionDTOMapper", () => {
-  it("should map CreateTipoVariacionDTO applying null defaults", () => {
+  it("should map ICreateTipoVariacionDTO applying null defaults", () => {
     // Arrange
-    const dto: CreateTipoVariacionDTO = {
+    const dto: ICreateTipoVariacionDTO = {
       id_tipo_componente: 1,
       nombre: "Variante",
     };
@@ -28,9 +28,9 @@ describe("TipoVariacionDTOMapper", () => {
     });
   });
 
-  it("should map UpdateTipoVariacionDTO keeping id_tipo_variacion", () => {
+  it("should map IUpdateTipoVariacionDTO keeping id_tipo_variacion", () => {
     // Arrange
-    const dto: UpdateTipoVariacionDTO = {
+    const dto: IUpdateTipoVariacionDTO = {
       id_tipo_variacion: 7,
       id_tipo_componente: 2,
       nombre: "Variante 2",

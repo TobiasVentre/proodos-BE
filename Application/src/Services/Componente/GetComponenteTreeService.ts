@@ -2,16 +2,18 @@ import { Componente } from "@proodos/domain/Entities/Componente";
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { IComponenteCompuestoRepository } from "../../Interfaces/IComponenteCompuestoRepository";
 import { NotFoundError } from "../../Errors/NotFoundError";
+import {
+  IComponenteTreeNode,
+  IGetComponenteTreeUseCase,
+} from "../../Ports/IComponenteUseCases";
 
-export type ComponenteTreeNode = Componente & { hijos: ComponenteTreeNode[] };
-
-export class GetComponenteTreeService {
+export class GetComponenteTreeService implements IGetComponenteTreeUseCase {
   constructor(
     private readonly componenteRepository: IComponenteRepository,
     private readonly compuestoRepository: IComponenteCompuestoRepository
   ) {}
 
-  async execute(id_padre: number): Promise<ComponenteTreeNode> {
+  async execute(id_padre: number): Promise<IComponenteTreeNode> {
     const root = await this.componenteRepository.getById(id_padre);
     if (!root) {
       throw new NotFoundError("Componente not found");
@@ -36,7 +38,7 @@ export class GetComponenteTreeService {
       childrenByParent.get(rel.id_padre)!.push(rel.id_hijo);
     });
 
-    const buildTree = (id: number, visited: Set<number>): ComponenteTreeNode | null => {
+    const buildTree = (id: number, visited: Set<number>): IComponenteTreeNode | null => {
       if (visited.has(id)) {
         return null;
       }
@@ -49,7 +51,7 @@ export class GetComponenteTreeService {
 
       const hijos = (childrenByParent.get(id) || [])
         .map((childId) => buildTree(childId, visited))
-        .filter((node): node is ComponenteTreeNode => Boolean(node));
+        .filter((node): node is IComponenteTreeNode => Boolean(node));
 
       return {
         ...componente,

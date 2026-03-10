@@ -1,4 +1,5 @@
 import { ILandingComponenteRepository } from "@proodos/application/Interfaces/ILandingComponenteRepository";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { LandingComponente } from "@proodos/domain/Entities/LandingComponente";
 import { LandingComponenteCommandRepository } from "./Commands/LandingComponenteCommandRepository";
 import { LandingComponenteQueryRepository } from "./Queries/LandingComponenteQueryRepository";
@@ -7,9 +8,9 @@ export class LandingComponenteRepository implements ILandingComponenteRepository
   private readonly commandRepository: LandingComponenteCommandRepository;
   private readonly queryRepository: LandingComponenteQueryRepository;
 
-  constructor() {
-    this.commandRepository = new LandingComponenteCommandRepository();
-    this.queryRepository = new LandingComponenteQueryRepository();
+  constructor(logger: ILogger) {
+    this.commandRepository = new LandingComponenteCommandRepository(logger);
+    this.queryRepository = new LandingComponenteQueryRepository(logger);
   }
 
   async assign(entity: LandingComponente): Promise<LandingComponente> {

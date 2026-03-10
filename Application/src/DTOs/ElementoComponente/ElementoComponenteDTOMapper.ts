@@ -1,9 +1,9 @@
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
-import { CreateElementoComponenteDTO } from "./CreateElementoComponenteDTO";
-import { UpdateElementoComponenteDTO } from "./UpdateElementoComponenteDTO";
+import { ICreateElementoComponenteDTO } from "./ICreateElementoComponenteDTO";
+import { IUpdateElementoComponenteDTO } from "./IUpdateElementoComponenteDTO";
 
 export const mapCreateElementoComponenteDTOToEntity = (
-  dto: CreateElementoComponenteDTO
+  dto: ICreateElementoComponenteDTO
 ): ElementoComponente => ({
   id_elemento: 0,
   id_componente: dto.id_componente,
@@ -17,7 +17,7 @@ export const mapCreateElementoComponenteDTOToEntity = (
 });
 
 export const mapUpdateElementoComponenteDTOToEntity = (
-  dto: UpdateElementoComponenteDTO
+  dto: IUpdateElementoComponenteDTO
 ): ElementoComponente => ({
   id_elemento: dto.id_elemento,
   id_componente: dto.id_componente,

@@ -1,10 +1,10 @@
-import { CreatePlanDTO } from "./CreatePlanDTO";
-import { UpdatePlanDTO } from "./UpdatePlanDTO";
-import { CreatePlanFullDTO } from "./CreatePlanFullDTO";
-import { UpdatePlanFullDTO } from "./UpdatePlanFullDTO";
+import { ICreatePlanDTO } from "./ICreatePlanDTO";
+import { IUpdatePlanDTO } from "./IUpdatePlanDTO";
+import { ICreatePlanFullDTO } from "./ICreatePlanFullDTO";
+import { IUpdatePlanFullDTO } from "./IUpdatePlanFullDTO";
 import { Plan } from "@proodos/domain/Entities/Plan";
 
-export const mapCreatePlanDTOToEntity = (dto: CreatePlanDTO): Plan => ({
+export const mapCreatePlanDTOToEntity = (dto: ICreatePlanDTO): Plan => ({
   nombre: dto.nombre,
   capacidad: dto.capacidad,
   capacidad_anterior: dto.capacidad_anterior,
@@ -49,7 +49,7 @@ export const mapCreatePlanDTOToEntity = (dto: CreatePlanDTO): Plan => ({
   id_plan: 0,
 });
 
-export const mapUpdatePlanDTOToEntity = (dto: UpdatePlanDTO): Plan => ({
+export const mapUpdatePlanDTOToEntity = (dto: IUpdatePlanDTO): Plan => ({
   id_plan: dto.id_plan,
   nombre: dto.nombre,
   capacidad: dto.capacidad,
@@ -69,7 +69,7 @@ const normalizeNullableNumber = (value: number | null | undefined) =>
 const normalizeNullableBoolean = (value: boolean | null | undefined) =>
   value === undefined ? null : value;
 
-export const mapCreatePlanFullDTOToEntity = (dto: CreatePlanFullDTO): Plan => ({
+export const mapCreatePlanFullDTOToEntity = (dto: ICreatePlanFullDTO): Plan => ({
   id_plan: 0,
   segmento: normalizeNullableString(dto.segmento),
   producto: normalizeNullableString(dto.producto),
@@ -114,7 +114,7 @@ export const mapCreatePlanFullDTOToEntity = (dto: CreatePlanFullDTO): Plan => ({
   precio_sin_iva: normalizeNullableNumber(dto.precio_sin_iva),
 });
 
-export const mapUpdatePlanFullDTOToEntity = (dto: UpdatePlanFullDTO): Plan => ({
+export const mapUpdatePlanFullDTOToEntity = (dto: IUpdatePlanFullDTO): Plan => ({
   id_plan: dto.id_plan,
   segmento: normalizeNullableString(dto.segmento),
   producto: normalizeNullableString(dto.producto),

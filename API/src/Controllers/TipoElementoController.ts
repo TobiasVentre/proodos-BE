@@ -1,24 +1,34 @@
 import { Router } from "express";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import {
-  CreateTipoElementoUseCase,
-  DeleteTipoElementoUseCase,
-  GetAllTiposElementoUseCase,
-  GetTipoElementoByIdUseCase,
-  PatchTipoElementoUseCase,
-  UpdateTipoElementoUseCase,
-} from "@proodos/application/Ports/TipoElementoUseCases";
-import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
+  ICreateTipoElementoUseCase,
+  IDeleteTipoElementoUseCase,
+  IGetAllTiposElementoUseCase,
+  IGetTipoElementoByIdUseCase,
+  IPatchTipoElementoUseCase,
+  IUpdateTipoElementoUseCase,
+} from "@proodos/application/Ports/ITipoElementoUseCases";
+import {
+  ensureFound,
+  ensureRequiredFields,
+  logControllerError,
+  parsePositiveInteger,
+  respondNoContent,
+  respondOk,
+} from "./ControllerHelpers";
 
 type TipoElementoControllerDeps = {
-  createTipoElementoService: CreateTipoElementoUseCase;
-  getAllTiposElementoService: GetAllTiposElementoUseCase;
-  getTipoElementoByIdService: GetTipoElementoByIdUseCase;
-  updateTipoElementoService: UpdateTipoElementoUseCase;
-  patchTipoElementoService: PatchTipoElementoUseCase;
-  deleteTipoElementoService: DeleteTipoElementoUseCase;
+  logger: ILogger;
+  createTipoElementoService: ICreateTipoElementoUseCase;
+  getAllTiposElementoService: IGetAllTiposElementoUseCase;
+  getTipoElementoByIdService: IGetTipoElementoByIdUseCase;
+  updateTipoElementoService: IUpdateTipoElementoUseCase;
+  patchTipoElementoService: IPatchTipoElementoUseCase;
+  deleteTipoElementoService: IDeleteTipoElementoUseCase;
 };
 
 export const createTipoElementoController = ({
+  logger,
   createTipoElementoService,
   getAllTiposElementoService,
   getTipoElementoByIdService,
@@ -38,19 +48,16 @@ export const createTipoElementoController = ({
    *     responses:
    *       200:
    *         description: Lista de tipos de elemento
-   */
+  */
   tipoElementoController.get("/", async (req, res, next) => {
-    console.log("[Controller] GET /tipos-elemento");
+    logger.info("[Controller] GET /tipos-elemento");
 
     try {
       const result = await getAllTiposElementoService.execute();
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "GET /tipos-elemento", error);
       return next(error);
     }
   });
@@ -75,28 +82,20 @@ export const createTipoElementoController = ({
    *         description: ID inválido
    *       404:
    *         description: No encontrado
-   */
+  */
   tipoElementoController.get("/:id", async (req, res, next) => {
-    console.log(`[Controller] GET /tipos-elemento/${req.params.id}`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] GET /tipos-elemento/${req.params.id}`);
 
     try {
-      const result = await getTipoElementoByIdService.execute(id);
+      const id = parsePositiveInteger(req.params.id);
+      const result = ensureFound(
+        await getTipoElementoByIdService.execute(id),
+        "Tipo elemento not found"
+      );
 
-      if (!result) {
-        return next(buildNotFoundError("Tipo elemento not found"));
-      }
-
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `GET /tipos-elemento/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -122,26 +121,17 @@ export const createTipoElementoController = ({
    *     responses:
    *       200:
    *         description: Tipo de elemento creado
-   */
+  */
   tipoElementoController.post("/", async (req, res, next) => {
-    console.log("[Controller] POST /tipos-elemento");
-
-    const { nombre } = req.body || {};
-    if (!nombre) {
-      return next(buildValidationError("Missing required fields", {
-        required: ["nombre"],
-      }));
-    }
+    logger.info("[Controller] POST /tipos-elemento");
 
     try {
+      ensureRequiredFields(req.body, ["nombre"]);
       const result = await createTipoElementoService.execute(req.body);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "POST /tipos-elemento", error);
       return next(error);
     }
   });
@@ -177,34 +167,22 @@ export const createTipoElementoController = ({
    *         description: Request inválida
    *       404:
    *         description: No encontrado
-   */
+  */
   tipoElementoController.put("/:id", async (req, res, next) => {
-    console.log(`[Controller] PUT /tipos-elemento/${req.params.id}`);
-
-    const id_tipo_elemento = Number(req.params.id);
-    if (Number.isNaN(id_tipo_elemento) || id_tipo_elemento <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
-
-    const { nombre } = req.body || {};
-    if (!nombre) {
-      return next(buildValidationError("Missing required fields", {
-        required: ["nombre"],
-      }));
-    }
+    logger.info(`[Controller] PUT /tipos-elemento/${req.params.id}`);
 
     try {
+      const id_tipo_elemento = parsePositiveInteger(req.params.id);
+      ensureRequiredFields(req.body, ["nombre"]);
+      const { nombre } = req.body || {};
       const result = await updateTipoElementoService.execute({
         id_tipo_elemento,
         nombre,
       });
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PUT /tipos-elemento/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -238,27 +216,20 @@ export const createTipoElementoController = ({
    *         description: Request inválida
    *       404:
    *         description: No encontrado
-   */
+  */
   tipoElementoController.patch("/:id", async (req, res, next) => {
-    console.log(`[Controller] PATCH /tipos-elemento/${req.params.id}`);
-
-    const id_tipo_elemento = Number(req.params.id);
-    if (Number.isNaN(id_tipo_elemento) || id_tipo_elemento <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] PATCH /tipos-elemento/${req.params.id}`);
 
     try {
+      const id_tipo_elemento = parsePositiveInteger(req.params.id);
       const result = await patchTipoElementoService.execute(
         id_tipo_elemento,
         req.body || {}
       );
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PATCH /tipos-elemento/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -281,20 +252,16 @@ export const createTipoElementoController = ({
    *         description: Eliminado
    *       400:
    *         description: ID inválido
-   */
+  */
   tipoElementoController.delete("/:id", async (req, res, next) => {
-    console.log(`[Controller] DELETE /tipos-elemento/${req.params.id}`);
-
-    const id_tipo_elemento = Number(req.params.id);
-    if (Number.isNaN(id_tipo_elemento) || id_tipo_elemento <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] DELETE /tipos-elemento/${req.params.id}`);
 
     try {
+      const id_tipo_elemento = parsePositiveInteger(req.params.id);
       await deleteTipoElementoService.execute(id_tipo_elemento);
-      return res.status(204).send();
+      return respondNoContent(res);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `DELETE /tipos-elemento/${req.params.id}`, error);
       return next(error);
     }
   });

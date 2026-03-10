@@ -1,6 +1,6 @@
 import * as Models from "../../Models";
 import { TipoElemento } from "@proodos/domain/Entities/TipoElemento";
-import { PatchTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/PatchTipoElementoDTO";
+import { IPatchTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/IPatchTipoElementoDTO";
 import { TipoElementoMapper } from "../../../Mappers/TipoElementoMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
@@ -44,7 +44,7 @@ export class TipoElementoCommandRepository {
 
   async patch(
     id_tipo_elemento: number,
-    dto: PatchTipoElementoDTO
+    dto: IPatchTipoElementoDTO
   ): Promise<TipoElemento> {
     this.logger.info("[Repository] TipoElementoCommandRepository.patch()", {
       id_tipo_elemento,

@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response } from "express";
+import { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 import { AppError } from "@proodos/application/Errors/AppError";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 
 type ErrorResponse = {
   error: true;
@@ -22,29 +23,35 @@ const buildErrorResponse = (error: AppError): ErrorResponse => {
   return payload;
 };
 
-export const errorHandler = (
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-) => {
-  if (err instanceof SyntaxError && "body" in err) {
-    return res.status(400).json({
-      error: true,
-      code: "INVALID_JSON",
-      message: "Invalid JSON body",
+export const createErrorHandler = (logger: ILogger): ErrorRequestHandler => {
+  return (err: Error, req: Request, res: Response, _next: NextFunction) => {
+    if (err instanceof SyntaxError && "body" in err) {
+      logger.warn("[Controller] Invalid JSON body", {
+        method: req.method,
+        path: req.originalUrl,
+      });
+
+      return res.status(400).json({
+        error: true,
+        code: "INVALID_JSON",
+        message: "Invalid JSON body",
+      });
+    }
+
+    if (err instanceof AppError) {
+      return res.status(err.status).json(buildErrorResponse(err));
+    }
+
+    logger.error("[Controller] Unhandled error", {
+      method: req.method,
+      path: req.originalUrl,
+      error: err,
     });
-  }
 
-  if (err instanceof AppError) {
-    return res.status(err.status).json(buildErrorResponse(err));
-  }
-
-  console.error("[Controller] Unhandled error:", err);
-
-  return res.status(500).json({
-    error: true,
-    code: "INTERNAL_SERVER_ERROR",
-    message: "Internal server error",
-  });
+    return res.status(500).json({
+      error: true,
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Internal server error",
+    });
+  };
 };

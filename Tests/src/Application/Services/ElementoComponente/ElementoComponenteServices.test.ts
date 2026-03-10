@@ -10,9 +10,9 @@ import { IComponenteRepository } from "@proodos/application/Interfaces/IComponen
 import { IElementoComponenteRepository } from "@proodos/application/Interfaces/IElementoComponenteRepository";
 import { ITipoElementoRepository } from "@proodos/application/Interfaces/ITipoElementoRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
-import { CreateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/CreateElementoComponenteDTO";
-import { PatchElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/PatchElementoComponenteDTO";
-import { UpdateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/UpdateElementoComponenteDTO";
+import { ICreateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/ICreateElementoComponenteDTO";
+import { IPatchElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/IPatchElementoComponenteDTO";
+import { IUpdateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/IUpdateElementoComponenteDTO";
 
 const buildElementoRepository = (): jest.Mocked<IElementoComponenteRepository> => ({
   create: jest.fn(),
@@ -63,7 +63,7 @@ const buildElementoBase = (
     orden: number;
     css_url: string;
   }> = {}
-): CreateElementoComponenteDTO => ({
+): ICreateElementoComponenteDTO => ({
   id_componente: 1,
   id_tipo_elemento: 2,
   nombre: "Header",
@@ -173,7 +173,7 @@ describe("ElementoComponente services", () => {
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: UpdateElementoComponenteDTO = {
+    const dto: IUpdateElementoComponenteDTO = {
       ...buildElementoBase({
         id_componente: 2,
         id_tipo_elemento: 3,
@@ -210,7 +210,7 @@ describe("ElementoComponente services", () => {
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: UpdateElementoComponenteDTO = {
+    const dto: IUpdateElementoComponenteDTO = {
       ...buildElementoBase({ id_componente: 200 }),
       id_elemento: 10,
     };
@@ -233,7 +233,7 @@ describe("ElementoComponente services", () => {
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: UpdateElementoComponenteDTO = {
+    const dto: IUpdateElementoComponenteDTO = {
       ...buildElementoBase({ id_tipo_elemento: 300 }),
       id_elemento: 11,
     };
@@ -257,7 +257,7 @@ describe("ElementoComponente services", () => {
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: PatchElementoComponenteDTO = { id_componente: 5, id_tipo_elemento: 6 };
+    const dto: IPatchElementoComponenteDTO = { id_componente: 5, id_tipo_elemento: 6 };
     elementoRepository.patch.mockResolvedValue(buildElementoComponente({ id_elemento: 3 }));
     componenteRepository.getById.mockResolvedValue({ id_componente: 5 } as never);
     tipoElementoRepository.exists.mockResolvedValue(true);
@@ -280,7 +280,7 @@ describe("ElementoComponente services", () => {
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: PatchElementoComponenteDTO = { id_componente: 99 };
+    const dto: IPatchElementoComponenteDTO = { id_componente: 99 };
     componenteRepository.getById.mockResolvedValue(null);
     const service = new PatchElementoComponenteService(
       elementoRepository,
@@ -300,7 +300,7 @@ describe("ElementoComponente services", () => {
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: PatchElementoComponenteDTO = { id_tipo_elemento: 44 };
+    const dto: IPatchElementoComponenteDTO = { id_tipo_elemento: 44 };
     tipoElementoRepository.exists.mockResolvedValue(false);
     const service = new PatchElementoComponenteService(
       elementoRepository,

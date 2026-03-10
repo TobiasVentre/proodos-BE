@@ -1,9 +1,9 @@
 import { ILandingPageRepository } from "../../Interfaces/ILandingPageRepository";
 import { LandingPage } from "@proodos/domain/Entities/LandingPage";
-import { GetAllLandingPagesUseCase } from "../../Ports/LandingPageUseCases";
+import { IGetAllLandingPagesUseCase } from "../../Ports/ILandingPageUseCases";
 import { ILogger } from "../../Interfaces/ILogger";
 
-export class GetAllLandingPagesService implements GetAllLandingPagesUseCase {
+export class GetAllLandingPagesService implements IGetAllLandingPagesUseCase {
   constructor(
     private readonly landingPageRepository: ILandingPageRepository,
     private readonly logger: ILogger

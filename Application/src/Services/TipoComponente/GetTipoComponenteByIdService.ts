@@ -1,9 +1,9 @@
 import { ITipoComponenteRepository } from "../../Interfaces/ITipoComponenteRepository";
-import { GetTipoComponenteByIdUseCase } from "../../Ports/TipoComponenteUseCases";
+import { IGetTipoComponenteByIdUseCase } from "../../Ports/ITipoComponenteUseCases";
 import { TipoComponente } from "@proodos/domain/Entities/TipoComponente";
 import { ILogger } from "../../Interfaces/ILogger";
 
-export class GetTipoComponenteByIdService implements GetTipoComponenteByIdUseCase {
+export class GetTipoComponenteByIdService implements IGetTipoComponenteByIdUseCase {
   constructor(
     private readonly tipoComponenteRepository: ITipoComponenteRepository,
     private readonly logger: ILogger

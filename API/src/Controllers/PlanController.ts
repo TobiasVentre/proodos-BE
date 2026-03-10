@@ -1,16 +1,25 @@
 import { Router } from "express";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import {
-  CreatePlanUseCase,
-  CreatePlanFullUseCase,
-  DeletePlanUseCase,
-  GetAllPlansUseCase,
-  GetPlanByIdUseCase,
-  PatchPlanUseCase,
-  PatchPlanFullUseCase,
-  UpdatePlanUseCase,
-} from "@proodos/application/Ports/PlanUseCases";
-import { GetComponentesByPlanUseCase } from "@proodos/application/Ports/ComponenteUseCases";
-import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
+  ICreatePlanUseCase,
+  ICreatePlanFullUseCase,
+  IDeletePlanUseCase,
+  IGetAllPlansUseCase,
+  IGetPlanByIdUseCase,
+  IPatchPlanUseCase,
+  IPatchPlanFullUseCase,
+  IUpdatePlanFullUseCase,
+  IUpdatePlanUseCase,
+} from "@proodos/application/Ports/IPlanUseCases";
+import { IGetComponentesByPlanUseCase } from "@proodos/application/Ports/IComponenteUseCases";
+import {
+  ensureFound,
+  ensureRequiredFields,
+  logControllerError,
+  parsePositiveInteger,
+  respondNoContent,
+  respondOk,
+} from "./ControllerHelpers";
 
 const requiredPlanFields = [
   "nombre",
@@ -23,24 +32,28 @@ const requiredPlanFields = [
 ];
 
 type PlanControllerDeps = {
-  createPlanService: CreatePlanUseCase;
-  createPlanFullService: CreatePlanFullUseCase;
-  getAllPlansService: GetAllPlansUseCase;
-  getPlanByIdService: GetPlanByIdUseCase;
-  patchPlanService: PatchPlanUseCase;
-  patchPlanFullService: PatchPlanFullUseCase;
-  updatePlanService: UpdatePlanUseCase;
-  deletePlanService: DeletePlanUseCase;
-  getComponentesByPlanService: GetComponentesByPlanUseCase;
+  logger: ILogger;
+  createPlanService: ICreatePlanUseCase;
+  createPlanFullService: ICreatePlanFullUseCase;
+  getAllPlansService: IGetAllPlansUseCase;
+  getPlanByIdService: IGetPlanByIdUseCase;
+  patchPlanService: IPatchPlanUseCase;
+  patchPlanFullService: IPatchPlanFullUseCase;
+  updatePlanFullService: IUpdatePlanFullUseCase;
+  updatePlanService: IUpdatePlanUseCase;
+  deletePlanService: IDeletePlanUseCase;
+  getComponentesByPlanService: IGetComponentesByPlanUseCase;
 };
 
 export const createPlanController = ({
+  logger,
   createPlanService,
   createPlanFullService,
   getAllPlansService,
   getPlanByIdService,
   patchPlanService,
   patchPlanFullService,
+  updatePlanFullService,
   updatePlanService,
   deletePlanService,
   getComponentesByPlanService,
@@ -57,19 +70,16 @@ export const createPlanController = ({
    *     responses:
    *       200:
    *         description: Lista de planes
-   */
+  */
   planController.get("/", async (req, res, next) => {
-    console.log("[Controller] GET /planes");
+    logger.info("[Controller] GET /planes");
 
     try {
       const result = await getAllPlansService.execute();
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "GET /planes", error);
       return next(error);
     }
   });
@@ -94,28 +104,20 @@ export const createPlanController = ({
    *         description: ID inválido
    *       404:
    *         description: No encontrado
-   */
+  */
   planController.get("/:id", async (req, res, next) => {
-    console.log(`[Controller] GET /planes/${req.params.id}`);
+    logger.info(`[Controller] GET /planes/${req.params.id}`);
 
     try {
-      const id = Number(req.params.id);
-      if (Number.isNaN(id) || id <= 0) {
-        return next(buildValidationError("Invalid id"));
-      }
+      const id = parsePositiveInteger(req.params.id);
+      const result = ensureFound(
+        await getPlanByIdService.execute(id),
+        "Plan not found"
+      );
 
-      const result = await getPlanByIdService.execute(id);
-
-      if (!result) {
-        return next(buildNotFoundError("Plan not found"));
-      }
-
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `GET /planes/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -140,30 +142,18 @@ export const createPlanController = ({
    *         description: ID inválido
    *       404:
    *         description: Plan no encontrado
-   */
+  */
   planController.get("/:id/componentes", async (req, res, next) => {
-    console.log(`[Controller] GET /planes/${req.params.id}/componentes`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] GET /planes/${req.params.id}/componentes`);
 
     try {
-      const plan = await getPlanByIdService.execute(id);
-
-      if (!plan) {
-        return next(buildNotFoundError("Plan not found"));
-      }
-
+      const id = parsePositiveInteger(req.params.id);
+      ensureFound(await getPlanByIdService.execute(id), "Plan not found");
       const result = await getComponentesByPlanService.execute(id);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `GET /planes/${req.params.id}/componentes`, error);
       return next(error);
     }
   });
@@ -180,35 +170,21 @@ export const createPlanController = ({
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/CreatePlanDTO'
+   *             $ref: '#/components/schemas/ICreatePlanDTO'
    *     responses:
    *       200:
    *         description: Plan creado
-   */
+  */
   planController.post("/", async (req, res, next) => {
-    console.log("[Controller] POST /planes");
-
-    const missingFields = requiredPlanFields.filter(
-      (field) => req.body?.[field] === undefined
-    );
-
-    if (missingFields.length > 0) {
-      return next(
-        buildValidationError("Missing required fields", {
-          required: missingFields,
-        })
-      );
-    }
+    logger.info("[Controller] POST /planes");
 
     try {
+      ensureRequiredFields(req.body, requiredPlanFields);
       const result = await createPlanService.execute(req.body);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "POST /planes", error);
       return next(error);
     }
   });
@@ -225,23 +201,20 @@ export const createPlanController = ({
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/CreatePlanFullDTO'
+   *             $ref: '#/components/schemas/ICreatePlanFullDTO'
    *     responses:
    *       200:
    *         description: Plan creado
-   */
+  */
   planController.post("/full", async (req, res, next) => {
-    console.log("[Controller] POST /planes/full");
+    logger.info("[Controller] POST /planes/full");
 
     try {
       const result = await createPlanFullService.execute(req.body);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "POST /planes/full", error);
       return next(error);
     }
   });
@@ -264,7 +237,7 @@ export const createPlanController = ({
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/PatchPlanDTO'
+   *             $ref: '#/components/schemas/IPatchPlanDTO'
    *     responses:
    *       200:
    *         description: Plan actualizado parcialmente
@@ -272,24 +245,17 @@ export const createPlanController = ({
    *         description: Request inválida
    *       404:
    *         description: No encontrado
-   */
+  */
   planController.patch("/:id", async (req, res, next) => {
-    console.log(`[Controller] PATCH /planes/${req.params.id}`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] PATCH /planes/${req.params.id}`);
 
     try {
+      const id = parsePositiveInteger(req.params.id);
       const result = await patchPlanService.execute(id, req.body);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PATCH /planes/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -312,7 +278,7 @@ export const createPlanController = ({
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/PatchPlanFullDTO'
+   *             $ref: '#/components/schemas/IPatchPlanFullDTO'
    *     responses:
    *       200:
    *         description: Plan actualizado parcialmente
@@ -320,24 +286,61 @@ export const createPlanController = ({
    *         description: Request inválida
    *       404:
    *         description: No encontrado
-   */
+  */
   planController.patch("/:id/full", async (req, res, next) => {
-    console.log(`[Controller] PATCH /planes/${req.params.id}/full`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] PATCH /planes/${req.params.id}/full`);
 
     try {
+      const id = parsePositiveInteger(req.params.id);
       const result = await patchPlanFullService.execute(id, req.body);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PATCH /planes/${req.params.id}/full`, error);
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/planes/{id}/full:
+   *   put:
+   *     tags:
+   *       - Planes
+   *     summary: Reemplaza el contrato full del plan; campos omitidos se persisten como null
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/IUpdatePlanFullDTO'
+   *     responses:
+   *       200:
+   *         description: Plan full actualizado
+   *       400:
+   *         description: Request invalida
+   *       404:
+   *         description: No encontrado
+  */
+  planController.put("/:id/full", async (req, res, next) => {
+    logger.info(`[Controller] PUT /planes/${req.params.id}/full`);
+
+    try {
+      const id = parsePositiveInteger(req.params.id);
+      const result = await updatePlanFullService.execute({
+        id_plan: id,
+        ...(req.body ?? {}),
+      });
+
+      return respondOk(res, result);
+    } catch (error: any) {
+      logControllerError(logger, `PUT /planes/${req.params.id}/full`, error);
       return next(error);
     }
   });
@@ -360,7 +363,7 @@ export const createPlanController = ({
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/UpdatePlanDTO'
+   *             $ref: '#/components/schemas/IUpdatePlanDTO'
    *     responses:
    *       200:
    *         description: Plan actualizado
@@ -368,39 +371,21 @@ export const createPlanController = ({
    *         description: Request inválida
    *       404:
    *         description: No encontrado
-   */
+  */
   planController.put("/:id", async (req, res, next) => {
-    console.log(`[Controller] PUT /planes/${req.params.id}`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
-
-    const missingFields = requiredPlanFields.filter(
-      (field) => req.body?.[field] === undefined
-    );
-
-    if (missingFields.length > 0) {
-      return next(
-        buildValidationError("Missing required fields", {
-          required: missingFields,
-        })
-      );
-    }
+    logger.info(`[Controller] PUT /planes/${req.params.id}`);
 
     try {
+      const id = parsePositiveInteger(req.params.id);
+      ensureRequiredFields(req.body, requiredPlanFields);
       const result = await updatePlanService.execute({
         id_plan: id,
         ...req.body,
       });
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PUT /planes/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -423,20 +408,16 @@ export const createPlanController = ({
    *         description: Eliminado
    *       400:
    *         description: ID inválido
-   */
+  */
   planController.delete("/:id", async (req, res, next) => {
-    console.log(`[Controller] DELETE /planes/${req.params.id}`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] DELETE /planes/${req.params.id}`);
 
     try {
+      const id = parsePositiveInteger(req.params.id);
       await deletePlanService.execute(id);
-      return res.status(204).send();
+      return respondNoContent(res);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `DELETE /planes/${req.params.id}`, error);
       return next(error);
     }
   });

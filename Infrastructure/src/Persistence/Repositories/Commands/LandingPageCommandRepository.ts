@@ -1,5 +1,6 @@
 import { ILandingPageRepository } from "@proodos/application/Interfaces/ILandingPageRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
 import { LandingPage } from "@proodos/domain/Entities/LandingPage";
 
 import { LandingPageModel } from "../../Models";
@@ -37,7 +38,12 @@ export class LandingPageCommandRepository {
     );
 
     const updated = await LandingPageModel.findByPk(entity.id_landing);
-    return updated ? LandingPageMapper.toDomain(updated) : (null as any);
+
+    if (!updated) {
+      throw new NotFoundError(`LandingPage not found: id_landing=${entity.id_landing}`);
+    }
+
+    return LandingPageMapper.toDomain(updated);
   }
 
   async delete(id_landing: number): Promise<void> {

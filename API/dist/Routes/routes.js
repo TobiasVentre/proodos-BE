@@ -14,9 +14,11 @@ const buildRoutes = async (logger) => {
     const routes = (0, express_1.Router)();
     const useCases = await (0, ApiContainer_1.buildApiUseCases)(logger);
     routes.use("/componentes", (0, ComponenteController_1.createComponenteController)({
+        logger,
         createComponenteService: useCases.componente.createComponente,
         getAllComponentesService: useCases.componente.getAllComponentes,
         getComponenteByIdService: useCases.componente.getComponenteById,
+        updateComponenteService: useCases.componente.updateComponente,
         patchComponenteService: useCases.componente.patchComponente,
         deleteComponenteService: useCases.componente.deleteComponente,
         softDeleteComponenteService: useCases.componente.softDeleteComponente,
@@ -28,6 +30,7 @@ const buildRoutes = async (logger) => {
         unassignPlanFromComponenteService: useCases.componente.unassignPlanFromComponente,
     }));
     routes.use("/landings", (0, LandingPageController_1.createLandingPageController)({
+        logger,
         createLandingPageService: useCases.landing.createLandingPage,
         getLandingPageByIdService: useCases.landing.getLandingPageById,
         getAllLandingPagesService: useCases.landing.getAllLandingPages,
@@ -39,17 +42,20 @@ const buildRoutes = async (logger) => {
         getLandingComponentesService: useCases.landing.getLandingComponentes,
     }));
     routes.use("/planes", (0, PlanController_1.createPlanController)({
+        logger,
         createPlanService: useCases.plan.createPlan,
         createPlanFullService: useCases.plan.createPlanFull,
         getAllPlansService: useCases.plan.getAllPlans,
         getPlanByIdService: useCases.plan.getPlanById,
         patchPlanService: useCases.plan.patchPlan,
         patchPlanFullService: useCases.plan.patchPlanFull,
+        updatePlanFullService: useCases.plan.updatePlanFull,
         updatePlanService: useCases.plan.updatePlan,
         deletePlanService: useCases.plan.deletePlan,
         getComponentesByPlanService: useCases.componente.getComponentesByPlan,
     }));
     routes.use("/tipos-componente", (0, TipoComponenteController_1.createTipoComponenteController)({
+        logger,
         createTipoComponenteService: useCases.tipoComponente.createTipoComponente,
         getAllTiposComponenteService: useCases.tipoComponente.getAllTiposComponente,
         getTipoComponenteByIdService: useCases.tipoComponente.getTipoComponenteById,
@@ -58,6 +64,7 @@ const buildRoutes = async (logger) => {
         deleteTipoComponenteService: useCases.tipoComponente.deleteTipoComponente,
     }));
     routes.use("/tipos-variacion", (0, TipoVariacionController_1.createTipoVariacionController)({
+        logger,
         createTipoVariacionService: useCases.tipoVariacion.createTipoVariacion,
         getAllTiposVariacionService: useCases.tipoVariacion.getAllTiposVariacion,
         getTipoVariacionByIdService: useCases.tipoVariacion.getTipoVariacionById,
@@ -67,6 +74,7 @@ const buildRoutes = async (logger) => {
         deleteTipoVariacionService: useCases.tipoVariacion.deleteTipoVariacion,
     }));
     routes.use("/tipos-elemento", (0, TipoElementoController_1.createTipoElementoController)({
+        logger,
         createTipoElementoService: useCases.tipoElemento.createTipoElemento,
         getAllTiposElementoService: useCases.tipoElemento.getAllTiposElemento,
         getTipoElementoByIdService: useCases.tipoElemento.getTipoElementoById,
@@ -75,6 +83,7 @@ const buildRoutes = async (logger) => {
         deleteTipoElementoService: useCases.tipoElemento.deleteTipoElemento,
     }));
     routes.use("/elementos-componente", (0, ElementoComponenteController_1.createElementoComponenteController)({
+        logger,
         createElementoComponenteService: useCases.elementoComponente.createElementoComponente,
         getAllElementosComponenteService: useCases.elementoComponente.getAllElementosComponente,
         getElementoComponenteByIdService: useCases.elementoComponente.getElementoComponenteById,

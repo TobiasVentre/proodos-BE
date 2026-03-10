@@ -1,6 +1,6 @@
 import { TipoVariacion } from "@proodos/domain/Entities/TipoVariacion";
 import { ITipoVariacionRepository } from "@proodos/application/Interfaces/ITipoVariacionRepository";
-import { PatchTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/PatchTipoVariacionDTO";
+import { IPatchTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/IPatchTipoVariacionDTO";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { TipoVariacionCommandRepository } from "./Commands/TipoVariacionCommandRepository";
 import { TipoVariacionQueryRepository } from "./Queries/TipoVariacionQueryRepository";
@@ -24,7 +24,7 @@ export class TipoVariacionRepository implements ITipoVariacionRepository {
 
   async patch(
     id_tipo_variacion: number,
-    dto: PatchTipoVariacionDTO
+    dto: IPatchTipoVariacionDTO
   ): Promise<TipoVariacion> {
     return this.commandRepository.patch(id_tipo_variacion, dto);
   }

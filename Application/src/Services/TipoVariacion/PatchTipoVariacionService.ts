@@ -1,11 +1,11 @@
 import { ITipoVariacionRepository } from "../../Interfaces/ITipoVariacionRepository";
 import { ITipoComponenteRepository } from "../../Interfaces/ITipoComponenteRepository";
-import { PatchTipoVariacionUseCase } from "../../Ports/TipoVariacionUseCases";
-import { PatchTipoVariacionDTO } from "../../DTOs/TipoVariacion/PatchTipoVariacionDTO";
+import { IPatchTipoVariacionUseCase } from "../../Ports/ITipoVariacionUseCases";
+import { IPatchTipoVariacionDTO } from "../../DTOs/TipoVariacion/IPatchTipoVariacionDTO";
 import { TipoVariacion } from "@proodos/domain/Entities/TipoVariacion";
 import { ensureTipoComponenteExists } from "./ensureTipoComponenteExists";
 
-export class PatchTipoVariacionService implements PatchTipoVariacionUseCase {
+export class PatchTipoVariacionService implements IPatchTipoVariacionUseCase {
   constructor(
     private readonly tipoVariacionRepository: ITipoVariacionRepository,
     private readonly tipoComponenteRepository: ITipoComponenteRepository
@@ -13,7 +13,7 @@ export class PatchTipoVariacionService implements PatchTipoVariacionUseCase {
 
   async execute(
     id_tipo_variacion: number,
-    dto: PatchTipoVariacionDTO
+    dto: IPatchTipoVariacionDTO
   ): Promise<TipoVariacion> {
     if (dto.id_tipo_componente !== undefined) {
       await ensureTipoComponenteExists(

@@ -1,16 +1,16 @@
 import { TipoElemento } from "@proodos/domain/Entities/TipoElemento";
-import { CreateTipoElementoDTO } from "./CreateTipoElementoDTO";
-import { UpdateTipoElementoDTO } from "./UpdateTipoElementoDTO";
+import { ICreateTipoElementoDTO } from "./ICreateTipoElementoDTO";
+import { IUpdateTipoElementoDTO } from "./IUpdateTipoElementoDTO";
 
 export const mapCreateTipoElementoDTOToEntity = (
-  dto: CreateTipoElementoDTO
+  dto: ICreateTipoElementoDTO
 ): TipoElemento => ({
   id_tipo_elemento: 0,
   nombre: dto.nombre,
 });
 
 export const mapUpdateTipoElementoDTOToEntity = (
-  dto: UpdateTipoElementoDTO
+  dto: IUpdateTipoElementoDTO
 ): TipoElemento => ({
   id_tipo_elemento: dto.id_tipo_elemento,
   nombre: dto.nombre,

@@ -1,13 +1,13 @@
-import { UpdateTipoComponenteDTO } from "../../DTOs/TipoComponente/UpdateTipoComponenteDTO";
+import { IUpdateTipoComponenteDTO } from "../../DTOs/TipoComponente/IUpdateTipoComponenteDTO";
 import { mapUpdateTipoComponenteDTOToEntity } from "../../DTOs/TipoComponente/TipoComponenteDTOMapper";
 import { ITipoComponenteRepository } from "../../Interfaces/ITipoComponenteRepository";
-import { UpdateTipoComponenteUseCase } from "../../Ports/TipoComponenteUseCases";
+import { IUpdateTipoComponenteUseCase } from "../../Ports/ITipoComponenteUseCases";
 import { TipoComponente } from "@proodos/domain/Entities/TipoComponente";
 
-export class UpdateTipoComponenteService implements UpdateTipoComponenteUseCase {
+export class UpdateTipoComponenteService implements IUpdateTipoComponenteUseCase {
   constructor(private readonly tipoComponenteRepository: ITipoComponenteRepository) {}
 
-  async execute(dto: UpdateTipoComponenteDTO): Promise<TipoComponente> {
+  async execute(dto: IUpdateTipoComponenteDTO): Promise<TipoComponente> {
     const entity = mapUpdateTipoComponenteDTOToEntity(dto);
     return this.tipoComponenteRepository.update(entity);
   }

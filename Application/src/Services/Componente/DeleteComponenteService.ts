@@ -2,8 +2,9 @@ import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { ILandingComponenteRepository } from "../../Interfaces/ILandingComponenteRepository";
 import { ConflictError } from "../../Errors/ConflictError";
 import { NotFoundError } from "../../Errors/NotFoundError";
+import { IDeleteComponenteUseCase } from "../../Ports/IComponenteUseCases";
 
-export class DeleteComponenteService {
+export class DeleteComponenteService implements IDeleteComponenteUseCase {
   constructor(
     private readonly componenteRepository: IComponenteRepository,
     private readonly landingComponenteRepository: ILandingComponenteRepository

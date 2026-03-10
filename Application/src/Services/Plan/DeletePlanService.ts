@@ -1,7 +1,7 @@
 import { IPlanRepository } from "../../Interfaces/IPlanRepository";
-import { DeletePlanUseCase } from "../../Ports/PlanUseCases";
+import { IDeletePlanUseCase } from "../../Ports/IPlanUseCases";
 
-export class DeletePlanService implements DeletePlanUseCase {
+export class DeletePlanService implements IDeletePlanUseCase {
   constructor(private readonly planRepository: IPlanRepository) {}
 
   async execute(id_plan: number): Promise<void> {

@@ -17,6 +17,14 @@ function setupSwagger(app) {
                 description: "Documentación de la API del sistema Proodos"
             },
             components: {
+                securitySchemes: {
+                    bearerAuth: {
+                        type: "http",
+                        scheme: "bearer",
+                        bearerFormat: "JWT",
+                        description: "Ingresar únicamente el JWT. Swagger enviará el prefijo Bearer automáticamente."
+                    }
+                },
                 schemas: {
                     ...schemas_1.componenteSchemas,
                     ...schemas_1.planSchemas,
@@ -26,10 +34,15 @@ function setupSwagger(app) {
                     ...schemas_1.tipoElementoSchemas,
                     ...schemas_1.elementoComponenteSchemas
                 }
-            }
+            },
+            security: [{ bearerAuth: [] }]
         },
         apis: ["./src/Controllers/*.ts"],
     };
     const specs = (0, swagger_jsdoc_1.default)(options);
-    app.use("/docs", ...swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(specs));
+    app.use("/docs", ...swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(specs, {
+        swaggerOptions: {
+            persistAuthorization: true,
+        },
+    }));
 }

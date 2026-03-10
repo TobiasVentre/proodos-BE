@@ -1,7 +1,7 @@
 import { IElementoComponenteRepository } from "../../Interfaces/IElementoComponenteRepository";
-import { DeleteElementoComponenteUseCase } from "../../Ports/ElementoComponenteUseCases";
+import { IDeleteElementoComponenteUseCase } from "../../Ports/IElementoComponenteUseCases";
 
-export class DeleteElementoComponenteService implements DeleteElementoComponenteUseCase {
+export class DeleteElementoComponenteService implements IDeleteElementoComponenteUseCase {
   constructor(private readonly elementoComponenteRepository: IElementoComponenteRepository) {}
 
   async execute(id_elemento: number): Promise<void> {

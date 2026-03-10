@@ -1,39 +1,53 @@
 import { Router } from "express";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import {
-  CreateComponenteUseCase,
-  DeleteComponenteUseCase,
-  GetAllComponentesUseCase,
-  GetComponenteByIdUseCase,
-  GetComponenteTreeUseCase,
-  PatchComponenteUseCase,
-  SoftDeleteComponenteUseCase,
-  AssignComponenteHijoUseCase,
-  UnassignComponenteHijoUseCase,
-  AssignPlanToComponenteUseCase,
-  UnassignPlanFromComponenteUseCase,
-} from "@proodos/application/Ports/ComponenteUseCases";
-import { GetLandingsByComponenteUseCase } from "@proodos/application/Ports/LandingComponenteUseCases";
-import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
+  ICreateComponenteUseCase,
+  IDeleteComponenteUseCase,
+  IGetAllComponentesUseCase,
+  IGetComponenteByIdUseCase,
+  IGetComponenteTreeUseCase,
+  IPatchComponenteUseCase,
+  ISoftDeleteComponenteUseCase,
+  IUpdateComponenteUseCase,
+  IAssignComponenteHijoUseCase,
+  IUnassignComponenteHijoUseCase,
+  IAssignPlanToComponenteUseCase,
+  IUnassignPlanFromComponenteUseCase,
+} from "@proodos/application/Ports/IComponenteUseCases";
+import { IGetLandingsByComponenteUseCase } from "@proodos/application/Ports/ILandingComponenteUseCases";
+import {
+  ensureFound,
+  ensureRequiredFields,
+  logControllerError,
+  parsePositiveInteger,
+  respondCreated,
+  respondNoContent,
+  respondOk,
+} from "./ControllerHelpers";
 
 type ComponenteControllerDeps = {
-  createComponenteService: CreateComponenteUseCase;
-  getAllComponentesService: GetAllComponentesUseCase;
-  getComponenteByIdService: GetComponenteByIdUseCase;
-  patchComponenteService: PatchComponenteUseCase;
-  deleteComponenteService: DeleteComponenteUseCase;
-  softDeleteComponenteService: SoftDeleteComponenteUseCase;
-  getLandingsByComponenteService: GetLandingsByComponenteUseCase;
-  assignComponenteHijoService: AssignComponenteHijoUseCase;
-  unassignComponenteHijoService: UnassignComponenteHijoUseCase;
-  getComponenteTreeService: GetComponenteTreeUseCase;
-  assignPlanToComponenteService: AssignPlanToComponenteUseCase;
-  unassignPlanFromComponenteService: UnassignPlanFromComponenteUseCase;
+  logger: ILogger;
+  createComponenteService: ICreateComponenteUseCase;
+  getAllComponentesService: IGetAllComponentesUseCase;
+  getComponenteByIdService: IGetComponenteByIdUseCase;
+  updateComponenteService: IUpdateComponenteUseCase;
+  patchComponenteService: IPatchComponenteUseCase;
+  deleteComponenteService: IDeleteComponenteUseCase;
+  softDeleteComponenteService: ISoftDeleteComponenteUseCase;
+  getLandingsByComponenteService: IGetLandingsByComponenteUseCase;
+  assignComponenteHijoService: IAssignComponenteHijoUseCase;
+  unassignComponenteHijoService: IUnassignComponenteHijoUseCase;
+  getComponenteTreeService: IGetComponenteTreeUseCase;
+  assignPlanToComponenteService: IAssignPlanToComponenteUseCase;
+  unassignPlanFromComponenteService: IUnassignPlanFromComponenteUseCase;
 };
 
 export const createComponenteController = ({
+  logger,
   createComponenteService,
   getAllComponentesService,
   getComponenteByIdService,
+  updateComponenteService,
   patchComponenteService,
   deleteComponenteService,
   softDeleteComponenteService,
@@ -94,17 +108,14 @@ export const createComponenteController = ({
    *                         additionalProperties: true
    */
   componenteController.get("/", async (req, res, next) => {
-    console.log("[Controller] GET /componentes");
+    logger.info("[Controller] GET /componentes");
 
     try {
       const result = await getAllComponentesService.execute();
 
-      return res.status(200).json({
-        message: "OK",
-        data: result
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "GET /componentes", error);
       return next(error);
     }
   });
@@ -165,26 +176,18 @@ export const createComponenteController = ({
    *         description: No encontrado
    */
   componenteController.get("/:id", async (req, res, next) => {
-    console.log(`[Controller] GET /componentes/${req.params.id}`);
+    logger.info(`[Controller] GET /componentes/${req.params.id}`);
 
     try {
-      const id = Number(req.params.id);
-      if (Number.isNaN(id) || id <= 0) {
-        return next(buildValidationError("Invalid id"));
-      }
+      const id = parsePositiveInteger(req.params.id);
+      const result = ensureFound(
+        await getComponenteByIdService.execute(id),
+        "Componente not found"
+      );
 
-      const result = await getComponenteByIdService.execute(id);
-
-      if (!result) {
-        return next(buildNotFoundError("Componente not found"));
-      }
-
-      return res.status(200).json({
-        message: "OK",
-        data: result
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `GET /componentes/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -220,20 +223,93 @@ export const createComponenteController = ({
    *         description: Componente creado
    */
   componenteController.post("/", async (req, res, next) => {
-    console.log("[Controller] POST /componentes");
+    logger.info("[Controller] POST /componentes");
 
     try {
+      ensureRequiredFields(req.body, [
+        "id_tipo_componente",
+        "id_plan",
+        "id_tipo_variacion",
+        "nombre",
+      ]);
       const result = await createComponenteService.execute(req.body);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "POST /componentes", error);
       return next(error);
     }
   });
+
+  /**
+   * @openapi
+   * /api/componentes/{id}:
+   *   put:
+   *     tags:
+   *       - Componentes
+   *     summary: Actualiza un componente
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - id_tipo_componente
+   *               - id_plan
+   *               - id_tipo_variacion
+   *               - nombre
+   *             properties:
+   *               id_tipo_componente:
+   *                 type: integer
+   *               id_plan:
+   *                 type: integer
+   *               id_tipo_variacion:
+   *                 type: integer
+   *               nombre:
+   *                 type: string
+   *     responses:
+   *       200:
+   *         description: Componente actualizado
+   *       400:
+   *         description: Request invalida
+   *       404:
+   *         description: Componente no encontrado
+   */
+  componenteController.put("/:id", async (req, res, next) => {
+    logger.info(`[Controller] PUT /componentes/${req.params.id}`);
+
+    try {
+      const id_componente = parsePositiveInteger(req.params.id);
+      ensureRequiredFields(req.body, [
+        "id_tipo_componente",
+        "id_plan",
+        "id_tipo_variacion",
+        "nombre",
+      ]);
+      const { id_tipo_componente, id_plan, id_tipo_variacion, nombre } =
+        req.body || {};
+      const result = await updateComponenteService.execute({
+        id_componente,
+        id_tipo_componente,
+        id_plan,
+        id_tipo_variacion,
+        nombre,
+      });
+
+      return respondOk(res, result);
+    } catch (error: any) {
+      logControllerError(logger, `PUT /componentes/${req.params.id}`, error);
+      return next(error);
+    }
+  });
+
   /**
    * @openapi
    * /api/componentes/{id}:
@@ -271,22 +347,15 @@ export const createComponenteController = ({
    *         description: No encontrado
    */
   componenteController.patch("/:id", async (req, res, next) => {
-    console.log(`[Controller] PATCH /componentes/${req.params.id}`);
+    logger.info(`[Controller] PATCH /componentes/${req.params.id}`);
 
     try {
-      const id = Number(req.params.id);
-      if (Number.isNaN(id) || id <= 0) {
-        return next(buildValidationError("Invalid id"));
-      }
-
+      const id = parsePositiveInteger(req.params.id);
       const result = await patchComponenteService.execute(id, req.body);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PATCH /componentes/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -315,18 +384,14 @@ export const createComponenteController = ({
    *         description: Componente asignado a una landing
    */
   componenteController.patch("/:id/baja", async (req, res, next) => {
-    console.log(`[Controller] PATCH /componentes/${req.params.id}/baja`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] PATCH /componentes/${req.params.id}/baja`);
 
     try {
+      const id = parsePositiveInteger(req.params.id);
       await softDeleteComponenteService.execute(id);
-      return res.status(200).json({ message: "OK" });
+      return respondOk(res);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PATCH /componentes/${req.params.id}/baja`, error);
       return next(error);
     }
   });
@@ -364,27 +429,16 @@ export const createComponenteController = ({
    *         description: Componente o plan inexistente
    */
   componenteController.post("/:id/plan", async (req, res, next) => {
-    console.log(`[Controller] POST /componentes/${req.params.id}/plan`);
-
-    const id_componente = Number(req.params.id);
-    const id_plan = Number(req.body?.id_plan);
-
-    if (Number.isNaN(id_componente) || id_componente <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
-    if (Number.isNaN(id_plan) || id_plan <= 0) {
-      return next(buildValidationError("Invalid id_plan"));
-    }
+    logger.info(`[Controller] POST /componentes/${req.params.id}/plan`);
 
     try {
+      const id_componente = parsePositiveInteger(req.params.id);
+      const id_plan = parsePositiveInteger(req.body?.id_plan, "id_plan");
       const result = await assignPlanToComponenteService.execute(id_componente, id_plan);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `POST /componentes/${req.params.id}/plan`, error);
       return next(error);
     }
   });
@@ -411,22 +465,15 @@ export const createComponenteController = ({
    *         description: Componente inexistente
    */
   componenteController.delete("/:id/plan", async (req, res, next) => {
-    console.log(`[Controller] DELETE /componentes/${req.params.id}/plan`);
-
-    const id_componente = Number(req.params.id);
-    if (Number.isNaN(id_componente) || id_componente <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] DELETE /componentes/${req.params.id}/plan`);
 
     try {
+      const id_componente = parsePositiveInteger(req.params.id);
       const result = await unassignPlanFromComponenteService.execute(id_componente);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `DELETE /componentes/${req.params.id}/plan`, error);
       return next(error);
     }
   });
@@ -451,22 +498,15 @@ export const createComponenteController = ({
    *         description: ID inválido
    */
   componenteController.get("/:id/landings", async (req, res, next) => {
-    console.log(`[Controller] GET /componentes/${req.params.id}/landings`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] GET /componentes/${req.params.id}/landings`);
 
     try {
+      const id = parsePositiveInteger(req.params.id);
       const result = await getLandingsByComponenteService.execute(id);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `GET /componentes/${req.params.id}/landings`, error);
       return next(error);
     }
   });
@@ -493,22 +533,15 @@ export const createComponenteController = ({
    *         description: No encontrado
    */
   componenteController.get("/:id/arbol", async (req, res, next) => {
-    console.log(`[Controller] GET /componentes/${req.params.id}/arbol`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] GET /componentes/${req.params.id}/arbol`);
 
     try {
+      const id = parsePositiveInteger(req.params.id);
       const result = await getComponenteTreeService.execute(id);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `GET /componentes/${req.params.id}/arbol`, error);
       return next(error);
     }
   });
@@ -549,24 +582,21 @@ export const createComponenteController = ({
    *         description: Componente inexistente
    */
   componenteController.post("/:id/hijos", async (req, res, next) => {
-    console.log(`[Controller] POST /componentes/${req.params.id}/hijos`);
-
-    const id_padre = Number(req.params.id);
-    const id_hijo = Number(req.body?.id_hijo);
-
-    if (Number.isNaN(id_padre) || id_padre <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
-    if (Number.isNaN(id_hijo) || id_hijo <= 0) {
-      return next(buildValidationError("Invalid id_hijo"));
-    }
+    logger.info(`[Controller] POST /componentes/${req.params.id}/hijos`);
 
     try {
-      const result = await assignComponenteHijoService.execute(id_padre, id_hijo);
+      const id_padre = parsePositiveInteger(req.params.id);
+      const id_hijo = parsePositiveInteger(req.body?.id_hijo, "id_hijo");
+      const result = await assignComponenteHijoService.execute({
+        id_padre,
+        id_hijo,
+      });
 
-      return res.status(result.created ? 201 : 200).json({ message: "OK" });
+      return result.created
+        ? respondCreated(res, result.data)
+        : respondOk(res, result.data);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `POST /componentes/${req.params.id}/hijos`, error);
       return next(error);
     }
   });
@@ -596,25 +626,24 @@ export const createComponenteController = ({
    *         description: Request inválida
    */
   componenteController.delete("/:id/hijos/:id_hijo", async (req, res, next) => {
-    console.log(
+    logger.info(
       `[Controller] DELETE /componentes/${req.params.id}/hijos/${req.params.id_hijo}`
     );
 
-    const id_padre = Number(req.params.id);
-    const id_hijo = Number(req.params.id_hijo);
-
-    if (Number.isNaN(id_padre) || id_padre <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
-    if (Number.isNaN(id_hijo) || id_hijo <= 0) {
-      return next(buildValidationError("Invalid id_hijo"));
-    }
-
     try {
-      await unassignComponenteHijoService.execute(id_padre, id_hijo);
-      return res.status(204).send();
+      const id_padre = parsePositiveInteger(req.params.id);
+      const id_hijo = parsePositiveInteger(req.params.id_hijo, "id_hijo");
+      await unassignComponenteHijoService.execute({
+        id_padre,
+        id_hijo,
+      });
+      return respondNoContent(res);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(
+        logger,
+        `DELETE /componentes/${req.params.id}/hijos/${req.params.id_hijo}`,
+        error
+      );
       return next(error);
     }
   });
@@ -643,18 +672,14 @@ export const createComponenteController = ({
    *         description: Componente asignado a una landing
    */
   componenteController.delete("/:id", async (req, res, next) => {
-    console.log(`[Controller] DELETE /componentes/${req.params.id}`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] DELETE /componentes/${req.params.id}`);
 
     try {
+      const id = parsePositiveInteger(req.params.id);
       await deleteComponenteService.execute(id);
-      return res.status(204).send();
+      return respondNoContent(res);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `DELETE /componentes/${req.params.id}`, error);
       return next(error);
     }
   });

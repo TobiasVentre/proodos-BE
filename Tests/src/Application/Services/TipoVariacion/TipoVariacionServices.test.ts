@@ -9,9 +9,9 @@ import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
 import { ITipoComponenteRepository } from "@proodos/application/Interfaces/ITipoComponenteRepository";
 import { ITipoVariacionRepository } from "@proodos/application/Interfaces/ITipoVariacionRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
-import { CreateTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/CreateTipoVariacionDTO";
-import { PatchTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/PatchTipoVariacionDTO";
-import { UpdateTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/UpdateTipoVariacionDTO";
+import { ICreateTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/ICreateTipoVariacionDTO";
+import { IPatchTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/IPatchTipoVariacionDTO";
+import { IUpdateTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/IUpdateTipoVariacionDTO";
 
 const buildVariacionRepository = (): jest.Mocked<ITipoVariacionRepository> => ({
   create: jest.fn(),
@@ -70,7 +70,7 @@ describe("TipoVariacion services", () => {
     const variacionRepository = buildVariacionRepository();
     const tipoComponenteRepository = buildTipoComponenteRepository();
     const logger = buildLogger();
-    const dto: CreateTipoVariacionDTO = {
+    const dto: ICreateTipoVariacionDTO = {
       id_tipo_componente: 2,
       nombre: "Variante",
     };
@@ -96,7 +96,7 @@ describe("TipoVariacion services", () => {
     // Arrange
     const variacionRepository = buildVariacionRepository();
     const tipoComponenteRepository = buildTipoComponenteRepository();
-    const dto: UpdateTipoVariacionDTO = {
+    const dto: IUpdateTipoVariacionDTO = {
       id_tipo_variacion: 3,
       id_tipo_componente: 2,
       nombre: "Variante",
@@ -120,7 +120,7 @@ describe("TipoVariacion services", () => {
     // Arrange
     const variacionRepository = buildVariacionRepository();
     const tipoComponenteRepository = buildTipoComponenteRepository();
-    const dto: PatchTipoVariacionDTO = { nombre: "Variante 2" };
+    const dto: IPatchTipoVariacionDTO = { nombre: "Variante 2" };
     variacionRepository.patch.mockResolvedValue({ id_tipo_variacion: 4 } as never);
     const service = new PatchTipoVariacionService(
       variacionRepository,
@@ -139,7 +139,7 @@ describe("TipoVariacion services", () => {
     // Arrange
     const variacionRepository = buildVariacionRepository();
     const tipoComponenteRepository = buildTipoComponenteRepository();
-    const dto: PatchTipoVariacionDTO = { id_tipo_componente: 9 };
+    const dto: IPatchTipoVariacionDTO = { id_tipo_componente: 9 };
     tipoComponenteRepository.exists.mockResolvedValue(true);
     variacionRepository.patch.mockResolvedValue({ id_tipo_variacion: 10 } as never);
     const service = new PatchTipoVariacionService(

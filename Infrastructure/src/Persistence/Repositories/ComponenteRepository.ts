@@ -1,5 +1,5 @@
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
-import { PatchComponenteDTO } from "@proodos/application/DTOs/Componente/PatchComponenteDTO";
+import { IPatchComponenteDTO } from "@proodos/application/DTOs/Componente/IPatchComponenteDTO";
 import { Componente } from "@proodos/domain/Entities/Componente";
 import { IComponenteRepository } from "@proodos/application/Interfaces/IComponenteRepository";
 import { ComponenteCommandRepository } from "./Commands/ComponenteCommandRepository";
@@ -22,7 +22,7 @@ export class ComponenteRepository implements IComponenteRepository {
     return this.commandRepository.update(entity);
   }
 
-  async patch(id_componente: number, dto: PatchComponenteDTO): Promise<Componente> {
+  async patch(id_componente: number, dto: IPatchComponenteDTO): Promise<Componente> {
     return this.commandRepository.patch(id_componente, dto);
 }
 

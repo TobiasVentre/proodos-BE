@@ -1,6 +1,6 @@
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
 import { IElementoComponenteRepository } from "@proodos/application/Interfaces/IElementoComponenteRepository";
-import { PatchElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/PatchElementoComponenteDTO";
+import { IPatchElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/IPatchElementoComponenteDTO";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { ElementoComponenteCommandRepository } from "./Commands/ElementoComponenteCommandRepository";
 import { ElementoComponenteQueryRepository } from "./Queries/ElementoComponenteQueryRepository";
@@ -24,7 +24,7 @@ export class ElementoComponenteRepository implements IElementoComponenteReposito
 
   async patch(
     id_elemento: number,
-    dto: PatchElementoComponenteDTO
+    dto: IPatchElementoComponenteDTO
   ): Promise<ElementoComponente> {
     return this.commandRepository.patch(id_elemento, dto);
   }

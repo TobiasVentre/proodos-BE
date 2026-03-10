@@ -2,10 +2,15 @@ import * as Models from "../../Models";
 import { PlanMapper } from "../../../Mappers/PlanMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { Plan } from "@proodos/domain/Entities/Plan";
-import { PatchPlanDTO } from "@proodos/application/DTOs/Plan/PatchPlanDTO";
-import { PatchPlanFullDTO } from "@proodos/application/DTOs/Plan/PatchPlanFullDTO";
+import { IPatchPlanDTO } from "@proodos/application/DTOs/Plan/IPatchPlanDTO";
+import { IPatchPlanFullDTO } from "@proodos/application/DTOs/Plan/IPatchPlanFullDTO";
 import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
 import { ValidationError } from "@proodos/application/Errors/ValidationError";
+
+const toPlanPersistencePayload = (entity: Plan): Omit<Plan, "id_plan"> => {
+  const { id_plan: _ignored, ...payload } = entity;
+  return payload;
+};
 
 export class PlanCommandRepository {
   constructor(private readonly logger: ILogger) {}
@@ -14,49 +19,7 @@ export class PlanCommandRepository {
     this.logger.info("[Repository] PlanCommandRepository.create()");
     this.logger.debug("[Repository] Datos recibidos:", entity);
 
-    const created = await Models.PlanModel.create({
-      segmento: entity.segmento,
-      producto: entity.producto,
-      bonete: entity.bonete,
-      nombre: entity.nombre,
-      nombre_plan: entity.nombre_plan,
-      capacidad: entity.capacidad,
-      capacidad_plan: entity.capacidad_plan,
-      capacidad_anterior: entity.capacidad_anterior,
-      precio_full_price: entity.precio_full_price,
-      precio_oferta: entity.precio_oferta,
-      tag_1: entity.tag_1,
-      tag_2: entity.tag_2,
-      beneficio_1: entity.beneficio_1,
-      beneficio_2: entity.beneficio_2,
-      beneficio_3: entity.beneficio_3,
-      beneficio_4: entity.beneficio_4,
-      cta_1: entity.cta_1,
-      link_1: entity.link_1,
-      cta_2: entity.cta_2,
-      link_2: entity.link_2,
-      aumento: entity.aumento,
-      precio_tv_digital: entity.precio_tv_digital,
-      precio_tv_max: entity.precio_tv_max,
-      promo_activa: entity.promo_activa,
-      muestra_desde: entity.muestra_desde,
-      canales_tv_digital: entity.canales_tv_digital,
-      canales_tv_max: entity.canales_tv_max,
-      precio_no_cliente: entity.precio_no_cliente,
-      descripcion_oferta: entity.descripcion_oferta,
-      comercial_name: entity.comercial_name,
-      comercial_id: entity.comercial_id,
-      telefono_0800: entity.telefono_0800,
-      icono_tag_1: entity.icono_tag_1,
-      pre_beneficio_2_titulo: entity.pre_beneficio_2_titulo,
-      pre_beneficio_2_descripcion: entity.pre_beneficio_2_descripcion,
-      pre_beneficio_1_titulo: entity.pre_beneficio_1_titulo,
-      pre_beneficio_1_descripcion: entity.pre_beneficio_1_descripcion,
-      nombre_plan_tv: entity.nombre_plan_tv,
-      grilla_canales: entity.grilla_canales,
-      icono_bonete: entity.icono_bonete,
-      precio_sin_iva: entity.precio_sin_iva,
-    });
+    const created = await Models.PlanModel.create(toPlanPersistencePayload(entity));
 
     return PlanMapper.toDomain(created);
   }
@@ -87,7 +50,24 @@ export class PlanCommandRepository {
     return PlanMapper.toDomain(updated);
   }
 
-  async patch(id_plan: number, dto: PatchPlanDTO): Promise<Plan> {
+  async updateFull(entity: Plan): Promise<Plan> {
+    this.logger.info("[Repository] PlanCommandRepository.updateFull()");
+    this.logger.debug("[Repository] Datos recibidos:", entity);
+
+    await Models.PlanModel.update(toPlanPersistencePayload(entity), {
+      where: { id_plan: entity.id_plan },
+    });
+
+    const updated = await Models.PlanModel.findByPk(entity.id_plan);
+
+    if (!updated) {
+      throw new NotFoundError(`Plan not found: id_plan=${entity.id_plan}`);
+    }
+
+    return PlanMapper.toDomain(updated);
+  }
+
+  async patch(id_plan: number, dto: IPatchPlanDTO): Promise<Plan> {
     this.logger.info("[Repository] PlanCommandRepository.patch()", { id_plan });
     this.logger.debug("[Repository] Patch DTO:", dto);
 
@@ -126,7 +106,7 @@ export class PlanCommandRepository {
     return PlanMapper.toDomain(updated);
   }
 
-  async patchFull(id_plan: number, dto: PatchPlanFullDTO): Promise<Plan> {
+  async patchFull(id_plan: number, dto: IPatchPlanFullDTO): Promise<Plan> {
     this.logger.info("[Repository] PlanCommandRepository.patchFull()", { id_plan });
     this.logger.debug("[Repository] Patch Full DTO:", dto);
 

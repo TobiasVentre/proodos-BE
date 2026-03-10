@@ -1,8 +1,8 @@
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { Componente } from "@proodos/domain/Entities/Componente";
-import { UnassignPlanFromComponenteUseCase } from "../../Ports/ComponenteUseCases";
+import { IUnassignPlanFromComponenteUseCase } from "../../Ports/IComponenteUseCases";
 
-export class UnassignPlanFromComponenteService implements UnassignPlanFromComponenteUseCase {
+export class UnassignPlanFromComponenteService implements IUnassignPlanFromComponenteUseCase {
   constructor(private readonly componenteRepository: IComponenteRepository) {}
 
   async execute(id_componente: number): Promise<Componente> {

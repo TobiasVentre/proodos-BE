@@ -1,26 +1,37 @@
 import { Router } from "express";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import {
-  CreateTipoVariacionUseCase,
-  DeleteTipoVariacionUseCase,
-  GetAllTiposVariacionUseCase,
-  GetTipoVariacionByIdUseCase,
-  GetVariacionesByTipoComponenteUseCase,
-  PatchTipoVariacionUseCase,
-  UpdateTipoVariacionUseCase,
-} from "@proodos/application/Ports/TipoVariacionUseCases";
-import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
+  ICreateTipoVariacionUseCase,
+  IDeleteTipoVariacionUseCase,
+  IGetAllTiposVariacionUseCase,
+  IGetTipoVariacionByIdUseCase,
+  IGetVariacionesByTipoComponenteUseCase,
+  IPatchTipoVariacionUseCase,
+  IUpdateTipoVariacionUseCase,
+} from "@proodos/application/Ports/ITipoVariacionUseCases";
+import {
+  ensureFound,
+  ensureRequiredFields,
+  logControllerError,
+  parseOptionalPositiveInteger,
+  parsePositiveInteger,
+  respondNoContent,
+  respondOk,
+} from "./ControllerHelpers";
 
 type TipoVariacionControllerDeps = {
-  createTipoVariacionService: CreateTipoVariacionUseCase;
-  getAllTiposVariacionService: GetAllTiposVariacionUseCase;
-  getTipoVariacionByIdService: GetTipoVariacionByIdUseCase;
-  getVariacionesByTipoComponenteService: GetVariacionesByTipoComponenteUseCase;
-  updateTipoVariacionService: UpdateTipoVariacionUseCase;
-  patchTipoVariacionService: PatchTipoVariacionUseCase;
-  deleteTipoVariacionService: DeleteTipoVariacionUseCase;
+  logger: ILogger;
+  createTipoVariacionService: ICreateTipoVariacionUseCase;
+  getAllTiposVariacionService: IGetAllTiposVariacionUseCase;
+  getTipoVariacionByIdService: IGetTipoVariacionByIdUseCase;
+  getVariacionesByTipoComponenteService: IGetVariacionesByTipoComponenteUseCase;
+  updateTipoVariacionService: IUpdateTipoVariacionUseCase;
+  patchTipoVariacionService: IPatchTipoVariacionUseCase;
+  deleteTipoVariacionService: IDeleteTipoVariacionUseCase;
 };
 
 export const createTipoVariacionController = ({
+  logger,
   createTipoVariacionService,
   getAllTiposVariacionService,
   getTipoVariacionByIdService,
@@ -47,33 +58,22 @@ export const createTipoVariacionController = ({
    *     responses:
    *       200:
    *         description: Lista de variaciones
-   */
+  */
   tipoVariacionController.get("/", async (req, res, next) => {
-    console.log("[Controller] GET /tipos-variacion");
-
-    const idTipoComponenteRaw = req.query?.id_tipo_componente;
-    const id_tipo_componente = idTipoComponenteRaw
-      ? Number(idTipoComponenteRaw)
-      : undefined;
-
-    if (
-      id_tipo_componente !== undefined &&
-      (Number.isNaN(id_tipo_componente) || id_tipo_componente <= 0)
-    ) {
-      return next(buildValidationError("Invalid id_tipo_componente"));
-    }
+    logger.info("[Controller] GET /tipos-variacion");
 
     try {
+      const id_tipo_componente = parseOptionalPositiveInteger(
+        req.query?.id_tipo_componente,
+        "id_tipo_componente"
+      );
       const result = id_tipo_componente
         ? await getVariacionesByTipoComponenteService.execute(id_tipo_componente)
         : await getAllTiposVariacionService.execute();
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "GET /tipos-variacion", error);
       return next(error);
     }
   });
@@ -98,28 +98,20 @@ export const createTipoVariacionController = ({
    *         description: ID inválido
    *       404:
    *         description: No encontrado
-   */
+  */
   tipoVariacionController.get("/:id", async (req, res, next) => {
-    console.log(`[Controller] GET /tipos-variacion/${req.params.id}`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] GET /tipos-variacion/${req.params.id}`);
 
     try {
-      const result = await getTipoVariacionByIdService.execute(id);
+      const id = parsePositiveInteger(req.params.id);
+      const result = ensureFound(
+        await getTipoVariacionByIdService.execute(id),
+        "Tipo variacion not found"
+      );
 
-      if (!result) {
-        return next(buildNotFoundError("Tipo variacion not found"));
-      }
-
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `GET /tipos-variacion/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -156,26 +148,17 @@ export const createTipoVariacionController = ({
    *     responses:
    *       200:
    *         description: Variación creada
-   */
+  */
   tipoVariacionController.post("/", async (req, res, next) => {
-    console.log("[Controller] POST /tipos-variacion");
-
-    const { id_tipo_componente, nombre } = req.body || {};
-    if (!id_tipo_componente || !nombre) {
-      return next(buildValidationError("Missing required fields", {
-        required: ["id_tipo_componente", "nombre"],
-      }));
-    }
+    logger.info("[Controller] POST /tipos-variacion");
 
     try {
+      ensureRequiredFields(req.body, ["id_tipo_componente", "nombre"]);
       const result = await createTipoVariacionService.execute(req.body);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "POST /tipos-variacion", error);
       return next(error);
     }
   });
@@ -222,34 +205,21 @@ export const createTipoVariacionController = ({
    *         description: Request inválida
    *       404:
    *         description: No encontrado
-   */
+  */
   tipoVariacionController.put("/:id", async (req, res, next) => {
-    console.log(`[Controller] PUT /tipos-variacion/${req.params.id}`);
-
-    const id_tipo_variacion = Number(req.params.id);
-    if (Number.isNaN(id_tipo_variacion) || id_tipo_variacion <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
-
-    const { id_tipo_componente, nombre } = req.body || {};
-    if (!id_tipo_componente || !nombre) {
-      return next(buildValidationError("Missing required fields", {
-        required: ["id_tipo_componente", "nombre"],
-      }));
-    }
+    logger.info(`[Controller] PUT /tipos-variacion/${req.params.id}`);
 
     try {
+      const id_tipo_variacion = parsePositiveInteger(req.params.id);
+      ensureRequiredFields(req.body, ["id_tipo_componente", "nombre"]);
       const result = await updateTipoVariacionService.execute({
         id_tipo_variacion,
         ...req.body,
       });
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PUT /tipos-variacion/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -293,27 +263,20 @@ export const createTipoVariacionController = ({
    *         description: Request inválida
    *       404:
    *         description: No encontrado
-   */
+  */
   tipoVariacionController.patch("/:id", async (req, res, next) => {
-    console.log(`[Controller] PATCH /tipos-variacion/${req.params.id}`);
-
-    const id_tipo_variacion = Number(req.params.id);
-    if (Number.isNaN(id_tipo_variacion) || id_tipo_variacion <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] PATCH /tipos-variacion/${req.params.id}`);
 
     try {
+      const id_tipo_variacion = parsePositiveInteger(req.params.id);
       const result = await patchTipoVariacionService.execute(
         id_tipo_variacion,
         req.body || {}
       );
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PATCH /tipos-variacion/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -336,20 +299,16 @@ export const createTipoVariacionController = ({
    *         description: Eliminada
    *       400:
    *         description: ID inválido
-   */
+  */
   tipoVariacionController.delete("/:id", async (req, res, next) => {
-    console.log(`[Controller] DELETE /tipos-variacion/${req.params.id}`);
-
-    const id_tipo_variacion = Number(req.params.id);
-    if (Number.isNaN(id_tipo_variacion) || id_tipo_variacion <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] DELETE /tipos-variacion/${req.params.id}`);
 
     try {
+      const id_tipo_variacion = parsePositiveInteger(req.params.id);
       await deleteTipoVariacionService.execute(id_tipo_variacion);
-      return res.status(204).send();
+      return respondNoContent(res);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `DELETE /tipos-variacion/${req.params.id}`, error);
       return next(error);
     }
   });

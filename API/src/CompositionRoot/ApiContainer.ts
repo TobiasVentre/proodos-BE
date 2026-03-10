@@ -1,76 +1,78 @@
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import {
-  CreateComponenteUseCase,
-  DeleteComponenteUseCase,
-  SoftDeleteComponenteUseCase,
-  GetAllComponentesUseCase,
-  GetComponentesByPlanUseCase,
-  GetComponenteByIdUseCase,
-  GetComponenteTreeUseCase,
-  PatchComponenteUseCase,
-  AssignComponenteHijoUseCase,
-  UnassignComponenteHijoUseCase,
-  AssignPlanToComponenteUseCase,
-  UnassignPlanFromComponenteUseCase,
-} from "@proodos/application/Ports/ComponenteUseCases";
+  ICreateComponenteUseCase,
+  IDeleteComponenteUseCase,
+  ISoftDeleteComponenteUseCase,
+  IGetAllComponentesUseCase,
+  IGetComponentesByPlanUseCase,
+  IGetComponenteByIdUseCase,
+  IGetComponenteTreeUseCase,
+  IPatchComponenteUseCase,
+  IUpdateComponenteUseCase,
+  IAssignComponenteHijoUseCase,
+  IUnassignComponenteHijoUseCase,
+  IAssignPlanToComponenteUseCase,
+  IUnassignPlanFromComponenteUseCase,
+} from "@proodos/application/Ports/IComponenteUseCases";
 import {
-  CreateLandingPageUseCase,
-  DeleteLandingPageUseCase,
-  GetAllLandingPagesUseCase,
-  GetLandingPageByIdUseCase,
-  PatchLandingPageUseCase,
-  UpdateLandingPageUseCase,
-} from "@proodos/application/Ports/LandingPageUseCases";
+  ICreateLandingPageUseCase,
+  IDeleteLandingPageUseCase,
+  IGetAllLandingPagesUseCase,
+  IGetLandingPageByIdUseCase,
+  IPatchLandingPageUseCase,
+  IUpdateLandingPageUseCase,
+} from "@proodos/application/Ports/ILandingPageUseCases";
 import {
-  CreatePlanUseCase,
-  CreatePlanFullUseCase,
-  DeletePlanUseCase,
-  GetAllPlansUseCase,
-  GetPlanByIdUseCase,
-  PatchPlanUseCase,
-  PatchPlanFullUseCase,
-  UpdatePlanUseCase,
-} from "@proodos/application/Ports/PlanUseCases";
+  ICreatePlanUseCase,
+  ICreatePlanFullUseCase,
+  IDeletePlanUseCase,
+  IGetAllPlansUseCase,
+  IGetPlanByIdUseCase,
+  IPatchPlanUseCase,
+  IPatchPlanFullUseCase,
+  IUpdatePlanFullUseCase,
+  IUpdatePlanUseCase,
+} from "@proodos/application/Ports/IPlanUseCases";
 import {
-  CreateTipoComponenteUseCase,
-  DeleteTipoComponenteUseCase,
-  GetAllTiposComponenteUseCase,
-  GetTipoComponenteByIdUseCase,
-  PatchTipoComponenteUseCase,
-  UpdateTipoComponenteUseCase,
-} from "@proodos/application/Ports/TipoComponenteUseCases";
+  ICreateTipoComponenteUseCase,
+  IDeleteTipoComponenteUseCase,
+  IGetAllTiposComponenteUseCase,
+  IGetTipoComponenteByIdUseCase,
+  IPatchTipoComponenteUseCase,
+  IUpdateTipoComponenteUseCase,
+} from "@proodos/application/Ports/ITipoComponenteUseCases";
 import {
-  CreateTipoVariacionUseCase,
-  DeleteTipoVariacionUseCase,
-  GetAllTiposVariacionUseCase,
-  GetTipoVariacionByIdUseCase,
-  GetVariacionesByTipoComponenteUseCase,
-  PatchTipoVariacionUseCase,
-  UpdateTipoVariacionUseCase,
-} from "@proodos/application/Ports/TipoVariacionUseCases";
+  ICreateTipoVariacionUseCase,
+  IDeleteTipoVariacionUseCase,
+  IGetAllTiposVariacionUseCase,
+  IGetTipoVariacionByIdUseCase,
+  IGetVariacionesByTipoComponenteUseCase,
+  IPatchTipoVariacionUseCase,
+  IUpdateTipoVariacionUseCase,
+} from "@proodos/application/Ports/ITipoVariacionUseCases";
 import {
-  CreateTipoElementoUseCase,
-  DeleteTipoElementoUseCase,
-  GetAllTiposElementoUseCase,
-  GetTipoElementoByIdUseCase,
-  PatchTipoElementoUseCase,
-  UpdateTipoElementoUseCase,
-} from "@proodos/application/Ports/TipoElementoUseCases";
+  ICreateTipoElementoUseCase,
+  IDeleteTipoElementoUseCase,
+  IGetAllTiposElementoUseCase,
+  IGetTipoElementoByIdUseCase,
+  IPatchTipoElementoUseCase,
+  IUpdateTipoElementoUseCase,
+} from "@proodos/application/Ports/ITipoElementoUseCases";
 import {
-  CreateElementoComponenteUseCase,
-  DeleteElementoComponenteUseCase,
-  GetAllElementosComponenteUseCase,
-  GetElementoComponenteByIdUseCase,
-  GetElementosByComponenteUseCase,
-  PatchElementoComponenteUseCase,
-  UpdateElementoComponenteUseCase,
-} from "@proodos/application/Ports/ElementoComponenteUseCases";
+  ICreateElementoComponenteUseCase,
+  IDeleteElementoComponenteUseCase,
+  IGetAllElementosComponenteUseCase,
+  IGetElementoComponenteByIdUseCase,
+  IGetElementosByComponenteUseCase,
+  IPatchElementoComponenteUseCase,
+  IUpdateElementoComponenteUseCase,
+} from "@proodos/application/Ports/IElementoComponenteUseCases";
 import {
-  AssignLandingComponenteUseCase,
-  GetLandingComponentesUseCase,
-  GetLandingsByComponenteUseCase,
-  UnassignLandingComponenteUseCase,
-} from "@proodos/application/Ports/LandingComponenteUseCases";
+  IAssignLandingComponenteUseCase,
+  IGetLandingComponentesUseCase,
+  IGetLandingsByComponenteUseCase,
+  IUnassignLandingComponenteUseCase,
+} from "@proodos/application/Ports/ILandingComponenteUseCases";
 import { CreateComponenteService } from "@proodos/application/Services/Componente/CreateComponenteService";
 import { DeleteComponenteService } from "@proodos/application/Services/Componente/DeleteComponenteService";
 import { GetAllComponentesService } from "@proodos/application/Services/Componente/GetAllComponentesService";
@@ -78,6 +80,7 @@ import { GetComponentesByPlanService } from "@proodos/application/Services/Compo
 import { GetComponenteByIdService } from "@proodos/application/Services/Componente/GetComponenteByIdService";
 import { PatchComponenteService } from "@proodos/application/Services/Componente/PatchComponenteService";
 import { SoftDeleteComponenteService } from "@proodos/application/Services/Componente/SoftDeleteComponenteService";
+import { UpdateComponenteService } from "@proodos/application/Services/Componente/UpdateComponenteService";
 import { AssignComponenteHijoService } from "@proodos/application/Services/Componente/AssignComponenteHijoService";
 import { AssignPlanToComponenteService } from "@proodos/application/Services/Componente/AssignPlanToComponenteService";
 import { UnassignComponenteHijoService } from "@proodos/application/Services/Componente/UnassignComponenteHijoService";
@@ -97,6 +100,7 @@ import { GetAllPlansService } from "@proodos/application/Services/Plan/GetAllPla
 import { GetPlanByIdService } from "@proodos/application/Services/Plan/GetPlanByIdService";
 import { PatchPlanService } from "@proodos/application/Services/Plan/PatchPlanService";
 import { PatchPlanFullService } from "@proodos/application/Services/Plan/PatchPlanFullService";
+import { UpdatePlanFullService } from "@proodos/application/Services/Plan/UpdatePlanFullService";
 import { UpdatePlanService } from "@proodos/application/Services/Plan/UpdatePlanService";
 import { DeletePlanService } from "@proodos/application/Services/Plan/DeletePlanService";
 import { CreateTipoComponenteService } from "@proodos/application/Services/TipoComponente/CreateTipoComponenteService";
@@ -140,84 +144,86 @@ import { initModels } from "@proodos/infrastructure/Persistence/Sequelize";
 
 export type ApiUseCases = {
   componente: {
-    createComponente: CreateComponenteUseCase;
-    getAllComponentes: GetAllComponentesUseCase;
-    getComponenteById: GetComponenteByIdUseCase;
-    patchComponente: PatchComponenteUseCase;
-    deleteComponente: DeleteComponenteUseCase;
-    softDeleteComponente: SoftDeleteComponenteUseCase;
-    getComponentesByPlan: GetComponentesByPlanUseCase;
-    getLandingsByComponente: GetLandingsByComponenteUseCase;
-    assignComponenteHijo: AssignComponenteHijoUseCase;
-    unassignComponenteHijo: UnassignComponenteHijoUseCase;
-    getComponenteTree: GetComponenteTreeUseCase;
-    assignPlanToComponente: AssignPlanToComponenteUseCase;
-    unassignPlanFromComponente: UnassignPlanFromComponenteUseCase;
+    createComponente: ICreateComponenteUseCase;
+    getAllComponentes: IGetAllComponentesUseCase;
+    getComponenteById: IGetComponenteByIdUseCase;
+    updateComponente: IUpdateComponenteUseCase;
+    patchComponente: IPatchComponenteUseCase;
+    deleteComponente: IDeleteComponenteUseCase;
+    softDeleteComponente: ISoftDeleteComponenteUseCase;
+    getComponentesByPlan: IGetComponentesByPlanUseCase;
+    getLandingsByComponente: IGetLandingsByComponenteUseCase;
+    assignComponenteHijo: IAssignComponenteHijoUseCase;
+    unassignComponenteHijo: IUnassignComponenteHijoUseCase;
+    getComponenteTree: IGetComponenteTreeUseCase;
+    assignPlanToComponente: IAssignPlanToComponenteUseCase;
+    unassignPlanFromComponente: IUnassignPlanFromComponenteUseCase;
   };
   landing: {
-    createLandingPage: CreateLandingPageUseCase;
-    getAllLandingPages: GetAllLandingPagesUseCase;
-    getLandingPageById: GetLandingPageByIdUseCase;
-    updateLandingPage: UpdateLandingPageUseCase;
-    patchLandingPage: PatchLandingPageUseCase;
-    deleteLandingPage: DeleteLandingPageUseCase;
-    assignLandingComponente: AssignLandingComponenteUseCase;
-    unassignLandingComponente: UnassignLandingComponenteUseCase;
-    getLandingComponentes: GetLandingComponentesUseCase;
+    createLandingPage: ICreateLandingPageUseCase;
+    getAllLandingPages: IGetAllLandingPagesUseCase;
+    getLandingPageById: IGetLandingPageByIdUseCase;
+    updateLandingPage: IUpdateLandingPageUseCase;
+    patchLandingPage: IPatchLandingPageUseCase;
+    deleteLandingPage: IDeleteLandingPageUseCase;
+    assignLandingComponente: IAssignLandingComponenteUseCase;
+    unassignLandingComponente: IUnassignLandingComponenteUseCase;
+    getLandingComponentes: IGetLandingComponentesUseCase;
   };
   plan: {
-    createPlan: CreatePlanUseCase;
-    createPlanFull: CreatePlanFullUseCase;
-    getAllPlans: GetAllPlansUseCase;
-    getPlanById: GetPlanByIdUseCase;
-    patchPlan: PatchPlanUseCase;
-    patchPlanFull: PatchPlanFullUseCase;
-    updatePlan: UpdatePlanUseCase;
-    deletePlan: DeletePlanUseCase;
+    createPlan: ICreatePlanUseCase;
+    createPlanFull: ICreatePlanFullUseCase;
+    getAllPlans: IGetAllPlansUseCase;
+    getPlanById: IGetPlanByIdUseCase;
+    patchPlan: IPatchPlanUseCase;
+    patchPlanFull: IPatchPlanFullUseCase;
+    updatePlanFull: IUpdatePlanFullUseCase;
+    updatePlan: IUpdatePlanUseCase;
+    deletePlan: IDeletePlanUseCase;
   };
   tipoComponente: {
-    createTipoComponente: CreateTipoComponenteUseCase;
-    getAllTiposComponente: GetAllTiposComponenteUseCase;
-    getTipoComponenteById: GetTipoComponenteByIdUseCase;
-    updateTipoComponente: UpdateTipoComponenteUseCase;
-    patchTipoComponente: PatchTipoComponenteUseCase;
-    deleteTipoComponente: DeleteTipoComponenteUseCase;
+    createTipoComponente: ICreateTipoComponenteUseCase;
+    getAllTiposComponente: IGetAllTiposComponenteUseCase;
+    getTipoComponenteById: IGetTipoComponenteByIdUseCase;
+    updateTipoComponente: IUpdateTipoComponenteUseCase;
+    patchTipoComponente: IPatchTipoComponenteUseCase;
+    deleteTipoComponente: IDeleteTipoComponenteUseCase;
   };
   tipoVariacion: {
-    createTipoVariacion: CreateTipoVariacionUseCase;
-    getAllTiposVariacion: GetAllTiposVariacionUseCase;
-    getTipoVariacionById: GetTipoVariacionByIdUseCase;
-    getVariacionesByTipoComponente: GetVariacionesByTipoComponenteUseCase;
-    updateTipoVariacion: UpdateTipoVariacionUseCase;
-    patchTipoVariacion: PatchTipoVariacionUseCase;
-    deleteTipoVariacion: DeleteTipoVariacionUseCase;
+    createTipoVariacion: ICreateTipoVariacionUseCase;
+    getAllTiposVariacion: IGetAllTiposVariacionUseCase;
+    getTipoVariacionById: IGetTipoVariacionByIdUseCase;
+    getVariacionesByTipoComponente: IGetVariacionesByTipoComponenteUseCase;
+    updateTipoVariacion: IUpdateTipoVariacionUseCase;
+    patchTipoVariacion: IPatchTipoVariacionUseCase;
+    deleteTipoVariacion: IDeleteTipoVariacionUseCase;
   };
   tipoElemento: {
-    createTipoElemento: CreateTipoElementoUseCase;
-    getAllTiposElemento: GetAllTiposElementoUseCase;
-    getTipoElementoById: GetTipoElementoByIdUseCase;
-    updateTipoElemento: UpdateTipoElementoUseCase;
-    patchTipoElemento: PatchTipoElementoUseCase;
-    deleteTipoElemento: DeleteTipoElementoUseCase;
+    createTipoElemento: ICreateTipoElementoUseCase;
+    getAllTiposElemento: IGetAllTiposElementoUseCase;
+    getTipoElementoById: IGetTipoElementoByIdUseCase;
+    updateTipoElemento: IUpdateTipoElementoUseCase;
+    patchTipoElemento: IPatchTipoElementoUseCase;
+    deleteTipoElemento: IDeleteTipoElementoUseCase;
   };
   elementoComponente: {
-    createElementoComponente: CreateElementoComponenteUseCase;
-    getAllElementosComponente: GetAllElementosComponenteUseCase;
-    getElementoComponenteById: GetElementoComponenteByIdUseCase;
-    getElementosByComponente: GetElementosByComponenteUseCase;
-    updateElementoComponente: UpdateElementoComponenteUseCase;
-    patchElementoComponente: PatchElementoComponenteUseCase;
-    deleteElementoComponente: DeleteElementoComponenteUseCase;
+    createElementoComponente: ICreateElementoComponenteUseCase;
+    getAllElementosComponente: IGetAllElementosComponenteUseCase;
+    getElementoComponenteById: IGetElementoComponenteByIdUseCase;
+    getElementosByComponente: IGetElementosByComponenteUseCase;
+    updateElementoComponente: IUpdateElementoComponenteUseCase;
+    patchElementoComponente: IPatchElementoComponenteUseCase;
+    deleteElementoComponente: IDeleteElementoComponenteUseCase;
   };
 };
 
 export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> => {
-  await initModels();
+  await initModels(logger);
 
   const componenteRepository = new ComponenteRepository(logger);
-  const componenteCompuestoRepository = new ComponenteCompuestoRepository();
+  const componenteCompuestoRepository = new ComponenteCompuestoRepository(logger);
   const landingPageRepository = new LandingPageRepository(logger);
-  const landingComponenteRepository = new LandingComponenteRepository();
+  const landingComponenteRepository = new LandingComponenteRepository(logger);
   const planRepository = new PlanRepository(logger);
   const tipoComponenteRepository = new TipoComponenteRepository(logger);
   const tipoVariacionRepository = new TipoVariacionRepository(logger);
@@ -229,6 +235,11 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
       createComponente: new CreateComponenteService(componenteRepository, planRepository, logger),
       getAllComponentes: new GetAllComponentesService(componenteRepository),
       getComponenteById: new GetComponenteByIdService(componenteRepository),
+      updateComponente: new UpdateComponenteService(
+        componenteRepository,
+        planRepository,
+        logger
+      ),
       patchComponente: new PatchComponenteService(componenteRepository, planRepository),
       deleteComponente: new DeleteComponenteService(
         componenteRepository,
@@ -280,6 +291,7 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
       getPlanById: new GetPlanByIdService(planRepository, logger),
       patchPlan: new PatchPlanService(planRepository, logger),
       patchPlanFull: new PatchPlanFullService(planRepository, logger),
+      updatePlanFull: new UpdatePlanFullService(planRepository, logger),
       updatePlan: new UpdatePlanService(planRepository, logger),
       deletePlan: new DeletePlanService(planRepository),
     },

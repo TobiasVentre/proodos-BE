@@ -1,9 +1,9 @@
 import { ITipoVariacionRepository } from "../../Interfaces/ITipoVariacionRepository";
-import { GetAllTiposVariacionUseCase } from "../../Ports/TipoVariacionUseCases";
+import { IGetAllTiposVariacionUseCase } from "../../Ports/ITipoVariacionUseCases";
 import { TipoVariacion } from "@proodos/domain/Entities/TipoVariacion";
 import { ILogger } from "../../Interfaces/ILogger";
 
-export class GetAllTiposVariacionService implements GetAllTiposVariacionUseCase {
+export class GetAllTiposVariacionService implements IGetAllTiposVariacionUseCase {
   constructor(
     private readonly tipoVariacionRepository: ITipoVariacionRepository,
     private readonly logger: ILogger

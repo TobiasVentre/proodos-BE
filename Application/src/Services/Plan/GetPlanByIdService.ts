@@ -1,9 +1,9 @@
 import { IPlanRepository } from "../../Interfaces/IPlanRepository";
 import { Plan } from "@proodos/domain/Entities/Plan";
-import { GetPlanByIdUseCase } from "../../Ports/PlanUseCases";
+import { IGetPlanByIdUseCase } from "../../Ports/IPlanUseCases";
 import { ILogger } from "../../Interfaces/ILogger";
 
-export class GetPlanByIdService implements GetPlanByIdUseCase {
+export class GetPlanByIdService implements IGetPlanByIdUseCase {
   constructor(
     private readonly planRepository: IPlanRepository,
     private readonly logger: ILogger

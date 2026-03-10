@@ -1,24 +1,34 @@
 import { Router } from "express";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import {
-  CreateTipoComponenteUseCase,
-  DeleteTipoComponenteUseCase,
-  GetAllTiposComponenteUseCase,
-  GetTipoComponenteByIdUseCase,
-  PatchTipoComponenteUseCase,
-  UpdateTipoComponenteUseCase,
-} from "@proodos/application/Ports/TipoComponenteUseCases";
-import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
+  ICreateTipoComponenteUseCase,
+  IDeleteTipoComponenteUseCase,
+  IGetAllTiposComponenteUseCase,
+  IGetTipoComponenteByIdUseCase,
+  IPatchTipoComponenteUseCase,
+  IUpdateTipoComponenteUseCase,
+} from "@proodos/application/Ports/ITipoComponenteUseCases";
+import {
+  ensureFound,
+  ensureRequiredFields,
+  logControllerError,
+  parsePositiveInteger,
+  respondNoContent,
+  respondOk,
+} from "./ControllerHelpers";
 
 type TipoComponenteControllerDeps = {
-  createTipoComponenteService: CreateTipoComponenteUseCase;
-  getAllTiposComponenteService: GetAllTiposComponenteUseCase;
-  getTipoComponenteByIdService: GetTipoComponenteByIdUseCase;
-  updateTipoComponenteService: UpdateTipoComponenteUseCase;
-  patchTipoComponenteService: PatchTipoComponenteUseCase;
-  deleteTipoComponenteService: DeleteTipoComponenteUseCase;
+  logger: ILogger;
+  createTipoComponenteService: ICreateTipoComponenteUseCase;
+  getAllTiposComponenteService: IGetAllTiposComponenteUseCase;
+  getTipoComponenteByIdService: IGetTipoComponenteByIdUseCase;
+  updateTipoComponenteService: IUpdateTipoComponenteUseCase;
+  patchTipoComponenteService: IPatchTipoComponenteUseCase;
+  deleteTipoComponenteService: IDeleteTipoComponenteUseCase;
 };
 
 export const createTipoComponenteController = ({
+  logger,
   createTipoComponenteService,
   getAllTiposComponenteService,
   getTipoComponenteByIdService,
@@ -38,19 +48,16 @@ export const createTipoComponenteController = ({
    *     responses:
    *       200:
    *         description: Lista de tipos de componente
-   */
+  */
   tipoComponenteController.get("/", async (req, res, next) => {
-    console.log("[Controller] GET /tipos-componente");
+    logger.info("[Controller] GET /tipos-componente");
 
     try {
       const result = await getAllTiposComponenteService.execute();
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "GET /tipos-componente", error);
       return next(error);
     }
   });
@@ -75,28 +82,20 @@ export const createTipoComponenteController = ({
    *         description: ID inválido
    *       404:
    *         description: No encontrado
-   */
+  */
   tipoComponenteController.get("/:id", async (req, res, next) => {
-    console.log(`[Controller] GET /tipos-componente/${req.params.id}`);
-
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] GET /tipos-componente/${req.params.id}`);
 
     try {
-      const result = await getTipoComponenteByIdService.execute(id);
+      const id = parsePositiveInteger(req.params.id);
+      const result = ensureFound(
+        await getTipoComponenteByIdService.execute(id),
+        "Tipo componente not found"
+      );
 
-      if (!result) {
-        return next(buildNotFoundError("Tipo componente not found"));
-      }
-
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `GET /tipos-componente/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -125,26 +124,17 @@ export const createTipoComponenteController = ({
    *     responses:
    *       200:
    *         description: Tipo de componente creado
-   */
+  */
   tipoComponenteController.post("/", async (req, res, next) => {
-    console.log("[Controller] POST /tipos-componente");
-
-    const { nombre, estado } = req.body || {};
-    if (!nombre || !estado) {
-      return next(buildValidationError("Missing required fields", {
-        required: ["nombre", "estado"],
-      }));
-    }
+    logger.info("[Controller] POST /tipos-componente");
 
     try {
+      ensureRequiredFields(req.body, ["nombre", "estado"]);
       const result = await createTipoComponenteService.execute(req.body);
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, "POST /tipos-componente", error);
       return next(error);
     }
   });
@@ -183,35 +173,23 @@ export const createTipoComponenteController = ({
    *         description: Request inválida
    *       404:
    *         description: No encontrado
-   */
+  */
   tipoComponenteController.put("/:id", async (req, res, next) => {
-    console.log(`[Controller] PUT /tipos-componente/${req.params.id}`);
-
-    const id_tipo_componente = Number(req.params.id);
-    if (Number.isNaN(id_tipo_componente) || id_tipo_componente <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
-
-    const { nombre, estado } = req.body || {};
-    if (!nombre || !estado) {
-      return next(buildValidationError("Missing required fields", {
-        required: ["nombre", "estado"],
-      }));
-    }
+    logger.info(`[Controller] PUT /tipos-componente/${req.params.id}`);
 
     try {
+      const id_tipo_componente = parsePositiveInteger(req.params.id);
+      ensureRequiredFields(req.body, ["nombre", "estado"]);
+      const { nombre, estado } = req.body || {};
       const result = await updateTipoComponenteService.execute({
         id_tipo_componente,
         nombre,
         estado,
       });
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PUT /tipos-componente/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -247,27 +225,20 @@ export const createTipoComponenteController = ({
    *         description: Request inválida
    *       404:
    *         description: No encontrado
-   */
+  */
   tipoComponenteController.patch("/:id", async (req, res, next) => {
-    console.log(`[Controller] PATCH /tipos-componente/${req.params.id}`);
-
-    const id_tipo_componente = Number(req.params.id);
-    if (Number.isNaN(id_tipo_componente) || id_tipo_componente <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] PATCH /tipos-componente/${req.params.id}`);
 
     try {
+      const id_tipo_componente = parsePositiveInteger(req.params.id);
       const result = await patchTipoComponenteService.execute(
         id_tipo_componente,
         req.body || {}
       );
 
-      return res.status(200).json({
-        message: "OK",
-        data: result,
-      });
+      return respondOk(res, result);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `PATCH /tipos-componente/${req.params.id}`, error);
       return next(error);
     }
   });
@@ -290,20 +261,16 @@ export const createTipoComponenteController = ({
    *         description: Eliminado
    *       400:
    *         description: ID inválido
-   */
+  */
   tipoComponenteController.delete("/:id", async (req, res, next) => {
-    console.log(`[Controller] DELETE /tipos-componente/${req.params.id}`);
-
-    const id_tipo_componente = Number(req.params.id);
-    if (Number.isNaN(id_tipo_componente) || id_tipo_componente <= 0) {
-      return next(buildValidationError("Invalid id"));
-    }
+    logger.info(`[Controller] DELETE /tipos-componente/${req.params.id}`);
 
     try {
+      const id_tipo_componente = parsePositiveInteger(req.params.id);
       await deleteTipoComponenteService.execute(id_tipo_componente);
-      return res.status(204).send();
+      return respondNoContent(res);
     } catch (error: any) {
-      console.log("[Controller] ERROR:", error);
+      logControllerError(logger, `DELETE /tipos-componente/${req.params.id}`, error);
       return next(error);
     }
   });

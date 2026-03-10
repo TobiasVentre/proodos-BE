@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 
 function findRepoRoot(startDir: string): string {
   let dir = startDir;
@@ -17,7 +18,7 @@ function findRepoRoot(startDir: string): string {
   }
 }
 
-export function loadEnv() {
+export function loadEnv(logger: ILogger) {
   const root = findRepoRoot(process.cwd());
   const envPath = process.env.ENV_FILE
     ? path.resolve(process.cwd(), process.env.ENV_FILE)
@@ -28,21 +29,22 @@ export function loadEnv() {
     if (result.error) {
       throw new Error(`[ENV] Error leyendo .env (${envPath}): ${result.error.message}`);
     }
-    console.log("[ENV] Loaded:", envPath);
+    logger.info("[ENV] Loaded", { envPath });
   } else {
-    console.warn(
-      `[ENV] No se encontró archivo .env (${envPath}). Se usarán variables del entorno del sistema.`
-    );
+    logger.warn("[ENV] No se encontro archivo .env. Se usaran variables del entorno del sistema.", {
+      envPath,
+    });
   }
-  console.log("[ENV] DB:", {
+  logger.debug("[ENV] DB", {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     name: process.env.DB_NAME,
     user: process.env.DB_USER ? "***set***" : "***missing***",
     pass: process.env.DB_PASSWORD ? "***set***" : "***missing***",
+    jwtSecret: process.env.JWT_SECRET ? "***set***" : "***missing***",
   });
 
-  const required = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"];
+  const required = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD", "JWT_SECRET"];
   const missing = required.filter((k) => !process.env[k] || String(process.env[k]).trim() === "");
   if (missing.length) {
     throw new Error(`[ENV] Faltan variables: ${missing.join(", ")}`);

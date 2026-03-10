@@ -16,9 +16,11 @@ export const buildRoutes = async (logger: ILogger) => {
   routes.use(
     "/componentes",
     createComponenteController({
+      logger,
       createComponenteService: useCases.componente.createComponente,
       getAllComponentesService: useCases.componente.getAllComponentes,
       getComponenteByIdService: useCases.componente.getComponenteById,
+      updateComponenteService: useCases.componente.updateComponente,
       patchComponenteService: useCases.componente.patchComponente,
       deleteComponenteService: useCases.componente.deleteComponente,
       softDeleteComponenteService: useCases.componente.softDeleteComponente,
@@ -33,6 +35,7 @@ export const buildRoutes = async (logger: ILogger) => {
   routes.use(
     "/landings",
     createLandingPageController({
+      logger,
       createLandingPageService: useCases.landing.createLandingPage,
       getLandingPageByIdService: useCases.landing.getLandingPageById,
       getAllLandingPagesService: useCases.landing.getAllLandingPages,
@@ -47,12 +50,14 @@ export const buildRoutes = async (logger: ILogger) => {
   routes.use(
     "/planes",
     createPlanController({
+      logger,
       createPlanService: useCases.plan.createPlan,
       createPlanFullService: useCases.plan.createPlanFull,
       getAllPlansService: useCases.plan.getAllPlans,
       getPlanByIdService: useCases.plan.getPlanById,
       patchPlanService: useCases.plan.patchPlan,
       patchPlanFullService: useCases.plan.patchPlanFull,
+      updatePlanFullService: useCases.plan.updatePlanFull,
       updatePlanService: useCases.plan.updatePlan,
       deletePlanService: useCases.plan.deletePlan,
       getComponentesByPlanService: useCases.componente.getComponentesByPlan,
@@ -61,6 +66,7 @@ export const buildRoutes = async (logger: ILogger) => {
   routes.use(
     "/tipos-componente",
     createTipoComponenteController({
+      logger,
       createTipoComponenteService: useCases.tipoComponente.createTipoComponente,
       getAllTiposComponenteService: useCases.tipoComponente.getAllTiposComponente,
       getTipoComponenteByIdService: useCases.tipoComponente.getTipoComponenteById,
@@ -72,6 +78,7 @@ export const buildRoutes = async (logger: ILogger) => {
   routes.use(
     "/tipos-variacion",
     createTipoVariacionController({
+      logger,
       createTipoVariacionService: useCases.tipoVariacion.createTipoVariacion,
       getAllTiposVariacionService: useCases.tipoVariacion.getAllTiposVariacion,
       getTipoVariacionByIdService: useCases.tipoVariacion.getTipoVariacionById,
@@ -85,6 +92,7 @@ export const buildRoutes = async (logger: ILogger) => {
   routes.use(
     "/tipos-elemento",
     createTipoElementoController({
+      logger,
       createTipoElementoService: useCases.tipoElemento.createTipoElemento,
       getAllTiposElementoService: useCases.tipoElemento.getAllTiposElemento,
       getTipoElementoByIdService: useCases.tipoElemento.getTipoElementoById,
@@ -96,6 +104,7 @@ export const buildRoutes = async (logger: ILogger) => {
   routes.use(
     "/elementos-componente",
     createElementoComponenteController({
+      logger,
       createElementoComponenteService: useCases.elementoComponente.createElementoComponente,
       getAllElementosComponenteService: useCases.elementoComponente.getAllElementosComponente,
       getElementoComponenteByIdService:

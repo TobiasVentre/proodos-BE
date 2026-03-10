@@ -2,13 +2,13 @@ import {
   mapCreateTipoElementoDTOToEntity,
   mapUpdateTipoElementoDTOToEntity,
 } from "@proodos/application/DTOs/TipoElemento/TipoElementoDTOMapper";
-import { CreateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/CreateTipoElementoDTO";
-import { UpdateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/UpdateTipoElementoDTO";
+import { ICreateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/ICreateTipoElementoDTO";
+import { IUpdateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/IUpdateTipoElementoDTO";
 
 describe("TipoElementoDTOMapper", () => {
-  it("should map CreateTipoElementoDTO to entity with id_tipo_elemento set to 0", () => {
+  it("should map ICreateTipoElementoDTO to entity with id_tipo_elemento set to 0", () => {
     // Arrange
-    const dto: CreateTipoElementoDTO = { nombre: "Header" };
+    const dto: ICreateTipoElementoDTO = { nombre: "Header" };
 
     // Act
     const entity = mapCreateTipoElementoDTOToEntity(dto);
@@ -20,9 +20,9 @@ describe("TipoElementoDTOMapper", () => {
     });
   });
 
-  it("should map UpdateTipoElementoDTO keeping id_tipo_elemento", () => {
+  it("should map IUpdateTipoElementoDTO keeping id_tipo_elemento", () => {
     // Arrange
-    const dto: UpdateTipoElementoDTO = { id_tipo_elemento: 4, nombre: "Footer" };
+    const dto: IUpdateTipoElementoDTO = { id_tipo_elemento: 4, nombre: "Footer" };
 
     // Act
     const entity = mapUpdateTipoElementoDTOToEntity(dto);

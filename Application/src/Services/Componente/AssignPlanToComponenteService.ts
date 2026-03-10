@@ -1,10 +1,10 @@
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { IPlanRepository } from "../../Interfaces/IPlanRepository";
 import { Componente } from "@proodos/domain/Entities/Componente";
-import { AssignPlanToComponenteUseCase } from "../../Ports/ComponenteUseCases";
+import { IAssignPlanToComponenteUseCase } from "../../Ports/IComponenteUseCases";
 import { ensurePlanExists } from "./ensurePlanExists";
 
-export class AssignPlanToComponenteService implements AssignPlanToComponenteUseCase {
+export class AssignPlanToComponenteService implements IAssignPlanToComponenteUseCase {
   constructor(
     private readonly componenteRepository: IComponenteRepository,
     private readonly planRepository: IPlanRepository

@@ -1,14 +1,14 @@
 import { ILandingPageRepository } from "../../Interfaces/ILandingPageRepository";
 import { LandingPage } from "@proodos/domain/Entities/LandingPage";
-import { UpdateLandingPageCommand } from "../../DTOs/LandingPage/UpdateLandingPageCommand";
-import { LandingPageMapper } from "./LandingPageMapper";
+import { IUpdateLandingPageDTO } from "../../DTOs/LandingPage/IUpdateLandingPageDTO";
+import { mapUpdateLandingPageDTOToEntity } from "../../DTOs/LandingPage/LandingPageDTOMapper";
+import { IUpdateLandingPageUseCase } from "../../Ports/ILandingPageUseCases";
 
-export class UpdateLandingPageService {
+export class UpdateLandingPageService implements IUpdateLandingPageUseCase {
   constructor(private readonly landingPageRepository: ILandingPageRepository) {}
 
-  async execute(command: UpdateLandingPageCommand): Promise<LandingPage> {
-    const landing = LandingPageMapper.fromUpdateCommand(command);
-
-    return await this.landingPageRepository.update(landing);
+  async execute(dto: IUpdateLandingPageDTO): Promise<LandingPage> {
+    const entity = mapUpdateLandingPageDTOToEntity(dto);
+    return this.landingPageRepository.update(entity);
   }
 }

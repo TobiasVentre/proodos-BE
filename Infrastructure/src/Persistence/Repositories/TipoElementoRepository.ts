@@ -1,6 +1,6 @@
 import { TipoElemento } from "@proodos/domain/Entities/TipoElemento";
 import { ITipoElementoRepository } from "@proodos/application/Interfaces/ITipoElementoRepository";
-import { PatchTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/PatchTipoElementoDTO";
+import { IPatchTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/IPatchTipoElementoDTO";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { TipoElementoCommandRepository } from "./Commands/TipoElementoCommandRepository";
 import { TipoElementoQueryRepository } from "./Queries/TipoElementoQueryRepository";
@@ -24,7 +24,7 @@ export class TipoElementoRepository implements ITipoElementoRepository {
 
   async patch(
     id_tipo_elemento: number,
-    dto: PatchTipoElementoDTO
+    dto: IPatchTipoElementoDTO
   ): Promise<TipoElemento> {
     return this.commandRepository.patch(id_tipo_elemento, dto);
   }

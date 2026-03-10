@@ -64,3 +64,10 @@ Healthcheck:
 
 Swagger (si `ENABLE_SWAGGER=true`):
 - `/docs`
+
+Uso con token JWT:
+- Obtener el token desde Auth.
+- Abrir `/docs`.
+- Hacer click en `Authorize`.
+- Pegar solo el token JWT, sin escribir `Bearer `.
+- Confirmar y ejecutar los endpoints de `/api`; Swagger enviará `Authorization: Bearer <token>` automáticamente.

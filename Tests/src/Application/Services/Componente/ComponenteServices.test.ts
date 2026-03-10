@@ -1,6 +1,10 @@
 import { AssignComponenteHijoService } from "@proodos/application/Services/Componente/AssignComponenteHijoService";
 import { CreateComponenteService } from "@proodos/application/Services/Componente/CreateComponenteService";
 import { DeleteComponenteService } from "@proodos/application/Services/Componente/DeleteComponenteService";
+import {
+  mapCreateComponenteDTOToEntity,
+  mapUpdateComponenteDTOToEntity,
+} from "@proodos/application/DTOs/Componente/ComponenteDTOMapper";
 import { GetAllComponentesService } from "@proodos/application/Services/Componente/GetAllComponentesService";
 import { GetComponenteByIdService } from "@proodos/application/Services/Componente/GetComponenteByIdService";
 import { GetComponenteTreeService } from "@proodos/application/Services/Componente/GetComponenteTreeService";
@@ -16,9 +20,9 @@ import { IComponenteRepository } from "@proodos/application/Interfaces/IComponen
 import { ILandingComponenteRepository } from "@proodos/application/Interfaces/ILandingComponenteRepository";
 import { IPlanRepository } from "@proodos/application/Interfaces/IPlanRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
-import { PatchComponenteDTO } from "@proodos/application/DTOs/Componente/PatchComponenteDTO";
-import { UpdateComponenteDTO } from "@proodos/application/DTOs/Componente/UpdateComponenteDTO";
-import { CreateComponenteDTO } from "@proodos/application/DTOs/Componente/CreateComponenteDTO";
+import { IPatchComponenteDTO } from "@proodos/application/DTOs/Componente/IPatchComponenteDTO";
+import { IUpdateComponenteDTO } from "@proodos/application/DTOs/Componente/IUpdateComponenteDTO";
+import { ICreateComponenteDTO } from "@proodos/application/DTOs/Componente/ICreateComponenteDTO";
 
 const buildComponenteRepository = (): jest.Mocked<IComponenteRepository> => ({
   create: jest.fn(),
@@ -34,6 +38,7 @@ const buildComponenteRepository = (): jest.Mocked<IComponenteRepository> => ({
 const buildPlanRepository = (): jest.Mocked<IPlanRepository> => ({
   create: jest.fn(),
   update: jest.fn(),
+  updateFull: jest.fn(),
   patch: jest.fn(),
   patchFull: jest.fn(),
   getById: jest.fn(),
@@ -77,7 +82,7 @@ describe("Componente services", () => {
     const componenteRepository = buildComponenteRepository();
     const planRepository = buildPlanRepository();
     const logger = buildLogger();
-    const dto: CreateComponenteDTO = {
+    const dto: ICreateComponenteDTO = {
       id_tipo_componente: 10,
       id_plan: 1,
       id_tipo_variacion: 2,
@@ -101,14 +106,16 @@ describe("Componente services", () => {
       "[Service] CreateComponenteService.execute()"
     );
     expect(planRepository.exists).toHaveBeenCalledWith(dto.id_plan);
-    expect(componenteRepository.create).toHaveBeenCalledWith(dto);
+    expect(componenteRepository.create).toHaveBeenCalledWith(
+      mapCreateComponenteDTOToEntity(dto)
+    );
     expect(result).toEqual(created);
   });
 
   it("should update componente", async () => {
     // Arrange
     const componenteRepository = buildComponenteRepository();
-    const dto: UpdateComponenteDTO = {
+    const dto: IUpdateComponenteDTO = {
       id_componente: 10,
       id_tipo_componente: 3,
       id_plan: 2,
@@ -116,14 +123,27 @@ describe("Componente services", () => {
       nombre: "Banner",
     };
     const updated = buildComponente({ ...dto });
+    const planRepository = buildPlanRepository();
+    const logger = buildLogger();
+    planRepository.exists.mockResolvedValue(true);
     componenteRepository.update.mockResolvedValue(updated);
-    const service = new UpdateComponenteService(componenteRepository);
+    const service = new UpdateComponenteService(
+      componenteRepository,
+      planRepository,
+      logger
+    );
 
     // Act
     const result = await service.execute(dto);
 
     // Assert
-    expect(componenteRepository.update).toHaveBeenCalledWith(dto);
+    expect(logger.info).toHaveBeenCalledWith(
+      "[Service] UpdateComponenteService.execute()"
+    );
+    expect(planRepository.exists).toHaveBeenCalledWith(dto.id_plan);
+    expect(componenteRepository.update).toHaveBeenCalledWith(
+      mapUpdateComponenteDTOToEntity(dto)
+    );
     expect(result).toEqual(updated);
   });
 
@@ -131,7 +151,7 @@ describe("Componente services", () => {
     // Arrange
     const componenteRepository = buildComponenteRepository();
     const planRepository = buildPlanRepository();
-    const dto: PatchComponenteDTO = {
+    const dto: IPatchComponenteDTO = {
       id_plan: 5,
       nombre: "Nuevo",
     };
@@ -156,7 +176,7 @@ describe("Componente services", () => {
     // Arrange
     const componenteRepository = buildComponenteRepository();
     const planRepository = buildPlanRepository();
-    const dto: PatchComponenteDTO = { nombre: "Solo nombre" };
+    const dto: IPatchComponenteDTO = { nombre: "Solo nombre" };
     const patched = buildComponente({ id_componente: 3, nombre: "Solo nombre" });
     componenteRepository.patch.mockResolvedValue(patched);
     const service = new PatchComponenteService(
@@ -383,11 +403,14 @@ describe("Componente services", () => {
     );
 
     // Act
-    const result = await service.execute(1, 2);
+    const result = await service.execute({ id_padre: 1, id_hijo: 2 });
 
     // Assert
     expect(compuestoRepository.assign).toHaveBeenCalledWith(1, 2);
-    expect(result).toEqual({ created: true });
+    expect(result).toEqual({
+      created: true,
+      data: { id_padre: 1, id_hijo: 2 },
+    });
   });
 
   it("should throw NotFoundError when parent componente does not exist", async () => {
@@ -405,7 +428,7 @@ describe("Componente services", () => {
     );
 
     // Act
-    const action = () => service.execute(1, 2);
+    const action = () => service.execute({ id_padre: 1, id_hijo: 2 });
 
     // Assert
     await expect(action()).rejects.toBeInstanceOf(NotFoundError);
@@ -428,7 +451,7 @@ describe("Componente services", () => {
     );
 
     // Act
-    const action = () => service.execute(1, 2);
+    const action = () => service.execute({ id_padre: 1, id_hijo: 2 });
 
     // Assert
     await expect(action()).rejects.toBeInstanceOf(NotFoundError);
@@ -444,7 +467,7 @@ describe("Componente services", () => {
     const service = new UnassignComponenteHijoService(compuestoRepository);
 
     // Act
-    await service.execute(1, 3);
+    await service.execute({ id_padre: 1, id_hijo: 3 });
 
     // Assert
     expect(compuestoRepository.unassign).toHaveBeenCalledWith(1, 3);

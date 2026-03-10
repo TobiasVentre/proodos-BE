@@ -1,0 +1,28 @@
+import path from "path";
+import type { Config } from "jest";
+
+const rootDir = path.resolve(__dirname, "../../..");
+
+const config: Config = {
+  preset: "ts-jest",
+  testEnvironment: "node",
+  rootDir,
+  testMatch: ["<rootDir>/Tests/src/**/*.test.ts"],
+  moduleFileExtensions: ["ts", "tsx", "js", "json", "node"],
+  moduleNameMapper: {
+    "^@proodos/domain/(.*)$": "<rootDir>/Domain/src/$1",
+    "^@proodos/application/(.*)$": "<rootDir>/Application/src/$1",
+    "^@proodos/infrastructure/(.*)$": "<rootDir>/Infrastructure/src/$1",
+    "^@proodos/api/(.*)$": "<rootDir>/API/src/$1"
+  },
+  collectCoverageFrom: [
+    "<rootDir>/Application/src/**/*.ts",
+    "<rootDir>/Domain/src/**/*.ts",
+    "!**/*.d.ts"
+  ],
+  coverageProvider: "babel",
+  coverageDirectory: "<rootDir>/Tests/dist/coverage",
+  coverageReporters: ["text", "html", "lcov"]
+};
+
+export default config;

@@ -1,12 +1,12 @@
 import { CreateTipoElementoService } from "@proodos/application/Services/TipoElemento/CreateTipoElementoService";
 import { ITipoElementoRepository } from "@proodos/application/Interfaces/ITipoElementoRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
-import { CreateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/CreateTipoElementoDTO";
+import { ICreateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/ICreateTipoElementoDTO";
 
 describe("CreateTipoElementoService", () => {
   it("should map the DTO and call repository.create", async () => {
     // Arrange
-    const dto: CreateTipoElementoDTO = { nombre: "Header" };
+    const dto: ICreateTipoElementoDTO = { nombre: "Header" };
     const createdEntity = { id_tipo_elemento: 1, nombre: "Header" };
 
     const tipoElementoRepository: ITipoElementoRepository = {

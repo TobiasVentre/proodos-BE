@@ -1,7 +1,7 @@
 import { ITipoVariacionRepository } from "../../Interfaces/ITipoVariacionRepository";
-import { DeleteTipoVariacionUseCase } from "../../Ports/TipoVariacionUseCases";
+import { IDeleteTipoVariacionUseCase } from "../../Ports/ITipoVariacionUseCases";
 
-export class DeleteTipoVariacionService implements DeleteTipoVariacionUseCase {
+export class DeleteTipoVariacionService implements IDeleteTipoVariacionUseCase {
   constructor(private readonly tipoVariacionRepository: ITipoVariacionRepository) {}
 
   async execute(id_tipo_variacion: number): Promise<void> {

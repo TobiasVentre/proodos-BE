@@ -1,7 +1,7 @@
 import { ITipoComponenteRepository } from "../../Interfaces/ITipoComponenteRepository";
-import { DeleteTipoComponenteUseCase } from "../../Ports/TipoComponenteUseCases";
+import { IDeleteTipoComponenteUseCase } from "../../Ports/ITipoComponenteUseCases";
 
-export class DeleteTipoComponenteService implements DeleteTipoComponenteUseCase {
+export class DeleteTipoComponenteService implements IDeleteTipoComponenteUseCase {
   constructor(private readonly tipoComponenteRepository: ITipoComponenteRepository) {}
 
   async execute(id_tipo_componente: number): Promise<void> {

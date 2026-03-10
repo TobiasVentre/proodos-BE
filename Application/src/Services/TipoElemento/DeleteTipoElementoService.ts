@@ -1,7 +1,7 @@
 import { ITipoElementoRepository } from "../../Interfaces/ITipoElementoRepository";
-import { DeleteTipoElementoUseCase } from "../../Ports/TipoElementoUseCases";
+import { IDeleteTipoElementoUseCase } from "../../Ports/ITipoElementoUseCases";
 
-export class DeleteTipoElementoService implements DeleteTipoElementoUseCase {
+export class DeleteTipoElementoService implements IDeleteTipoElementoUseCase {
   constructor(private readonly tipoElementoRepository: ITipoElementoRepository) {}
 
   async execute(id_tipo_elemento: number): Promise<void> {

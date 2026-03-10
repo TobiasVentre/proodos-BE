@@ -6,9 +6,9 @@ import { PatchTipoElementoService } from "@proodos/application/Services/TipoElem
 import { UpdateTipoElementoService } from "@proodos/application/Services/TipoElemento/UpdateTipoElementoService";
 import { ITipoElementoRepository } from "@proodos/application/Interfaces/ITipoElementoRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
-import { CreateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/CreateTipoElementoDTO";
-import { PatchTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/PatchTipoElementoDTO";
-import { UpdateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/UpdateTipoElementoDTO";
+import { ICreateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/ICreateTipoElementoDTO";
+import { IPatchTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/IPatchTipoElementoDTO";
+import { IUpdateTipoElementoDTO } from "@proodos/application/DTOs/TipoElemento/IUpdateTipoElementoDTO";
 
 const buildRepository = (): jest.Mocked<ITipoElementoRepository> => ({
   create: jest.fn(),
@@ -32,7 +32,7 @@ describe("TipoElemento services", () => {
     // Arrange
     const repository = buildRepository();
     const logger = buildLogger();
-    const dto: CreateTipoElementoDTO = { nombre: "Header" };
+    const dto: ICreateTipoElementoDTO = { nombre: "Header" };
     repository.create.mockResolvedValue({ id_tipo_elemento: 1, ...dto } as never);
     const service = new CreateTipoElementoService(repository, logger);
 
@@ -50,7 +50,7 @@ describe("TipoElemento services", () => {
   it("should update tipo elemento", async () => {
     // Arrange
     const repository = buildRepository();
-    const dto: UpdateTipoElementoDTO = { id_tipo_elemento: 2, nombre: "Footer" };
+    const dto: IUpdateTipoElementoDTO = { id_tipo_elemento: 2, nombre: "Footer" };
     repository.update.mockResolvedValue(dto as never);
     const service = new UpdateTipoElementoService(repository);
 
@@ -65,7 +65,7 @@ describe("TipoElemento services", () => {
   it("should patch tipo elemento", async () => {
     // Arrange
     const repository = buildRepository();
-    const dto: PatchTipoElementoDTO = { nombre: "Hero" };
+    const dto: IPatchTipoElementoDTO = { nombre: "Hero" };
     repository.patch.mockResolvedValue({ id_tipo_elemento: 3, nombre: "Hero" } as never);
     const service = new PatchTipoElementoService(repository);
 

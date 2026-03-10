@@ -4,14 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const loadEnv_1 = require("./Config/loadEnv");
-(0, loadEnv_1.loadEnv)();
+const BootstrapLogger_1 = require("./Logging/BootstrapLogger");
+(0, loadEnv_1.loadEnv)(BootstrapLogger_1.bootstrapLogger);
 const express_1 = __importDefault(require("express"));
 const swagger_config_1 = require("./Swagger/swagger.config");
 const routes_1 = require("./Routes/routes");
-const ConsoleLogger_1 = require("./Logging/ConsoleLogger");
 const ErrorHandler_1 = require("./Middleware/ErrorHandler");
+const auth_1 = require("./Middleware/auth");
 const app = (0, express_1.default)();
-const logger = new ConsoleLogger_1.ConsoleLogger();
+const logger = BootstrapLogger_1.bootstrapLogger;
 const PORT = Number(process.env.PORT || 8000);
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 const ENABLE_SWAGGER = String(process.env.ENABLE_SWAGGER ?? "true").toLowerCase() !== "false";
@@ -33,16 +34,19 @@ if (ENABLE_SWAGGER) {
 }
 const startServer = async () => {
     // API Routes
-    app.use("/api", await (0, routes_1.buildRoutes)(logger));
-    app.use(ErrorHandler_1.errorHandler);
+    app.use("/api", auth_1.authenticateJWT, await (0, routes_1.buildRoutes)(logger));
+    app.use((0, ErrorHandler_1.createErrorHandler)(logger));
     app.listen(PORT, () => {
         const docsPath = ENABLE_SWAGGER ? "/docs" : "";
         logger.info(`API Running on http://localhost:${PORT}${docsPath}`);
     });
 };
-startServer();
-console.log("[API RUNTIME ENV]", {
+logger.debug("[API RUNTIME ENV]", {
     DB_HOST: process.env.DB_HOST,
     DB_PORT: process.env.DB_PORT,
     DB_NAME: process.env.DB_NAME,
+});
+void startServer().catch((error) => {
+    logger.error("[Bootstrap] Failed to start server", error);
+    process.exit(1);
 });

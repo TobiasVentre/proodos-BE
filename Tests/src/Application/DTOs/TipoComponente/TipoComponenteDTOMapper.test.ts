@@ -2,13 +2,13 @@ import {
   mapCreateTipoComponenteDTOToEntity,
   mapUpdateTipoComponenteDTOToEntity,
 } from "@proodos/application/DTOs/TipoComponente/TipoComponenteDTOMapper";
-import { CreateTipoComponenteDTO } from "@proodos/application/DTOs/TipoComponente/CreateTipoComponenteDTO";
-import { UpdateTipoComponenteDTO } from "@proodos/application/DTOs/TipoComponente/UpdateTipoComponenteDTO";
+import { ICreateTipoComponenteDTO } from "@proodos/application/DTOs/TipoComponente/ICreateTipoComponenteDTO";
+import { IUpdateTipoComponenteDTO } from "@proodos/application/DTOs/TipoComponente/IUpdateTipoComponenteDTO";
 
 describe("TipoComponenteDTOMapper", () => {
-  it("should map CreateTipoComponenteDTO to entity with id_tipo_componente set to 0", () => {
+  it("should map ICreateTipoComponenteDTO to entity with id_tipo_componente set to 0", () => {
     // Arrange
-    const dto: CreateTipoComponenteDTO = {
+    const dto: ICreateTipoComponenteDTO = {
       nombre: "Banner",
       estado: "ACTIVO",
     };
@@ -24,9 +24,9 @@ describe("TipoComponenteDTOMapper", () => {
     });
   });
 
-  it("should map UpdateTipoComponenteDTO keeping id_tipo_componente", () => {
+  it("should map IUpdateTipoComponenteDTO keeping id_tipo_componente", () => {
     // Arrange
-    const dto: UpdateTipoComponenteDTO = {
+    const dto: IUpdateTipoComponenteDTO = {
       id_tipo_componente: 2,
       nombre: "Hero",
       estado: "INACTIVO",

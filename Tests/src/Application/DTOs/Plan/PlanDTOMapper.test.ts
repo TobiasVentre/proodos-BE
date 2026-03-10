@@ -1,11 +1,18 @@
-import { mapCreatePlanDTOToEntity, mapUpdatePlanDTOToEntity } from "@proodos/application/DTOs/Plan/PlanDTOMapper";
-import { CreatePlanDTO } from "@proodos/application/DTOs/Plan/CreatePlanDTO";
-import { UpdatePlanDTO } from "@proodos/application/DTOs/Plan/UpdatePlanDTO";
+import {
+  mapCreatePlanDTOToEntity,
+  mapCreatePlanFullDTOToEntity,
+  mapUpdatePlanDTOToEntity,
+  mapUpdatePlanFullDTOToEntity,
+} from "@proodos/application/DTOs/Plan/PlanDTOMapper";
+import { ICreatePlanDTO } from "@proodos/application/DTOs/Plan/ICreatePlanDTO";
+import { ICreatePlanFullDTO } from "@proodos/application/DTOs/Plan/ICreatePlanFullDTO";
+import { IUpdatePlanDTO } from "@proodos/application/DTOs/Plan/IUpdatePlanDTO";
+import { IUpdatePlanFullDTO } from "@proodos/application/DTOs/Plan/IUpdatePlanFullDTO";
 
 describe("PlanDTOMapper", () => {
-  it("should map CreatePlanDTO to a Plan entity with id_plan set to 0", () => {
+  it("should map ICreatePlanDTO to a Plan entity with id_plan set to 0", () => {
     // Arrange
-    const dto: CreatePlanDTO = {
+    const dto: ICreatePlanDTO = {
       nombre: "Plan Inicial",
       capacidad: 20,
       capacidad_anterior: 15,
@@ -65,9 +72,9 @@ describe("PlanDTOMapper", () => {
     });
   });
 
-  it("should map UpdatePlanDTO to a Plan entity keeping id_plan", () => {
+  it("should map IUpdatePlanDTO to a Plan entity keeping id_plan", () => {
     // Arrange
-    const dto: UpdatePlanDTO = {
+    const dto: IUpdatePlanDTO = {
       id_plan: 9,
       nombre: "Plan Actualizado",
       capacidad: 35,
@@ -92,5 +99,60 @@ describe("PlanDTOMapper", () => {
       aumento: 9,
       precio_sin_iva: 310,
     });
+  });
+
+  it("should map ICreatePlanFullDTO and normalize omitted fields to null", () => {
+    // Arrange
+    const dto: ICreatePlanFullDTO = {
+      nombre: "Plan Full",
+      capacidad: 100,
+      promo_activa: false,
+      precio_oferta: 1200,
+    };
+
+    // Act
+    const plan = mapCreatePlanFullDTOToEntity(dto);
+
+    // Assert
+    expect(plan).toEqual(
+      expect.objectContaining({
+        id_plan: 0,
+        nombre: "Plan Full",
+        capacidad: 100,
+        promo_activa: false,
+        precio_oferta: 1200,
+        segmento: null,
+        producto: null,
+        precio_full_price: null,
+        precio_sin_iva: null,
+      })
+    );
+  });
+
+  it("should map IUpdatePlanFullDTO and normalize omitted fields to null", () => {
+    // Arrange
+    const dto: IUpdatePlanFullDTO = {
+      id_plan: 14,
+      nombre: "Plan Full Actualizado",
+      precio_full_price: 1800,
+      promo_activa: true,
+    };
+
+    // Act
+    const plan = mapUpdatePlanFullDTOToEntity(dto);
+
+    // Assert
+    expect(plan).toEqual(
+      expect.objectContaining({
+        id_plan: 14,
+        nombre: "Plan Full Actualizado",
+        precio_full_price: 1800,
+        promo_activa: true,
+        segmento: null,
+        producto: null,
+        precio_oferta: null,
+        precio_sin_iva: null,
+      })
+    );
   });
 });

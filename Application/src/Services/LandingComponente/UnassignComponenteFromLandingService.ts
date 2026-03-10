@@ -1,9 +1,13 @@
 import { ILandingComponenteRepository } from "../../Interfaces/ILandingComponenteRepository";
+import { ILandingComponenteDTO } from "../../DTOs/LandingComponente/ILandingComponenteDTO";
+import { mapLandingComponenteDTOToEntity } from "../../DTOs/LandingComponente/LandingComponenteDTOMapper";
+import { IUnassignLandingComponenteUseCase } from "../../Ports/ILandingComponenteUseCases";
 
-export class UnassignComponenteFromLandingService {
+export class UnassignComponenteFromLandingService implements IUnassignLandingComponenteUseCase {
   constructor(private readonly landingComponenteRepository: ILandingComponenteRepository) {}
 
-  async execute(id_landing: number, id_componente: number): Promise<void> {
-    await this.landingComponenteRepository.unassign(id_landing, id_componente);
+  async execute(dto: ILandingComponenteDTO): Promise<void> {
+    const entity = mapLandingComponenteDTOToEntity(dto);
+    await this.landingComponenteRepository.unassign(entity.id_landing, entity.id_componente);
   }
 }

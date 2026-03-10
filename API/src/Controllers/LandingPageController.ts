@@ -1,32 +1,43 @@
 import { Router } from "express";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import {
-  CreateLandingPageUseCase,
-  DeleteLandingPageUseCase,
-  GetAllLandingPagesUseCase,
-  GetLandingPageByIdUseCase,
-  PatchLandingPageUseCase,
-  UpdateLandingPageUseCase,
-} from "@proodos/application/Ports/LandingPageUseCases";
+  ICreateLandingPageUseCase,
+  IDeleteLandingPageUseCase,
+  IGetAllLandingPagesUseCase,
+  IGetLandingPageByIdUseCase,
+  IPatchLandingPageUseCase,
+  IUpdateLandingPageUseCase,
+} from "@proodos/application/Ports/ILandingPageUseCases";
 import {
-  AssignLandingComponenteUseCase,
-  GetLandingComponentesUseCase,
-  UnassignLandingComponenteUseCase,
-} from "@proodos/application/Ports/LandingComponenteUseCases";
-import { buildNotFoundError, buildValidationError } from "./ControllerErrors";
+  IAssignLandingComponenteUseCase,
+  IGetLandingComponentesUseCase,
+  IUnassignLandingComponenteUseCase,
+} from "@proodos/application/Ports/ILandingComponenteUseCases";
+import {
+  ensureFound,
+  ensureRequiredFields,
+  logControllerError,
+  parsePositiveInteger,
+  respondCreated,
+  respondNoContent,
+  respondOk,
+} from "./ControllerHelpers";
 
 type LandingPageControllerDeps = {
-  createLandingPageService: CreateLandingPageUseCase;
-  getLandingPageByIdService: GetLandingPageByIdUseCase;
-  getAllLandingPagesService: GetAllLandingPagesUseCase;
-  updateLandingPageService: UpdateLandingPageUseCase;
-  patchLandingPageService: PatchLandingPageUseCase;
-  deleteLandingPageService: DeleteLandingPageUseCase;
-  assignLandingComponenteService: AssignLandingComponenteUseCase;
-  unassignLandingComponenteService: UnassignLandingComponenteUseCase;
-  getLandingComponentesService: GetLandingComponentesUseCase;
+  logger: ILogger;
+  createLandingPageService: ICreateLandingPageUseCase;
+  getLandingPageByIdService: IGetLandingPageByIdUseCase;
+  getAllLandingPagesService: IGetAllLandingPagesUseCase;
+  updateLandingPageService: IUpdateLandingPageUseCase;
+  patchLandingPageService: IPatchLandingPageUseCase;
+  deleteLandingPageService: IDeleteLandingPageUseCase;
+  assignLandingComponenteService: IAssignLandingComponenteUseCase;
+  unassignLandingComponenteService: IUnassignLandingComponenteUseCase;
+  getLandingComponentesService: IGetLandingComponentesUseCase;
 };
 
 export const createLandingPageController = ({
+  logger,
   createLandingPageService,
   getLandingPageByIdService,
   getAllLandingPagesService,
@@ -52,17 +63,14 @@ export const createLandingPageController = ({
  *         description: Lista de landing pages
  */
   landingPageController.get("/", async (req, res, next) => {
-  console.log("[Controller] GET /landings");
+  logger.info("[Controller] GET /landings");
 
   try {
     const result = await getAllLandingPagesService.execute();
 
-    return res.json({
-      message: "OK",
-      data: result
-    });
+    return respondOk(res, result);
   } catch (error) {
-    console.log("[Controller] ERROR:", error);
+    logControllerError(logger, "GET /landings", error);
     return next(error);
   }
   });
@@ -122,26 +130,18 @@ export const createLandingPageController = ({
  *                   example: LandingPage not found
  */
   landingPageController.get("/:id", async (req, res, next) => {
-  console.log(`[Controller] GET /landings/${req.params.id}`);
-
-  const landingId = Number(req.params.id);
-  if (Number.isNaN(landingId) || landingId <= 0) {
-    return next(buildValidationError("Invalid id"));
-  }
+  logger.info(`[Controller] GET /landings/${req.params.id}`);
 
   try {
-    const result = await getLandingPageByIdService.execute(landingId);
+    const landingId = parsePositiveInteger(req.params.id);
+    const result = ensureFound(
+      await getLandingPageByIdService.execute(landingId),
+      "Landing not found"
+    );
 
-    if (!result) {
-      return next(buildNotFoundError("Landing not found"));
-    }
-
-    return res.json({
-      message: "OK",
-      data: result,
-    });
+    return respondOk(res, result);
   } catch (error) {
-    console.log("[Controller] ERROR:", error);
+    logControllerError(logger, `GET /landings/${req.params.id}`, error);
     return next(error);
   }
   });
@@ -180,27 +180,15 @@ export const createLandingPageController = ({
  *         description: Request inválida
  */
   landingPageController.post("/", async (req, res, next) => {
-  console.log("[Controller] POST /landings");
-  console.log("[Controller] Body:", req.body);
-
-  const { URL, estado, segmento } = req.body || {};
-
-  // Validación mínima
-  if (!URL || !estado || !segmento) {
-    return next(buildValidationError("Missing required fields", {
-      required: ["URL", "estado", "segmento"],
-    }));
-  }
+  logger.info("[Controller] POST /landings", req.body);
 
   try {
+    ensureRequiredFields(req.body, ["URL", "estado", "segmento"]);
     const result = await createLandingPageService.execute(req.body);
 
-    return res.json({
-      message: "OK",
-      data: result,
-    });
+    return respondOk(res, result);
   } catch (error) {
-    console.log("[Controller] ERROR:", error);
+    logControllerError(logger, "POST /landings", error);
     return next(error);
   }
   });
@@ -244,22 +232,12 @@ export const createLandingPageController = ({
  *         description: Landing no encontrada
  */
   landingPageController.put("/:id", async (req, res, next) => {
-  console.log(`[Controller] PUT /landings/${req.params.id}`);
-
-  const id_landing = Number(req.params.id);
-  if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return next(buildValidationError("Invalid id"));
-  }
-
-  const { URL, estado, segmento } = req.body || {};
-
-  if (!URL || !estado || !segmento) {
-    return next(buildValidationError("Missing required fields", {
-      required: ["URL", "estado", "segmento"],
-    }));
-  }
+  logger.info(`[Controller] PUT /landings/${req.params.id}`);
 
   try {
+    const id_landing = parsePositiveInteger(req.params.id);
+    ensureRequiredFields(req.body, ["URL", "estado", "segmento"]);
+    const { URL, estado, segmento } = req.body || {};
     const result = await updateLandingPageService.execute({
       id_landing,
       URL,
@@ -267,12 +245,9 @@ export const createLandingPageController = ({
       segmento,
     });
 
-    return res.json({
-      message: "OK",
-      data: result,
-    });
+    return respondOk(res, result);
   } catch (error: any) {
-    console.log("[Controller] ERROR:", error);
+    logControllerError(logger, `PUT /landings/${req.params.id}`, error);
     return next(error);
   }
   });
@@ -312,22 +287,15 @@ export const createLandingPageController = ({
  *         description: Landing no encontrada
  */
   landingPageController.patch("/:id", async (req, res, next) => {
-  console.log(`[Controller] PATCH /landings/${req.params.id}`);
-
-  const id_landing = Number(req.params.id);
-  if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return next(buildValidationError("Invalid id"));
-  }
+  logger.info(`[Controller] PATCH /landings/${req.params.id}`);
 
   try {
+    const id_landing = parsePositiveInteger(req.params.id);
     const result = await patchLandingPageService.execute(id_landing, req.body || {});
 
-    return res.json({
-      message: "OK",
-      data: result,
-    });
+    return respondOk(res, result);
   } catch (error: any) {
-    console.log("[Controller] ERROR:", error);
+    logControllerError(logger, `PATCH /landings/${req.params.id}`, error);
     return next(error);
   }
   });
@@ -352,18 +320,14 @@ export const createLandingPageController = ({
  *         description: Request inválida
  */
   landingPageController.delete("/:id", async (req, res, next) => {
-  console.log(`[Controller] DELETE /landings/${req.params.id}`);
-
-  const id_landing = Number(req.params.id);
-  if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return next(buildValidationError("Invalid id"));
-  }
+  logger.info(`[Controller] DELETE /landings/${req.params.id}`);
 
   try {
+    const id_landing = parsePositiveInteger(req.params.id);
     await deleteLandingPageService.execute(id_landing);
-    return res.status(204).send();
+    return respondNoContent(res);
   } catch (error: any) {
-    console.log("[Controller] ERROR:", error);
+    logControllerError(logger, `DELETE /landings/${req.params.id}`, error);
     return next(error);
   }
   });
@@ -404,24 +368,28 @@ export const createLandingPageController = ({
  *         description: Landing o componente inexistente
  */
   landingPageController.post("/:id/componentes", async (req, res, next) => {
-  console.log(`[Controller] POST /landings/${req.params.id}/componentes`);
-
-  const id_landing = Number(req.params.id);
-  const id_componente = Number(req.body?.id_componente);
-
-  if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return next(buildValidationError("Invalid landing id"));
-  }
-  if (Number.isNaN(id_componente) || id_componente <= 0) {
-    return next(buildValidationError("Invalid id_componente"));
-  }
+  logger.info(`[Controller] POST /landings/${req.params.id}/componentes`);
 
   try {
-    const result = await assignLandingComponenteService.execute(id_landing, id_componente);
+    const id_landing = parsePositiveInteger(req.params.id, "landing id");
+    const id_componente = parsePositiveInteger(
+      req.body?.id_componente,
+      "id_componente"
+    );
+    const result = await assignLandingComponenteService.execute({
+      id_landing,
+      id_componente,
+    });
 
-    return res.status(result.existed ? 200 : 201).json({ message: "OK", data: result.data });
+    return result.existed
+      ? respondOk(res, result.data)
+      : respondCreated(res, result.data);
   } catch (error: any) {
-    console.log("[Controller] ERROR:", error);
+    logControllerError(
+      logger,
+      `POST /landings/${req.params.id}/componentes`,
+      error
+    );
     return next(error);
   }
   });
@@ -446,22 +414,19 @@ export const createLandingPageController = ({
  *         description: ID inválido
  */
   landingPageController.get("/:id/componentes", async (req, res, next) => {
-  console.log(`[Controller] GET /landings/${req.params.id}/componentes`);
-
-  const id_landing = Number(req.params.id);
-  if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return next(buildValidationError("Invalid landing id"));
-  }
+  logger.info(`[Controller] GET /landings/${req.params.id}/componentes`);
 
   try {
+    const id_landing = parsePositiveInteger(req.params.id, "landing id");
     const result = await getLandingComponentesService.execute(id_landing);
 
-    return res.status(200).json({
-      message: "OK",
-      data: result,
-    });
+    return respondOk(res, result);
   } catch (error) {
-    console.log("[Controller] ERROR:", error);
+    logControllerError(
+      logger,
+      `GET /landings/${req.params.id}/componentes`,
+      error
+    );
     return next(error);
   }
   });
@@ -491,25 +456,27 @@ export const createLandingPageController = ({
  *         description: Request inválida
  */
   landingPageController.delete("/:id/componentes/:id_componente", async (req, res, next) => {
-  console.log(
+  logger.info(
     `[Controller] DELETE /landings/${req.params.id}/componentes/${req.params.id_componente}`
   );
 
-  const id_landing = Number(req.params.id);
-  const id_componente = Number(req.params.id_componente);
-
-  if (Number.isNaN(id_landing) || id_landing <= 0) {
-    return next(buildValidationError("Invalid landing id"));
-  }
-  if (Number.isNaN(id_componente) || id_componente <= 0) {
-    return next(buildValidationError("Invalid id_componente"));
-  }
-
   try {
-    await unassignLandingComponenteService.execute(id_landing, id_componente);
-    return res.status(204).send();
+    const id_landing = parsePositiveInteger(req.params.id, "landing id");
+    const id_componente = parsePositiveInteger(
+      req.params.id_componente,
+      "id_componente"
+    );
+    await unassignLandingComponenteService.execute({
+      id_landing,
+      id_componente,
+    });
+    return respondNoContent(res);
   } catch (error) {
-    console.log("[Controller] ERROR:", error);
+    logControllerError(
+      logger,
+      `DELETE /landings/${req.params.id}/componentes/${req.params.id_componente}`,
+      error
+    );
     return next(error);
   }
   });

@@ -1,8 +1,8 @@
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { Componente } from "@proodos/domain/Entities/Componente";
-import { GetAllComponentesUseCase } from "../../Ports/ComponenteUseCases";
+import { IGetAllComponentesUseCase } from "../../Ports/IComponenteUseCases";
 
-export class GetAllComponentesService implements GetAllComponentesUseCase {
+export class GetAllComponentesService implements IGetAllComponentesUseCase {
   constructor(private readonly componenteRepository: IComponenteRepository) {}
 
   async execute(): Promise<Componente[]> {

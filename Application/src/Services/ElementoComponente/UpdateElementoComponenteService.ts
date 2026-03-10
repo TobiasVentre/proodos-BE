@@ -1,20 +1,20 @@
-import { UpdateElementoComponenteDTO } from "../../DTOs/ElementoComponente/UpdateElementoComponenteDTO";
+import { IUpdateElementoComponenteDTO } from "../../DTOs/ElementoComponente/IUpdateElementoComponenteDTO";
 import { mapUpdateElementoComponenteDTOToEntity } from "../../DTOs/ElementoComponente/ElementoComponenteDTOMapper";
 import { IElementoComponenteRepository } from "../../Interfaces/IElementoComponenteRepository";
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { ITipoElementoRepository } from "../../Interfaces/ITipoElementoRepository";
-import { UpdateElementoComponenteUseCase } from "../../Ports/ElementoComponenteUseCases";
+import { IUpdateElementoComponenteUseCase } from "../../Ports/IElementoComponenteUseCases";
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
 import { NotFoundError } from "../../Errors/NotFoundError";
 
-export class UpdateElementoComponenteService implements UpdateElementoComponenteUseCase {
+export class UpdateElementoComponenteService implements IUpdateElementoComponenteUseCase {
   constructor(
     private readonly elementoComponenteRepository: IElementoComponenteRepository,
     private readonly componenteRepository: IComponenteRepository,
     private readonly tipoElementoRepository: ITipoElementoRepository
   ) {}
 
-  async execute(dto: UpdateElementoComponenteDTO): Promise<ElementoComponente> {
+  async execute(dto: IUpdateElementoComponenteDTO): Promise<ElementoComponente> {
     const componente = await this.componenteRepository.getById(dto.id_componente);
     if (!componente) {
       throw new NotFoundError("Componente not found");

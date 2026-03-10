@@ -1,9 +1,9 @@
 import { TipoVariacion } from "@proodos/domain/Entities/TipoVariacion";
-import { CreateTipoVariacionDTO } from "./CreateTipoVariacionDTO";
-import { UpdateTipoVariacionDTO } from "./UpdateTipoVariacionDTO";
+import { ICreateTipoVariacionDTO } from "./ICreateTipoVariacionDTO";
+import { IUpdateTipoVariacionDTO } from "./IUpdateTipoVariacionDTO";
 
 export const mapCreateTipoVariacionDTOToEntity = (
-  dto: CreateTipoVariacionDTO
+  dto: ICreateTipoVariacionDTO
 ): TipoVariacion => ({
   id_tipo_variacion: 0,
   id_tipo_componente: dto.id_tipo_componente,
@@ -15,7 +15,7 @@ export const mapCreateTipoVariacionDTOToEntity = (
 });
 
 export const mapUpdateTipoVariacionDTOToEntity = (
-  dto: UpdateTipoVariacionDTO
+  dto: IUpdateTipoVariacionDTO
 ): TipoVariacion => ({
   id_tipo_variacion: dto.id_tipo_variacion,
   id_tipo_componente: dto.id_tipo_componente,

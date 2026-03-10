@@ -1,14 +1,14 @@
-import { CreateElementoComponenteDTO } from "../../DTOs/ElementoComponente/CreateElementoComponenteDTO";
+import { ICreateElementoComponenteDTO } from "../../DTOs/ElementoComponente/ICreateElementoComponenteDTO";
 import { mapCreateElementoComponenteDTOToEntity } from "../../DTOs/ElementoComponente/ElementoComponenteDTOMapper";
 import { IElementoComponenteRepository } from "../../Interfaces/IElementoComponenteRepository";
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { ITipoElementoRepository } from "../../Interfaces/ITipoElementoRepository";
-import { CreateElementoComponenteUseCase } from "../../Ports/ElementoComponenteUseCases";
+import { ICreateElementoComponenteUseCase } from "../../Ports/IElementoComponenteUseCases";
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
 import { ILogger } from "../../Interfaces/ILogger";
 import { NotFoundError } from "../../Errors/NotFoundError";
 
-export class CreateElementoComponenteService implements CreateElementoComponenteUseCase {
+export class CreateElementoComponenteService implements ICreateElementoComponenteUseCase {
   constructor(
     private readonly elementoComponenteRepository: IElementoComponenteRepository,
     private readonly componenteRepository: IComponenteRepository,
@@ -16,7 +16,7 @@ export class CreateElementoComponenteService implements CreateElementoComponente
     private readonly logger: ILogger
   ) {}
 
-  async execute(dto: CreateElementoComponenteDTO): Promise<ElementoComponente> {
+  async execute(dto: ICreateElementoComponenteDTO): Promise<ElementoComponente> {
     this.logger.info("[Service] CreateElementoComponenteService.execute()");
 
     const componente = await this.componenteRepository.getById(dto.id_componente);

@@ -1,14 +1,14 @@
 import { AssignLandingComponenteService } from "@proodos/application/Services/LandingComponente/AssignLandingComponenteService";
-import { AssignLandingComponenteService as AssignComponenteToLandingService } from "@proodos/application/Services/LandingComponente/AssignComponenteToLandingService";
-import { ExistsLandingComponenteService } from "@proodos/application/Services/LandingComponente/ExistsLandingComponenteService";
 import { GetLandingComponentesService } from "@proodos/application/Services/LandingComponente/GetLandingComponentesService";
 import { GetLandingsByComponenteService } from "@proodos/application/Services/LandingComponente/GetLandingsByComponenteService";
 import { UnassignComponenteFromLandingService } from "@proodos/application/Services/LandingComponente/UnassignComponenteFromLandingService";
 import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
+import { ValidationError } from "@proodos/application/Errors/ValidationError";
 import { IComponenteRepository } from "@proodos/application/Interfaces/IComponenteRepository";
 import { ILandingComponenteRepository } from "@proodos/application/Interfaces/ILandingComponenteRepository";
 import { ILandingPageRepository } from "@proodos/application/Interfaces/ILandingPageRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { ILandingComponenteDTO } from "@proodos/application/DTOs/LandingComponente/ILandingComponenteDTO";
 
 const buildLandingPageRepository = (): jest.Mocked<ILandingPageRepository> => ({
   create: jest.fn(),
@@ -65,11 +65,17 @@ describe("LandingComponente services", () => {
     );
 
     // Act
-    const result = await service.execute(1, 2);
+    const dto: ILandingComponenteDTO = { id_landing: 1, id_componente: 2 };
+
+    const result = await service.execute(dto);
 
     // Assert
     expect(result.existed).toBe(false);
     expect(result.data).toEqual({ id_landing: 1, id_componente: 2 });
+    expect(landingComponenteRepository.assign).toHaveBeenCalledWith({
+      id_landing: 1,
+      id_componente: 2,
+    });
   });
 
   it("should return existed true when already assigned", async () => {
@@ -90,107 +96,12 @@ describe("LandingComponente services", () => {
     );
 
     // Act
-    const result = await service.execute(1, 2);
+    const result = await service.execute({ id_landing: 1, id_componente: 2 });
 
     // Assert
     expect(result.existed).toBe(true);
     expect(result.data).toEqual({ id_landing: 1, id_componente: 2 });
-  });
-
-  it("should assign componente to landing service variant with created true", async () => {
-    // Arrange
-    const landingPageRepository = buildLandingPageRepository();
-    const componenteRepository = buildComponenteRepository();
-    const landingComponenteRepository = buildLandingComponenteRepository();
-    const logger = buildLogger();
-    landingPageRepository.getById.mockResolvedValue({ id_landing: 5 } as never);
-    componenteRepository.getById.mockResolvedValue({ id_componente: 7 } as never);
-    landingComponenteRepository.exists.mockResolvedValue(false);
-    landingComponenteRepository.assign.mockResolvedValue({ id_landing: 5, id_componente: 7 } as never);
-
-    const service = new AssignComponenteToLandingService(
-      landingPageRepository,
-      componenteRepository,
-      landingComponenteRepository,
-      logger
-    );
-
-    // Act
-    const result = await service.execute(5, 7);
-
-    // Assert
-    expect(result.created).toBe(true);
-    expect(result.data).toEqual({ id_landing: 5, id_componente: 7 });
-  });
-
-  it("should return created false when componente already assigned (variant service)", async () => {
-    // Arrange
-    const landingPageRepository = buildLandingPageRepository();
-    const componenteRepository = buildComponenteRepository();
-    const landingComponenteRepository = buildLandingComponenteRepository();
-    const logger = buildLogger();
-    landingPageRepository.getById.mockResolvedValue({ id_landing: 5 } as never);
-    componenteRepository.getById.mockResolvedValue({ id_componente: 7 } as never);
-    landingComponenteRepository.exists.mockResolvedValue(true);
-
-    const service = new AssignComponenteToLandingService(
-      landingPageRepository,
-      componenteRepository,
-      landingComponenteRepository,
-      logger
-    );
-
-    // Act
-    const result = await service.execute(5, 7);
-
-    // Assert
-    expect(result.created).toBe(false);
-    expect(result.data).toEqual({ id_landing: 5, id_componente: 7 });
-  });
-
-  it("should throw NotFoundError when landing does not exist (variant service)", async () => {
-    // Arrange
-    const landingPageRepository = buildLandingPageRepository();
-    const componenteRepository = buildComponenteRepository();
-    const landingComponenteRepository = buildLandingComponenteRepository();
-    const logger = buildLogger();
-    landingPageRepository.getById.mockResolvedValue(null);
-
-    const service = new AssignComponenteToLandingService(
-      landingPageRepository,
-      componenteRepository,
-      landingComponenteRepository,
-      logger
-    );
-
-    // Act
-    const action = () => service.execute(1, 2);
-
-    // Assert
-    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
-  });
-
-  it("should throw NotFoundError when componente does not exist (variant service)", async () => {
-    // Arrange
-    const landingPageRepository = buildLandingPageRepository();
-    const componenteRepository = buildComponenteRepository();
-    const landingComponenteRepository = buildLandingComponenteRepository();
-    const logger = buildLogger();
-    landingPageRepository.getById.mockResolvedValue({ id_landing: 1 } as never);
-    componenteRepository.getById.mockResolvedValue(null);
-
-    const service = new AssignComponenteToLandingService(
-      landingPageRepository,
-      componenteRepository,
-      landingComponenteRepository,
-      logger
-    );
-
-    // Act
-    const action = () => service.execute(1, 2);
-
-    // Assert
-    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+    expect(landingComponenteRepository.assign).not.toHaveBeenCalled();
   });
 
   it("should throw NotFoundError when landing does not exist", async () => {
@@ -209,7 +120,7 @@ describe("LandingComponente services", () => {
     );
 
     // Act
-    const action = () => service.execute(1, 2);
+    const action = () => service.execute({ id_landing: 1, id_componente: 2 });
 
     // Assert
     await expect(action()).rejects.toBeInstanceOf(NotFoundError);
@@ -232,24 +143,30 @@ describe("LandingComponente services", () => {
     );
 
     // Act
-    const action = () => service.execute(1, 2);
+    const action = () => service.execute({ id_landing: 1, id_componente: 2 });
 
     // Assert
     await expect(action()).rejects.toBeInstanceOf(NotFoundError);
   });
 
-  it("should check existence of landing componente", async () => {
+  it("should throw ValidationError when assignment ids are invalid", async () => {
     // Arrange
+    const landingPageRepository = buildLandingPageRepository();
+    const componenteRepository = buildComponenteRepository();
     const landingComponenteRepository = buildLandingComponenteRepository();
-    landingComponenteRepository.exists.mockResolvedValue(true);
-    const service = new ExistsLandingComponenteService(landingComponenteRepository);
+    const logger = buildLogger();
+    const service = new AssignLandingComponenteService(
+      landingPageRepository,
+      componenteRepository,
+      landingComponenteRepository,
+      logger
+    );
 
     // Act
-    const result = await service.execute(1, 2);
+    const action = () => service.execute({ id_landing: 0, id_componente: -1 });
 
     // Assert
-    expect(result).toBe(true);
-    expect(landingComponenteRepository.exists).toHaveBeenCalledWith(1, 2);
+    await expect(action()).rejects.toBeInstanceOf(ValidationError);
   });
 
   it("should get landing componentes by landing", async () => {
@@ -288,9 +205,21 @@ describe("LandingComponente services", () => {
     const service = new UnassignComponenteFromLandingService(landingComponenteRepository);
 
     // Act
-    await service.execute(1, 2);
+    await service.execute({ id_landing: 1, id_componente: 2 });
 
     // Assert
     expect(landingComponenteRepository.unassign).toHaveBeenCalledWith(1, 2);
+  });
+
+  it("should throw ValidationError when unassign ids are invalid", async () => {
+    // Arrange
+    const landingComponenteRepository = buildLandingComponenteRepository();
+    const service = new UnassignComponenteFromLandingService(landingComponenteRepository);
+
+    // Act
+    const action = () => service.execute({ id_landing: 0, id_componente: 2 });
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(ValidationError);
   });
 });

@@ -1,17 +1,17 @@
-import { CreatePlanDTO } from "../../DTOs/Plan/CreatePlanDTO";
+import { ICreatePlanDTO } from "../../DTOs/Plan/ICreatePlanDTO";
 import { mapCreatePlanDTOToEntity } from "../../DTOs/Plan/PlanDTOMapper";
 import { IPlanRepository } from "../../Interfaces/IPlanRepository";
-import { CreatePlanUseCase } from "../../Ports/PlanUseCases";
+import { ICreatePlanUseCase } from "../../Ports/IPlanUseCases";
 import { ILogger } from "../../Interfaces/ILogger";
 import { Plan } from "@proodos/domain/Entities/Plan";
 
-export class CreatePlanService implements CreatePlanUseCase {
+export class CreatePlanService implements ICreatePlanUseCase {
   constructor(
     private readonly planRepository: IPlanRepository,
     private readonly logger: ILogger
   ) {}
 
-  async execute(dto: CreatePlanDTO): Promise<Plan> {
+  async execute(dto: ICreatePlanDTO): Promise<Plan> {
     this.logger.info("[Service] CreatePlanService.execute()");
     const plan = mapCreatePlanDTOToEntity(dto);
     return await this.planRepository.create(plan);

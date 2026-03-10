@@ -1,12 +1,12 @@
 import { IElementoComponenteRepository } from "../../Interfaces/IElementoComponenteRepository";
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { ITipoElementoRepository } from "../../Interfaces/ITipoElementoRepository";
-import { PatchElementoComponenteUseCase } from "../../Ports/ElementoComponenteUseCases";
-import { PatchElementoComponenteDTO } from "../../DTOs/ElementoComponente/PatchElementoComponenteDTO";
+import { IPatchElementoComponenteUseCase } from "../../Ports/IElementoComponenteUseCases";
+import { IPatchElementoComponenteDTO } from "../../DTOs/ElementoComponente/IPatchElementoComponenteDTO";
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
 import { NotFoundError } from "../../Errors/NotFoundError";
 
-export class PatchElementoComponenteService implements PatchElementoComponenteUseCase {
+export class PatchElementoComponenteService implements IPatchElementoComponenteUseCase {
   constructor(
     private readonly elementoComponenteRepository: IElementoComponenteRepository,
     private readonly componenteRepository: IComponenteRepository,
@@ -15,7 +15,7 @@ export class PatchElementoComponenteService implements PatchElementoComponenteUs
 
   async execute(
     id_elemento: number,
-    dto: PatchElementoComponenteDTO
+    dto: IPatchElementoComponenteDTO
   ): Promise<ElementoComponente> {
     if (dto.id_componente !== undefined) {
       const componente = await this.componenteRepository.getById(dto.id_componente);

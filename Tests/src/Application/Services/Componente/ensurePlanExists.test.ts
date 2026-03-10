@@ -8,6 +8,7 @@ describe("ensurePlanExists", () => {
     const planRepository: IPlanRepository = {
       create: jest.fn(),
       update: jest.fn(),
+      updateFull: jest.fn(),
       patch: jest.fn(),
       patchFull: jest.fn(),
       getById: jest.fn(),
@@ -32,6 +33,7 @@ describe("ensurePlanExists", () => {
     const planRepository: IPlanRepository = {
       create: jest.fn(),
       update: jest.fn(),
+      updateFull: jest.fn(),
       patch: jest.fn(),
       patchFull: jest.fn(),
       getById: jest.fn(),

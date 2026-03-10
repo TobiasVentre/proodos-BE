@@ -20,6 +20,7 @@ describe("GetPlanByIdService", () => {
     const planRepository: jest.Mocked<IPlanRepository> = {
       create: jest.fn(),
       update: jest.fn(),
+      updateFull: jest.fn(),
       patch: jest.fn(),
       patchFull: jest.fn(),
       getById: jest.fn().mockResolvedValue(plan),

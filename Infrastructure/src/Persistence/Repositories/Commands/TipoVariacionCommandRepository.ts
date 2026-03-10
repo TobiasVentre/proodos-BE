@@ -1,7 +1,7 @@
 import * as Models from "../../Models";
 import { TipoVariacion } from "@proodos/domain/Entities/TipoVariacion";
 import { ITipoVariacionRepository } from "@proodos/application/Interfaces/ITipoVariacionRepository";
-import { PatchTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/PatchTipoVariacionDTO";
+import { IPatchTipoVariacionDTO } from "@proodos/application/DTOs/TipoVariacion/IPatchTipoVariacionDTO";
 import { TipoVariacionMapper } from "../../../Mappers/TipoVariacionMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
@@ -57,7 +57,7 @@ export class TipoVariacionCommandRepository {
 
   async patch(
     id_tipo_variacion: number,
-    dto: PatchTipoVariacionDTO
+    dto: IPatchTipoVariacionDTO
   ): Promise<TipoVariacion> {
     this.logger.info("[Repository] TipoVariacionCommandRepository.patch()", {
       id_tipo_variacion,

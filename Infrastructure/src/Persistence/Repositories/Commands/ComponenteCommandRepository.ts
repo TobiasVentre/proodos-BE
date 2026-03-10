@@ -1,7 +1,7 @@
 import * as Models from "../../Models";
 import { ComponenteMapper } from "../../../Mappers/ComponenteMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
-import { PatchComponenteDTO } from "@proodos/application/DTOs/Componente/PatchComponenteDTO";
+import { IPatchComponenteDTO } from "@proodos/application/DTOs/Componente/IPatchComponenteDTO";
 import { Componente } from "@proodos/domain/Entities/Componente";
 import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
 import { ValidationError } from "@proodos/application/Errors/ValidationError";
@@ -38,9 +38,6 @@ export class ComponenteCommandRepository {
       id_plan: entity.id_plan,
       id_tipo_variacion: entity.id_tipo_variacion,
       nombre: entity.nombre,
-      fecha_creacion: entity.fecha_creacion,
-      estado: entity.estado,
-      fecha_baja: entity.fecha_baja ?? null,
     };
 
     await Models.ComponenteModel.update(payload, {
@@ -57,7 +54,7 @@ export class ComponenteCommandRepository {
     return ComponenteMapper.toDomain(updated);
   }
 
-  async patch(id_componente: number, dto: PatchComponenteDTO): Promise<Componente> {
+  async patch(id_componente: number, dto: IPatchComponenteDTO): Promise<Componente> {
     this.logger.info("[Repository] ComponenteCommandRepository.patch()", { id_componente });
     this.logger.debug("[Repository] Patch DTO:", dto);
 

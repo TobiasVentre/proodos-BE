@@ -2,13 +2,13 @@ import {
   mapCreateElementoComponenteDTOToEntity,
   mapUpdateElementoComponenteDTOToEntity,
 } from "@proodos/application/DTOs/ElementoComponente/ElementoComponenteDTOMapper";
-import { CreateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/CreateElementoComponenteDTO";
-import { UpdateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/UpdateElementoComponenteDTO";
+import { ICreateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/ICreateElementoComponenteDTO";
+import { IUpdateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/IUpdateElementoComponenteDTO";
 
 describe("ElementoComponenteDTOMapper", () => {
-  it("should map CreateElementoComponenteDTO to entity with id_elemento set to 0", () => {
+  it("should map ICreateElementoComponenteDTO to entity with id_elemento set to 0", () => {
     // Arrange
-    const dto: CreateElementoComponenteDTO = {
+    const dto: ICreateElementoComponenteDTO = {
       id_componente: 3,
       id_tipo_elemento: 5,
       nombre: "Hero",
@@ -36,9 +36,9 @@ describe("ElementoComponenteDTOMapper", () => {
     });
   });
 
-  it("should map UpdateElementoComponenteDTO keeping id_elemento", () => {
+  it("should map IUpdateElementoComponenteDTO keeping id_elemento", () => {
     // Arrange
-    const dto: UpdateElementoComponenteDTO = {
+    const dto: IUpdateElementoComponenteDTO = {
       id_elemento: 10,
       id_componente: 7,
       id_tipo_elemento: 9,

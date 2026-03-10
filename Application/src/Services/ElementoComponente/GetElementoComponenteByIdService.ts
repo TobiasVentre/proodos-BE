@@ -1,10 +1,10 @@
 import { IElementoComponenteRepository } from "../../Interfaces/IElementoComponenteRepository";
-import { GetElementoComponenteByIdUseCase } from "../../Ports/ElementoComponenteUseCases";
+import { IGetElementoComponenteByIdUseCase } from "../../Ports/IElementoComponenteUseCases";
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
 import { ILogger } from "../../Interfaces/ILogger";
 
 export class GetElementoComponenteByIdService
-  implements GetElementoComponenteByIdUseCase
+  implements IGetElementoComponenteByIdUseCase
 {
   constructor(
     private readonly elementoComponenteRepository: IElementoComponenteRepository,

@@ -1,5 +1,5 @@
 export const componenteSchemas = {
-  CreateComponenteDTO: {
+  ICreateComponenteDTO: {
     type: "object",
     required: [
       "id_tipo_componente",
@@ -17,7 +17,7 @@ export const componenteSchemas = {
 };
 
 export const planSchemas = {
-  CreatePlanDTO: {
+  ICreatePlanDTO: {
     type: "object",
     required: [
       "nombre",
@@ -38,7 +38,7 @@ export const planSchemas = {
       precio_sin_iva: { type: "number", example: 9900 }
     }
   },
-  UpdatePlanDTO: {
+  IUpdatePlanDTO: {
     type: "object",
     required: [
       "nombre",
@@ -59,7 +59,7 @@ export const planSchemas = {
       precio_sin_iva: { type: "number", example: 9900 }
     }
   },
-  PatchPlanDTO: {
+  IPatchPlanDTO: {
     type: "object",
     properties: {
       nombre: { type: "string", example: "Plan Hogar" },
@@ -71,7 +71,7 @@ export const planSchemas = {
       precio_sin_iva: { type: "number", example: 9900 }
     }
   },
-  CreatePlanFullDTO: {
+  ICreatePlanFullDTO: {
     type: "object",
     properties: {
       segmento: { type: "string", example: "POSPAGO" },
@@ -117,7 +117,53 @@ export const planSchemas = {
       precio_sin_iva: { type: "number", example: 9900 }
     }
   },
-  PatchPlanFullDTO: {
+  IUpdatePlanFullDTO: {
+    type: "object",
+    properties: {
+      segmento: { type: "string", example: "POSPAGO" },
+      producto: { type: "string", example: "Porta CLARO - Mailing Extra" },
+      bonete: { type: "string", example: "Plan recomendado" },
+      nombre: { type: "string", example: "Plan Movistar Móvil 4GB" },
+      nombre_plan: { type: "string", example: "4 Gigas" },
+      capacidad: { type: "integer", example: 4 },
+      capacidad_plan: { type: "string", example: "4 Gigas" },
+      capacidad_anterior: { type: "integer", example: 2 },
+      precio_full_price: { type: "number", example: 37600 },
+      precio_oferta: { type: "number", example: 11400 },
+      tag_1: { type: "string", example: "Promo" },
+      tag_2: { type: "string", example: "Exclusivo" },
+      beneficio_1: { type: "string", example: "$26.200 de ahorro por mes durante 6 meses." },
+      beneficio_2: { type: "string", example: "3 GB para roaming en América" },
+      beneficio_3: { type: "string", example: "Beneficio adicional" },
+      beneficio_4: { type: "string", example: "Beneficio adicional" },
+      cta_1: { type: "string", example: "Quiero que me llamen" },
+      link_1: { type: "string", example: "https://example.com" },
+      cta_2: { type: "string", example: "Comprar" },
+      link_2: { type: "string", example: "https://example.com" },
+      aumento: { type: "number", example: 3000 },
+      precio_tv_digital: { type: "number", example: 2000 },
+      precio_tv_max: { type: "number", example: 3500 },
+      promo_activa: { type: "boolean", example: true },
+      muestra_desde: { type: "string", example: "2024-01-01" },
+      canales_tv_digital: { type: "string", example: "80 canales" },
+      canales_tv_max: { type: "string", example: "120 canales" },
+      precio_no_cliente: { type: "number", example: 25000 },
+      descripcion_oferta: { type: "string", example: "Descripción comercial" },
+      comercial_name: { type: "string", example: "Plan Movistar Móvil 4GB" },
+      comercial_id: { type: "string", example: "18474071" },
+      telefono_0800: { type: "string", example: "0800-333-0000" },
+      icono_tag_1: { type: "string", example: "https://cdn/icono-tag-1.svg" },
+      pre_beneficio_2_titulo: { type: "string", example: "Más roaming" },
+      pre_beneficio_2_descripcion: { type: "string", example: "Detalles beneficio 2" },
+      pre_beneficio_1_titulo: { type: "string", example: "Más datos" },
+      pre_beneficio_1_descripcion: { type: "string", example: "Detalles beneficio 1" },
+      nombre_plan_tv: { type: "string", example: "Plan TV" },
+      grilla_canales: { type: "string", example: "Lista de canales" },
+      icono_bonete: { type: "string", example: "https://cdn/icono-bonete.svg" },
+      precio_sin_iva: { type: "number", example: 9900 }
+    }
+  },
+  IPatchPlanFullDTO: {
     type: "object",
     properties: {
       segmento: { type: "string" },
@@ -179,7 +225,7 @@ export const landingSchemas = {
 };
 
 export const tipoComponenteSchemas = {
-  CreateTipoComponenteDTO: {
+  ICreateTipoComponenteDTO: {
     type: "object",
     required: ["nombre", "estado"],
     properties: {
@@ -187,7 +233,7 @@ export const tipoComponenteSchemas = {
       estado: { type: "string", example: "ACTIVO" }
     }
   },
-  PatchTipoComponenteDTO: {
+  IPatchTipoComponenteDTO: {
     type: "object",
     properties: {
       nombre: { type: "string", example: "banner" },
@@ -197,7 +243,7 @@ export const tipoComponenteSchemas = {
 };
 
 export const tipoVariacionSchemas = {
-  CreateTipoVariacionDTO: {
+  ICreateTipoVariacionDTO: {
     type: "object",
     required: ["id_tipo_componente", "nombre"],
     properties: {
@@ -209,7 +255,7 @@ export const tipoVariacionSchemas = {
       html: { type: "string", example: "<div class='banner'></div>" }
     }
   },
-  PatchTipoVariacionDTO: {
+  IPatchTipoVariacionDTO: {
     type: "object",
     properties: {
       id_tipo_componente: { type: "integer", example: 1 },
@@ -223,14 +269,14 @@ export const tipoVariacionSchemas = {
 };
 
 export const tipoElementoSchemas = {
-  CreateTipoElementoDTO: {
+  ICreateTipoElementoDTO: {
     type: "object",
     required: ["nombre"],
     properties: {
       nombre: { type: "string", example: "titulo" }
     }
   },
-  PatchTipoElementoDTO: {
+  IPatchTipoElementoDTO: {
     type: "object",
     properties: {
       nombre: { type: "string", example: "titulo" }
@@ -239,7 +285,7 @@ export const tipoElementoSchemas = {
 };
 
 export const elementoComponenteSchemas = {
-  CreateElementoComponenteDTO: {
+  ICreateElementoComponenteDTO: {
     type: "object",
     required: [
       "id_componente",
@@ -262,7 +308,7 @@ export const elementoComponenteSchemas = {
       css_url: { type: "string", example: "/css/elementos/titulo.css" }
     }
   },
-  PatchElementoComponenteDTO: {
+  IPatchElementoComponenteDTO: {
     type: "object",
     properties: {
       id_componente: { type: "integer", example: 10 },

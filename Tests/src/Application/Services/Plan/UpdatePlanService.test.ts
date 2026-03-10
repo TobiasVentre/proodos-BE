@@ -1,5 +1,5 @@
 import { UpdatePlanService } from "@proodos/application/Services/Plan/UpdatePlanService";
-import { UpdatePlanDTO } from "@proodos/application/DTOs/Plan/UpdatePlanDTO";
+import { IUpdatePlanDTO } from "@proodos/application/DTOs/Plan/IUpdatePlanDTO";
 import { IPlanRepository } from "@proodos/application/Interfaces/IPlanRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { Plan } from "@proodos/domain/Entities/Plan";
@@ -7,7 +7,7 @@ import { Plan } from "@proodos/domain/Entities/Plan";
 describe("UpdatePlanService", () => {
   it("should map the DTO, log the action, and update the plan", async () => {
     // Arrange
-    const dto: UpdatePlanDTO = {
+    const dto: IUpdatePlanDTO = {
       id_plan: 12,
       nombre: "Plan Pro",
       capacidad: 50,
@@ -32,6 +32,7 @@ describe("UpdatePlanService", () => {
     const planRepository: jest.Mocked<IPlanRepository> = {
       create: jest.fn(),
       update: jest.fn().mockResolvedValue(mappedPlan),
+      updateFull: jest.fn(),
       patch: jest.fn(),
       patchFull: jest.fn(),
       getById: jest.fn(),

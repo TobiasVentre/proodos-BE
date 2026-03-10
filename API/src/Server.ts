@@ -1,16 +1,16 @@
-
 import { loadEnv } from "./Config/loadEnv";
-loadEnv();
+import { bootstrapLogger } from "./Logging/BootstrapLogger";
+loadEnv(bootstrapLogger);
 
 import express from "express";
 import { setupSwagger } from "./Swagger/swagger.config";
 import { buildRoutes } from "./Routes/routes";
-import { ConsoleLogger } from "./Logging/ConsoleLogger";
-import { errorHandler } from "./Middleware/ErrorHandler";
+import { createErrorHandler } from "./Middleware/ErrorHandler";
+import { authenticateJWT } from "./Middleware/auth";
 
 
 const app = express();
-const logger = new ConsoleLogger();
+const logger = bootstrapLogger;
 const PORT = Number(process.env.PORT || 8000);
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 const ENABLE_SWAGGER = String(process.env.ENABLE_SWAGGER ?? "true").toLowerCase() !== "false";
@@ -38,8 +38,8 @@ if (ENABLE_SWAGGER) {
 
 const startServer = async () => {
   // API Routes
-  app.use("/api", await buildRoutes(logger));
-  app.use(errorHandler);
+  app.use("/api", authenticateJWT, await buildRoutes(logger));
+  app.use(createErrorHandler(logger));
 
   app.listen(PORT, () => {
     const docsPath = ENABLE_SWAGGER ? "/docs" : "";
@@ -47,11 +47,13 @@ const startServer = async () => {
   });
 };
 
-startServer();
-
-
-console.log("[API RUNTIME ENV]", {
+logger.debug("[API RUNTIME ENV]", {
   DB_HOST: process.env.DB_HOST,
   DB_PORT: process.env.DB_PORT,
   DB_NAME: process.env.DB_NAME,
+});
+
+void startServer().catch((error) => {
+  logger.error("[Bootstrap] Failed to start server", error);
+  process.exit(1);
 });

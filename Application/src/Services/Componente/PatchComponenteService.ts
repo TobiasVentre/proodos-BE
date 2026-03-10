@@ -1,17 +1,17 @@
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
-import { PatchComponenteDTO } from "../../DTOs/Componente/PatchComponenteDTO";
+import { IPatchComponenteDTO } from "../../DTOs/Componente/IPatchComponenteDTO";
 import { Componente } from "@proodos/domain/Entities/Componente";
-import { PatchComponenteUseCase } from "../../Ports/ComponenteUseCases";
+import { IPatchComponenteUseCase } from "../../Ports/IComponenteUseCases";
 import { IPlanRepository } from "../../Interfaces/IPlanRepository";
 import { ensurePlanExists } from "./ensurePlanExists";
 
-export class PatchComponenteService implements PatchComponenteUseCase {
+export class PatchComponenteService implements IPatchComponenteUseCase {
   constructor(
     private readonly repo: IComponenteRepository,
     private readonly planRepository: IPlanRepository
   ) {}
 
-  async execute(id_componente: number, dto: PatchComponenteDTO): Promise<Componente> {
+  async execute(id_componente: number, dto: IPatchComponenteDTO): Promise<Componente> {
     if (dto.id_plan !== undefined && dto.id_plan !== null) {
       await ensurePlanExists(this.planRepository, dto.id_plan);
     }

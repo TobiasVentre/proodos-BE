@@ -10,8 +10,8 @@
   },
   "scripts": {
     "build": "tsc -p . --noEmit",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test": "jest --config src/config/jest.config.ts",
+    "test:coverage": "jest --config src/config/jest.config.ts --coverage",
+    "test:watch": "jest --config src/config/jest.config.ts --watch"
   }
 }

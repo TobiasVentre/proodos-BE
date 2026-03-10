@@ -1,9 +1,9 @@
 import { TipoComponente } from "@proodos/domain/Entities/TipoComponente";
-import { CreateTipoComponenteDTO } from "./CreateTipoComponenteDTO";
-import { UpdateTipoComponenteDTO } from "./UpdateTipoComponenteDTO";
+import { ICreateTipoComponenteDTO } from "./ICreateTipoComponenteDTO";
+import { IUpdateTipoComponenteDTO } from "./IUpdateTipoComponenteDTO";
 
 export const mapCreateTipoComponenteDTOToEntity = (
-  dto: CreateTipoComponenteDTO
+  dto: ICreateTipoComponenteDTO
 ): TipoComponente => ({
   id_tipo_componente: 0,
   nombre: dto.nombre,
@@ -11,7 +11,7 @@ export const mapCreateTipoComponenteDTOToEntity = (
 });
 
 export const mapUpdateTipoComponenteDTOToEntity = (
-  dto: UpdateTipoComponenteDTO
+  dto: IUpdateTipoComponenteDTO
 ): TipoComponente => ({
   id_tipo_componente: dto.id_tipo_componente,
   nombre: dto.nombre,
