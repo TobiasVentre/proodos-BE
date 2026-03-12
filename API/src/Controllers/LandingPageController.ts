@@ -409,7 +409,7 @@ export const createLandingPageController = ({
  *           type: integer
  *     responses:
  *       200:
- *         description: Lista de asociaciones landing-componente
+ *         description: Lista de componentes asociados a una landing
  *       400:
  *         description: ID inválido
  */

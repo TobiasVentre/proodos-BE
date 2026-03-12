@@ -21,6 +21,9 @@ Variables mínimas requeridas:
 - `DB_NAME`
 - `DB_USER`
 - `DB_PASSWORD`
+- `JWT_SECRET`
+- `JWT_ISSUER`
+- `JWT_AUDIENCE`
 
 Opcionales:
 - `PORT` (default `8000`)
@@ -28,6 +31,7 @@ Opcionales:
 - `ENABLE_SWAGGER` (`true|false`)
 - `DB_ENCRYPT` (`true|false`)
 - `DB_TRUST_CERT` (`true|false`)
+- `JWT_ACCESS_ALGORITHM` (default `HS256`)
 
 ## Comandos principales
 - Instalar dependencias:
@@ -71,3 +75,14 @@ Uso con token JWT:
 - Hacer click en `Authorize`.
 - Pegar solo el token JWT, sin escribir `Bearer `.
 - Confirmar y ejecutar los endpoints de `/api`; Swagger enviará `Authorization: Bearer <token>` automáticamente.
+
+Contrato mínimo esperado del access token:
+- `sub`: identificador del usuario autenticado.
+- `roles`: arreglo no vacío de roles.
+- `token_use`: debe ser `access`.
+- `iss`: issuer configurado en `JWT_ISSUER`.
+- `aud`: audience configurado en `JWT_AUDIENCE`.
+
+Política operativa actual:
+- temporalmente, todos los endpoints de `/api` requieren un usuario con rol `admin`.
+- la matriz fina por recurso quedará sujeta a la definición funcional pendiente.

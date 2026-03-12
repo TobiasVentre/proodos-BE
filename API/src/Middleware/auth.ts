@@ -1,13 +1,28 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "@proodos/application/Errors/AppError";
+import {
+  buildAccessTokenVerifyOptions,
+  getAccessTokenSecret,
+  isAuthTokenPayload,
+  normalizeAuthTokenPayload,
+} from "@proodos/api/Security/jwt";
 
 interface IJwtModule {
-  verify(token: string, secret: string): string | object;
+  verify(
+    token: string,
+    secret: string,
+    options?: {
+      algorithms?: string[];
+      issuer?: string;
+      audience?: string;
+    }
+  ): string | object;
 }
 
 export interface IAuthPayload {
-  sub?: string;
-  roles?: string[];
+  sub: string;
+  roles: string[];
+  token_use: "access";
   iat?: number;
   exp?: number;
 }
@@ -22,26 +37,13 @@ declare global {
 
 const jwt = require("jsonwebtoken") as IJwtModule;
 
-const getJwtSecret = (): string => {
-  const secret = process.env.JWT_SECRET?.trim();
-  if (!secret) {
-    throw new AppError(
-      "JWT_SECRET_NOT_CONFIGURED",
-      "JWT_SECRET no configurado.",
-      500
-    );
-  }
-
-  return secret;
-};
-
 const extractBearerToken = (authorizationHeader?: string): string => {
   if (!authorizationHeader) {
     throw new AppError("AUTH_REQUIRED", "Authorization requerido.", 401);
   }
 
-  const [scheme, token] = authorizationHeader.split(" ");
-  if (scheme !== "Bearer" || !token) {
+  const [scheme, token, ...rest] = authorizationHeader.trim().split(/\s+/);
+  if (scheme !== "Bearer" || !token || rest.length > 0) {
     throw new AppError("INVALID_AUTHORIZATION", "Authorization invalido.", 401);
   }
 
@@ -54,15 +56,23 @@ const normalizeRoles = (roles: string[]): string[] =>
 export const authenticateJWT = (req: Request, _res: Response, next: NextFunction) => {
   try {
     const token = extractBearerToken(req.header("Authorization") ?? undefined);
-    const payload = jwt.verify(token, getJwtSecret());
+    const verifiedPayload = jwt.verify(
+      token,
+      getAccessTokenSecret(),
+      buildAccessTokenVerifyOptions()
+    );
 
-    if (!payload || typeof payload !== "object") {
+    if (!isAuthTokenPayload(verifiedPayload)) {
       throw new AppError("INVALID_TOKEN", "Token invalido o expirado.", 401);
     }
 
-    req.user = payload as IAuthPayload;
+    req.user = normalizeAuthTokenPayload(verifiedPayload);
     return next();
   } catch (error) {
+    if (error instanceof Error && error.message.includes("no configurado")) {
+      return next(new AppError("JWT_SECRET_NOT_CONFIGURED", error.message, 500));
+    }
+
     if (error instanceof AppError) {
       return next(error);
     }

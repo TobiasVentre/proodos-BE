@@ -13,42 +13,72 @@ import {
   requireAnyRole,
 } from "@proodos/api/Middleware/auth";
 
-type IRequestWithUser = Partial<Request> & {
+type IRequestWithUser = Omit<Partial<Request>, "user"> & {
   header: Request["header"];
-  user?: { roles?: string[]; sub?: string };
+  user?: Record<string, unknown>;
 };
 
-const createRequest = (authorization?: string, user?: { roles?: string[]; sub?: string }): IRequestWithUser => ({
+const createRequest = (
+  authorization?: string,
+  user?: Record<string, unknown>
+): IRequestWithUser => ({
   header: ((name: string) => (name.toLowerCase() === "authorization" ? authorization : undefined)) as Request["header"],
   user,
 });
 
 describe("authenticateJWT", () => {
   const originalJwtSecret = process.env.JWT_SECRET;
+  const originalJwtIssuer = process.env.JWT_ISSUER;
+  const originalJwtAudience = process.env.JWT_AUDIENCE;
+  const originalJwtAccessAlgorithm = process.env.JWT_ACCESS_ALGORITHM;
 
   beforeEach(() => {
     process.env.JWT_SECRET = "shared-secret";
+    process.env.JWT_ISSUER = "proodos-auth";
+    process.env.JWT_AUDIENCE = "proodos-be";
+    process.env.JWT_ACCESS_ALGORITHM = "HS256";
     mockVerify.mockReset();
   });
 
   afterAll(() => {
     if (originalJwtSecret === undefined) {
       delete process.env.JWT_SECRET;
-      return;
+    } else {
+      process.env.JWT_SECRET = originalJwtSecret;
     }
 
-    process.env.JWT_SECRET = originalJwtSecret;
+    if (originalJwtIssuer === undefined) {
+      delete process.env.JWT_ISSUER;
+    } else {
+      process.env.JWT_ISSUER = originalJwtIssuer;
+    }
+
+    if (originalJwtAudience === undefined) {
+      delete process.env.JWT_AUDIENCE;
+    } else {
+      process.env.JWT_AUDIENCE = originalJwtAudience;
+    }
+
+    if (originalJwtAccessAlgorithm === undefined) {
+      delete process.env.JWT_ACCESS_ALGORITHM;
+    } else {
+      process.env.JWT_ACCESS_ALGORITHM = originalJwtAccessAlgorithm;
+    }
   });
 
   it("should attach the decoded payload to req.user", () => {
     const req = createRequest("Bearer signed-token");
     const next = jest.fn();
-    mockVerify.mockReturnValue({ sub: "jdoe", roles: ["admin"] });
+    mockVerify.mockReturnValue({ sub: "jdoe", roles: ["admin"], token_use: "access" });
 
     authenticateJWT(req as Request, {} as Response, next as NextFunction);
 
-    expect(mockVerify).toHaveBeenCalledWith("signed-token", "shared-secret");
-    expect(req.user).toEqual({ sub: "jdoe", roles: ["admin"] });
+    expect(mockVerify).toHaveBeenCalledWith("signed-token", "shared-secret", {
+      algorithms: ["HS256"],
+      issuer: "proodos-auth",
+      audience: "proodos-be",
+    });
+    expect(req.user).toEqual({ sub: "jdoe", roles: ["admin"], token_use: "access" });
     expect(next).toHaveBeenCalledWith();
   });
 
@@ -81,6 +111,42 @@ describe("authenticateJWT", () => {
     });
 
     authenticateJWT(createRequest("Bearer invalid-token") as Request, {} as Response, next as NextFunction);
+
+    const error = next.mock.calls[0][0] as AppError;
+    expect(error).toBeInstanceOf(AppError);
+    expect(error.code).toBe("INVALID_TOKEN");
+    expect(error.status).toBe(401);
+  });
+
+  it("should reject tokens without required claims", () => {
+    const next = jest.fn();
+    mockVerify.mockReturnValue({ roles: ["admin"], token_use: "access" });
+
+    authenticateJWT(createRequest("Bearer invalid-claims") as Request, {} as Response, next as NextFunction);
+
+    const error = next.mock.calls[0][0] as AppError;
+    expect(error).toBeInstanceOf(AppError);
+    expect(error.code).toBe("INVALID_TOKEN");
+    expect(error.status).toBe(401);
+  });
+
+  it("should reject refresh tokens on access endpoints", () => {
+    const next = jest.fn();
+    mockVerify.mockReturnValue({ sub: "jdoe", roles: ["admin"], token_use: "refresh" });
+
+    authenticateJWT(createRequest("Bearer refresh-token") as Request, {} as Response, next as NextFunction);
+
+    const error = next.mock.calls[0][0] as AppError;
+    expect(error).toBeInstanceOf(AppError);
+    expect(error.code).toBe("INVALID_TOKEN");
+    expect(error.status).toBe(401);
+  });
+
+  it("should reject tokens with invalid roles format", () => {
+    const next = jest.fn();
+    mockVerify.mockReturnValue({ sub: "jdoe", roles: "admin", token_use: "access" });
+
+    authenticateJWT(createRequest("Bearer invalid-roles") as Request, {} as Response, next as NextFunction);
 
     const error = next.mock.calls[0][0] as AppError;
     expect(error).toBeInstanceOf(AppError);

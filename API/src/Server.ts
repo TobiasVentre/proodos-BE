@@ -6,7 +6,7 @@ import express from "express";
 import { setupSwagger } from "./Swagger/swagger.config";
 import { buildRoutes } from "./Routes/routes";
 import { createErrorHandler } from "./Middleware/ErrorHandler";
-import { authenticateJWT } from "./Middleware/auth";
+import { authenticateJWT, getAdminRoles, requireAnyRole } from "./Middleware/auth";
 
 
 const app = express();
@@ -38,7 +38,7 @@ if (ENABLE_SWAGGER) {
 
 const startServer = async () => {
   // API Routes
-  app.use("/api", authenticateJWT, await buildRoutes(logger));
+  app.use("/api", authenticateJWT, requireAnyRole(getAdminRoles()), await buildRoutes(logger));
   app.use(createErrorHandler(logger));
 
   app.listen(PORT, () => {

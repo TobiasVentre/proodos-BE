@@ -34,7 +34,7 @@ if (ENABLE_SWAGGER) {
 }
 const startServer = async () => {
     // API Routes
-    app.use("/api", auth_1.authenticateJWT, await (0, routes_1.buildRoutes)(logger));
+    app.use("/api", auth_1.authenticateJWT, (0, auth_1.requireAnyRole)((0, auth_1.getAdminRoles)()), await (0, routes_1.buildRoutes)(logger));
     app.use((0, ErrorHandler_1.createErrorHandler)(logger));
     app.listen(PORT, () => {
         const docsPath = ENABLE_SWAGGER ? "/docs" : "";

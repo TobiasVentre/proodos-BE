@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { validateJwtConfiguration } from "@proodos/api/Security/jwt";
 
 function findRepoRoot(startDir: string): string {
   let dir = startDir;
@@ -44,9 +45,20 @@ export function loadEnv(logger: ILogger) {
     jwtSecret: process.env.JWT_SECRET ? "***set***" : "***missing***",
   });
 
-  const required = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD", "JWT_SECRET"];
+  const required = [
+    "DB_HOST",
+    "DB_PORT",
+    "DB_NAME",
+    "DB_USER",
+    "DB_PASSWORD",
+    "JWT_SECRET",
+    "JWT_ISSUER",
+    "JWT_AUDIENCE",
+  ];
   const missing = required.filter((k) => !process.env[k] || String(process.env[k]).trim() === "");
   if (missing.length) {
     throw new Error(`[ENV] Faltan variables: ${missing.join(", ")}`);
   }
+
+  validateJwtConfiguration();
 }

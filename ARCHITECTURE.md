@@ -73,13 +73,25 @@ de los modulos ya existentes.
 
 - `Proodos - Auth` es la fuente de verdad para autenticacion y autorizacion.
 - `Proodos - BE` no emite tokens; solo valida JWT firmados por `Auth`.
-- El payload esperado del token es un objeto con al menos `sub` y `roles`.
+- El access token esperado por `BE` debe contener:
+  - `sub`: identificador no vacio del usuario autenticado
+  - `roles`: arreglo no vacio de strings
+  - `token_use`: valor exacto `access`
+  - `iss`: valor configurado en `JWT_ISSUER`
+  - `aud`: valor configurado en `JWT_AUDIENCE`
+- `BE` debe rechazar tokens con claims faltantes, `roles` invalidos, `token_use` distinto de
+  `access`, issuer o audience incorrectos, o algoritmo fuera de la allowlist configurada.
+- El refresh token no debe ser aceptado en endpoints de negocio del `BE`.
 - Todo endpoint bajo `/api` debe quedar protegido por middleware JWT.
 - `/health` y `/docs` permanecen publicos.
 - La autorizacion por roles debe resolverse con middleware dedicado, por ejemplo
   `requireAnyRole`, sin llevar esa logica al controller.
 - `BE` y `Auth` deben compartir el mismo `JWT_SECRET` o el par de llaves equivalente si a
   futuro se migra a firma asimetrica.
+- Estado actual:
+  - autenticacion JWT estricta: implementada
+  - autorizacion por recurso y por rol en `BE`: pendiente de definicion funcional
+  - politica operativa temporal en `BE`: todo `/api` requiere rol `admin`
 
 ## Convenciones de naming
 
