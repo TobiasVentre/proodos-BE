@@ -18,6 +18,7 @@ export class ComponenteCommandRepository {
       id_plan: entity.id_plan,
       id_tipo_variacion: entity.id_tipo_variacion,
       nombre: entity.nombre,
+      selector_hijos: entity.selector_hijos ?? null,
       // en DB ya tenés default; si querés dejarlo a DB, eliminá esta línea
       fecha_creacion: new Date(),
       estado: entity.estado ?? "ACTIVO",
@@ -38,6 +39,7 @@ export class ComponenteCommandRepository {
       id_plan: entity.id_plan,
       id_tipo_variacion: entity.id_tipo_variacion,
       nombre: entity.nombre,
+      selector_hijos: entity.selector_hijos ?? null,
     };
 
     await Models.ComponenteModel.update(payload, {
@@ -65,6 +67,7 @@ export class ComponenteCommandRepository {
     if (dto.id_plan !== undefined) updatePayload.id_plan = dto.id_plan;
     if (dto.id_tipo_variacion !== undefined) updatePayload.id_tipo_variacion = dto.id_tipo_variacion;
     if (dto.nombre !== undefined) updatePayload.nombre = dto.nombre;
+    if (dto.selector_hijos !== undefined) updatePayload.selector_hijos = dto.selector_hijos;
     if (dto.estado !== undefined) updatePayload.estado = dto.estado;
     if (dto.fecha_baja !== undefined) updatePayload.fecha_baja = dto.fecha_baja;
 

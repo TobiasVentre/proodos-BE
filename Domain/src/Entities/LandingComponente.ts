@@ -4,6 +4,7 @@ import { LandingPage } from "./LandingPage";
 export class LandingComponente {
   id_landing!: number;
   id_componente!: number;
+  orden?: number;
   landing?: LandingPage;
   componente?: Componente;
 }

@@ -36,6 +36,31 @@ const ensureNonEmptyString = (field: "nombre", value: string): string => {
   return value.trim();
 };
 
+const ensureOptionalSelector = (
+  field: "selector_hijos",
+  value: string | null | undefined
+): string | null => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const normalized = String(value).trim();
+  if (!normalized) {
+    return null;
+  }
+
+  const isValidSelector = /^([#.])[A-Za-z_][A-Za-z0-9_-]*$/.test(normalized);
+  if (!isValidSelector) {
+    throw new ValidationError(
+      "VALIDATION_ERROR",
+      `${field} must be a valid id or class selector (e.g. #id or .class)`,
+      { field }
+    );
+  }
+
+  return normalized;
+};
+
 const buildBaseComponente = (): Pick<
   Componente,
   "fecha_creacion" | "estado" | "fecha_baja"
@@ -59,6 +84,7 @@ export const mapCreateComponenteDTOToEntity = (
     dto.id_tipo_variacion
   ),
   nombre: ensureNonEmptyString("nombre", dto.nombre),
+  selector_hijos: ensureOptionalSelector("selector_hijos", dto.selector_hijos),
   ...buildBaseComponente(),
 });
 
@@ -76,5 +102,6 @@ export const mapUpdateComponenteDTOToEntity = (
     dto.id_tipo_variacion
   ),
   nombre: ensureNonEmptyString("nombre", dto.nombre),
+  selector_hijos: ensureOptionalSelector("selector_hijos", dto.selector_hijos),
   ...buildBaseComponente(),
 });

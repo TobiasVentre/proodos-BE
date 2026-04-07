@@ -6,6 +6,7 @@ export class Componente {
   id_plan!: number | null;
   id_tipo_variacion!: number;
   nombre!: string;
+  selector_hijos?: string | null;
   fecha_creacion!: Date;
   estado!: string;
   fecha_baja?: Date | null;

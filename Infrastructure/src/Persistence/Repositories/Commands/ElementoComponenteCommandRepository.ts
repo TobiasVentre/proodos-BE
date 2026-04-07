@@ -17,11 +17,13 @@ export class ElementoComponenteCommandRepository {
       id_componente: entity.id_componente,
       id_tipo_elemento: entity.id_tipo_elemento,
       nombre: entity.nombre,
+      selector: entity.selector,
       icono_img: entity.icono_img,
       descripcion: entity.descripcion,
       link: entity.link,
       orden: entity.orden,
       css_url: entity.css_url,
+      js_url: entity.js_url,
     });
 
     return ElementoComponenteMapper.toDomain(created);
@@ -36,11 +38,13 @@ export class ElementoComponenteCommandRepository {
         id_componente: entity.id_componente,
         id_tipo_elemento: entity.id_tipo_elemento,
         nombre: entity.nombre,
+        selector: entity.selector,
         icono_img: entity.icono_img,
         descripcion: entity.descripcion,
         link: entity.link,
         orden: entity.orden,
         css_url: entity.css_url,
+        js_url: entity.js_url,
       },
       { where: { id_elemento: entity.id_elemento } }
     );
@@ -74,11 +78,13 @@ export class ElementoComponenteCommandRepository {
       updatePayload.id_tipo_elemento = dto.id_tipo_elemento;
     }
     if (dto.nombre !== undefined) updatePayload.nombre = dto.nombre;
+    if (dto.selector !== undefined) updatePayload.selector = dto.selector;
     if (dto.icono_img !== undefined) updatePayload.icono_img = dto.icono_img;
     if (dto.descripcion !== undefined) updatePayload.descripcion = dto.descripcion;
     if (dto.link !== undefined) updatePayload.link = dto.link;
     if (dto.orden !== undefined) updatePayload.orden = dto.orden;
     if (dto.css_url !== undefined) updatePayload.css_url = dto.css_url;
+    if (dto.js_url !== undefined) updatePayload.js_url = dto.js_url;
 
     if (Object.keys(updatePayload).length === 0) {
       throw new ValidationError("VALIDATION_ERROR", "No fields provided for patch");

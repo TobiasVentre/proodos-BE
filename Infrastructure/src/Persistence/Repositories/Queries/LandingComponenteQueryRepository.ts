@@ -19,7 +19,10 @@ export class LandingComponenteQueryRepository {
     const rows = await LandingComponenteModel.findAll({
       where: { id_landing },
       include: this.includeRelations,
-      order: [["id_componente", "DESC"]],
+      order: [
+        ["orden", "ASC"],
+        ["id_componente", "ASC"],
+      ],
     });
 
     return rows.map((r) => LandingComponenteMapper.toDomain(r));
@@ -33,10 +36,26 @@ export class LandingComponenteQueryRepository {
     const rows = await LandingComponenteModel.findAll({
       where: { id_componente },
       include: this.includeRelations,
-      order: [["id_landing", "DESC"]],
+      order: [
+        ["id_landing", "ASC"],
+        ["orden", "ASC"],
+      ],
     });
 
     return rows.map((r) => LandingComponenteMapper.toDomain(r));
+  }
+
+  async getMaxOrdenByLanding(id_landing: number): Promise<number> {
+    this.logger.info("[Repository] LandingComponenteQueryRepository.getMaxOrdenByLanding()", {
+      id_landing,
+    });
+
+    const maxValue = await LandingComponenteModel.max("orden", {
+      where: { id_landing },
+    });
+
+    const parsed = Number(maxValue ?? 0);
+    return Number.isFinite(parsed) ? parsed : 0;
   }
 
   async exists(id_landing: number, id_componente: number): Promise<boolean> {

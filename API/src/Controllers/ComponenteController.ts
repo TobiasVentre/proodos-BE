@@ -217,7 +217,14 @@ export const createComponenteController = ({
    *                 example: 3
    *               nombre:
    *                 type: string
+   *               selector_hijos:
+   *                 type: string
+   *                 nullable: true
    *                 example: "Nombre del componente"
+   *               selector_hijos:
+   *                 type: string
+   *                 nullable: true
+   *                 example: "#contenedor-hijos"
    *     responses:
    *       200:
    *         description: Componente creado
@@ -301,6 +308,7 @@ export const createComponenteController = ({
         id_plan,
         id_tipo_variacion,
         nombre,
+        selector_hijos: req.body?.selector_hijos,
       });
 
       return respondOk(res, result);
@@ -338,6 +346,9 @@ export const createComponenteController = ({
    *                 type: integer
    *               nombre:
    *                 type: string
+   *               selector_hijos:
+   *                 type: string
+   *                 nullable: true
    *     responses:
    *       200:
    *         description: Componente actualizado parcialmente

@@ -9,11 +9,13 @@ export const mapCreateElementoComponenteDTOToEntity = (
   id_componente: dto.id_componente,
   id_tipo_elemento: dto.id_tipo_elemento,
   nombre: dto.nombre,
-  icono_img: dto.icono_img,
-  descripcion: dto.descripcion,
-  link: dto.link,
+  selector: dto.selector ?? null,
+  icono_img: dto.icono_img ?? null,
+  descripcion: dto.descripcion ?? null,
+  link: dto.link ?? null,
   orden: dto.orden,
-  css_url: dto.css_url,
+  css_url: dto.css_url ?? null,
+  js_url: dto.js_url ?? null,
 });
 
 export const mapUpdateElementoComponenteDTOToEntity = (
@@ -23,9 +25,11 @@ export const mapUpdateElementoComponenteDTOToEntity = (
   id_componente: dto.id_componente,
   id_tipo_elemento: dto.id_tipo_elemento,
   nombre: dto.nombre,
-  icono_img: dto.icono_img,
-  descripcion: dto.descripcion,
-  link: dto.link,
+  selector: dto.selector ?? null,
+  icono_img: dto.icono_img ?? null,
+  descripcion: dto.descripcion ?? null,
+  link: dto.link ?? null,
   orden: dto.orden,
-  css_url: dto.css_url,
+  css_url: dto.css_url ?? null,
+  js_url: dto.js_url ?? null,
 });

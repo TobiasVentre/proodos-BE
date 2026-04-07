@@ -2,6 +2,7 @@ import { AssignLandingComponenteService } from "@proodos/application/Services/La
 import { GetLandingComponentesService } from "@proodos/application/Services/LandingComponente/GetLandingComponentesService";
 import { GetLandingsByComponenteService } from "@proodos/application/Services/LandingComponente/GetLandingsByComponenteService";
 import { UnassignComponenteFromLandingService } from "@proodos/application/Services/LandingComponente/UnassignComponenteFromLandingService";
+import { UpdateLandingComponenteOrdenService } from "@proodos/application/Services/LandingComponente/UpdateLandingComponenteOrdenService";
 import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
 import { ValidationError } from "@proodos/application/Errors/ValidationError";
 import { IComponenteRepository } from "@proodos/application/Interfaces/IComponenteRepository";
@@ -31,9 +32,11 @@ const buildComponenteRepository = (): jest.Mocked<IComponenteRepository> => ({
 
 const buildLandingComponenteRepository = (): jest.Mocked<ILandingComponenteRepository> => ({
   assign: jest.fn(),
+  updateOrden: jest.fn(),
   unassign: jest.fn(),
   getByLanding: jest.fn(),
   getByComponente: jest.fn(),
+  getMaxOrdenByLanding: jest.fn(),
   exists: jest.fn(),
   existsByComponente: jest.fn(),
 });
@@ -211,6 +214,24 @@ describe("LandingComponente services", () => {
     expect(landingComponenteRepository.unassign).toHaveBeenCalledWith(1, 2);
   });
 
+  it("should update componente order in landing", async () => {
+    // Arrange
+    const landingComponenteRepository = buildLandingComponenteRepository();
+    landingComponenteRepository.updateOrden.mockResolvedValue({
+      id_landing: 1,
+      id_componente: 2,
+      orden: 3,
+    } as never);
+    const service = new UpdateLandingComponenteOrdenService(landingComponenteRepository);
+
+    // Act
+    const result = await service.execute({ id_landing: 1, id_componente: 2, orden: 3 });
+
+    // Assert
+    expect(landingComponenteRepository.updateOrden).toHaveBeenCalledWith(1, 2, 3);
+    expect(result).toEqual({ id_landing: 1, id_componente: 2, orden: 3 });
+  });
+
   it("should throw ValidationError when unassign ids are invalid", async () => {
     // Arrange
     const landingComponenteRepository = buildLandingComponenteRepository();
@@ -218,6 +239,18 @@ describe("LandingComponente services", () => {
 
     // Act
     const action = () => service.execute({ id_landing: 0, id_componente: 2 });
+
+    // Assert
+    await expect(action()).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("should throw ValidationError when update order is invalid", async () => {
+    // Arrange
+    const landingComponenteRepository = buildLandingComponenteRepository();
+    const service = new UpdateLandingComponenteOrdenService(landingComponenteRepository);
+
+    // Act
+    const action = () => service.execute({ id_landing: 1, id_componente: 2, orden: 0 });
 
     // Assert
     await expect(action()).rejects.toBeInstanceOf(ValidationError);

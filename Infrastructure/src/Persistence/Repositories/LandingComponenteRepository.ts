@@ -17,6 +17,14 @@ export class LandingComponenteRepository implements ILandingComponenteRepository
     return this.commandRepository.assign(entity);
   }
 
+  async updateOrden(
+    id_landing: number,
+    id_componente: number,
+    orden: number
+  ): Promise<LandingComponente> {
+    return this.commandRepository.updateOrden(id_landing, id_componente, orden);
+  }
+
   async unassign(id_landing: number, id_componente: number): Promise<void> {
     return this.commandRepository.unassign(id_landing, id_componente);
   }
@@ -27,6 +35,10 @@ export class LandingComponenteRepository implements ILandingComponenteRepository
 
   async getByComponente(id_componente: number): Promise<LandingComponente[]> {
     return this.queryRepository.getByComponente(id_componente);
+  }
+
+  async getMaxOrdenByLanding(id_landing: number): Promise<number> {
+    return this.queryRepository.getMaxOrdenByLanding(id_landing);
   }
 
   async exists(id_landing: number, id_componente: number): Promise<boolean> {

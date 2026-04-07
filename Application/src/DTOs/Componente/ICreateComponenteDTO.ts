@@ -3,4 +3,5 @@ export interface ICreateComponenteDTO {
   id_plan: number;
   id_tipo_variacion: number;
   nombre: string;
+  selector_hijos?: string | null;
 }

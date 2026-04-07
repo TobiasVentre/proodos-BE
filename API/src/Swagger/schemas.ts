@@ -11,7 +11,8 @@ export const componenteSchemas = {
       id_tipo_componente: { type: "integer", example: 1 },
       id_plan: { type: "integer", example: 2 },
       id_tipo_variacion: { type: "integer", example: 3 },
-      nombre: { type: "string", example: "Banner principal" }
+      nombre: { type: "string", example: "Banner principal" },
+      selector_hijos: { type: "string", nullable: true, example: "#contenedor-hijos" }
     }
   }
 };
@@ -291,21 +292,18 @@ export const elementoComponenteSchemas = {
       "id_componente",
       "id_tipo_elemento",
       "nombre",
-      "icono_img",
-      "descripcion",
-      "link",
       "orden",
-      "css_url"
     ],
     properties: {
       id_componente: { type: "integer", example: 10 },
       id_tipo_elemento: { type: "integer", example: 2 },
       nombre: { type: "string", example: "Titulo principal" },
-      icono_img: { type: "string", example: "https://cdn.example.com/icono.png" },
-      descripcion: { type: "string", example: "Texto descriptivo" },
-      link: { type: "string", example: "https://example.com" },
+      selector: { type: "string", nullable: true, example: "contenedor_hijos" },
+      icono_img: { type: "string", nullable: true, example: "https://cdn.example.com/icono.png" },
+      descripcion: { type: "string", nullable: true, example: "Texto descriptivo" },
+      link: { type: "string", nullable: true, example: "https://example.com" },
       orden: { type: "integer", example: 1 },
-      css_url: { type: "string", example: "/css/elementos/titulo.css" }
+      css_url: { type: "string", nullable: true, example: "/css/elementos/titulo.css" }
     }
   },
   IPatchElementoComponenteDTO: {
@@ -314,11 +312,12 @@ export const elementoComponenteSchemas = {
       id_componente: { type: "integer", example: 10 },
       id_tipo_elemento: { type: "integer", example: 2 },
       nombre: { type: "string", example: "Titulo principal" },
-      icono_img: { type: "string", example: "https://cdn.example.com/icono.png" },
-      descripcion: { type: "string", example: "Texto descriptivo" },
-      link: { type: "string", example: "https://example.com" },
+      selector: { type: "string", nullable: true, example: "contenedor_hijos" },
+      icono_img: { type: "string", nullable: true, example: "https://cdn.example.com/icono.png" },
+      descripcion: { type: "string", nullable: true, example: "Texto descriptivo" },
+      link: { type: "string", nullable: true, example: "https://example.com" },
       orden: { type: "integer", example: 1 },
-      css_url: { type: "string", example: "/css/elementos/titulo.css" }
+      css_url: { type: "string", nullable: true, example: "/css/elementos/titulo.css" }
     }
   }
 };

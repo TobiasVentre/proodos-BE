@@ -133,11 +133,7 @@ export const createElementoComponenteController = ({
    *               - id_componente
    *               - id_tipo_elemento
    *               - nombre
-   *               - icono_img
-   *               - descripcion
-   *               - link
    *               - orden
-   *               - css_url
    *             properties:
    *               id_componente:
    *                 type: integer
@@ -145,16 +141,27 @@ export const createElementoComponenteController = ({
    *                 type: integer
    *               nombre:
    *                 type: string
+   *               selector:
+   *                 type: string
+   *                 nullable: true
+   *                 example: "contenedor_hijos"
    *               icono_img:
    *                 type: string
+   *                 nullable: true
    *               descripcion:
    *                 type: string
+   *                 nullable: true
    *               link:
    *                 type: string
+   *                 nullable: true
    *               orden:
    *                 type: integer
    *               css_url:
    *                 type: string
+   *                 nullable: true
+   *               js_url:
+   *                 type: string
+   *                 nullable: true
    *     responses:
    *       200:
    *         description: Elemento creado
@@ -167,11 +174,7 @@ export const createElementoComponenteController = ({
         "id_componente",
         "id_tipo_elemento",
         "nombre",
-        "icono_img",
-        "descripcion",
-        "link",
         "orden",
-        "css_url",
       ]);
       const result = await createElementoComponenteService.execute(req.body);
 
@@ -205,11 +208,7 @@ export const createElementoComponenteController = ({
    *               - id_componente
    *               - id_tipo_elemento
    *               - nombre
-   *               - icono_img
-   *               - descripcion
-   *               - link
    *               - orden
-   *               - css_url
    *             properties:
    *               id_componente:
    *                 type: integer
@@ -217,16 +216,27 @@ export const createElementoComponenteController = ({
    *                 type: integer
    *               nombre:
    *                 type: string
+   *               selector:
+   *                 type: string
+   *                 nullable: true
+   *                 example: "contenedor_hijos"
    *               icono_img:
    *                 type: string
+   *                 nullable: true
    *               descripcion:
    *                 type: string
+   *                 nullable: true
    *               link:
    *                 type: string
+   *                 nullable: true
    *               orden:
    *                 type: integer
    *               css_url:
    *                 type: string
+   *                 nullable: true
+   *               js_url:
+   *                 type: string
+   *                 nullable: true
    *     responses:
    *       200:
    *         description: Elemento actualizado
@@ -244,11 +254,7 @@ export const createElementoComponenteController = ({
         "id_componente",
         "id_tipo_elemento",
         "nombre",
-        "icono_img",
-        "descripcion",
-        "link",
         "orden",
-        "css_url",
       ]);
       const result = await updateElementoComponenteService.execute({
         id_elemento,
@@ -288,16 +294,27 @@ export const createElementoComponenteController = ({
    *                 type: integer
    *               nombre:
    *                 type: string
+   *               selector:
+   *                 type: string
+   *                 nullable: true
+   *                 example: "contenedor_hijos"
    *               icono_img:
    *                 type: string
+   *                 nullable: true
    *               descripcion:
    *                 type: string
+   *                 nullable: true
    *               link:
    *                 type: string
+   *                 nullable: true
    *               orden:
    *                 type: integer
    *               css_url:
    *                 type: string
+   *                 nullable: true
+   *               js_url:
+   *                 type: string
+   *                 nullable: true
    *     responses:
    *       200:
    *         description: Elemento actualizado

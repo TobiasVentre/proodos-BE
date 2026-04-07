@@ -1,10 +1,13 @@
 import { IAssignLandingComponenteResult } from "../DTOs/LandingComponente/IAssignLandingComponenteResult";
 import { ILandingComponenteDTO } from "../DTOs/LandingComponente/ILandingComponenteDTO";
 import { LandingComponente } from "@proodos/domain/Entities/LandingComponente";
-import { Componente } from "@proodos/domain/Entities/Componente";
 
 export interface IAssignLandingComponenteUseCase {
   execute(dto: ILandingComponenteDTO): Promise<IAssignLandingComponenteResult>;
+}
+
+export interface IUpdateLandingComponenteOrdenUseCase {
+  execute(dto: ILandingComponenteDTO): Promise<LandingComponente>;
 }
 
 export interface IUnassignLandingComponenteUseCase {
@@ -12,7 +15,7 @@ export interface IUnassignLandingComponenteUseCase {
 }
 
 export interface IGetLandingComponentesUseCase {
-  execute(id_landing: number): Promise<Componente[]>;
+  execute(id_landing: number): Promise<LandingComponente[]>;
 }
 
 export interface IGetLandingsByComponenteUseCase {

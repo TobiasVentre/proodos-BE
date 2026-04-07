@@ -1,4 +1,5 @@
 import { ICreateLandingPageDTO } from "../DTOs/LandingPage/ICreateLandingPageDTO";
+import { ILandingIndexExportDTO } from "../DTOs/LandingPage/ILandingIndexExportDTO";
 import { IPatchLandingPageDTO } from "../DTOs/LandingPage/IPatchLandingPageDTO";
 import { IUpdateLandingPageDTO } from "../DTOs/LandingPage/IUpdateLandingPageDTO";
 import { LandingPage } from "@proodos/domain/Entities/LandingPage";
@@ -13,6 +14,10 @@ export interface IGetAllLandingPagesUseCase {
 
 export interface IGetLandingPageByIdUseCase {
   execute(id_landing: number): Promise<LandingPage | null>;
+}
+
+export interface IGenerateLandingIndexUseCase {
+  execute(id_landing: number): Promise<ILandingIndexExportDTO>;
 }
 
 export interface IUpdateLandingPageUseCase {

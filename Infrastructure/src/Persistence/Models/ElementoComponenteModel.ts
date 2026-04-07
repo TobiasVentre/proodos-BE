@@ -5,11 +5,13 @@ export class ElementoComponenteModel extends Model {
   id_componente!: number;
   id_tipo_elemento!: number;
   nombre!: string;
-  icono_img!: string;
-  descripcion!: string;
-  link!: string;
+  selector!: string | null;
+  icono_img!: string | null;
+  descripcion!: string | null;
+  link!: string | null;
   orden!: number;
-  css_url!: string;
+  css_url!: string | null;
+  js_url!: string | null;
 
   static initModel(sequelize: Sequelize) {
     ElementoComponenteModel.init(
@@ -31,17 +33,21 @@ export class ElementoComponenteModel extends Model {
           type: DataTypes.STRING(50),
           allowNull: false,
         },
+        selector: {
+          type: DataTypes.STRING(150),
+          allowNull: true,
+        },
         icono_img: {
           type: DataTypes.STRING(500),
-          allowNull: false,
+          allowNull: true,
         },
         descripcion: {
           type: DataTypes.STRING(255),
-          allowNull: false,
+          allowNull: true,
         },
         link: {
           type: DataTypes.STRING(500),
-          allowNull: false,
+          allowNull: true,
         },
         orden: {
           type: DataTypes.INTEGER,
@@ -49,7 +55,11 @@ export class ElementoComponenteModel extends Model {
         },
         css_url: {
           type: DataTypes.STRING(500),
-          allowNull: false,
+          allowNull: true,
+        },
+        js_url: {
+          type: DataTypes.STRING(500),
+          allowNull: true,
         },
       },
       {

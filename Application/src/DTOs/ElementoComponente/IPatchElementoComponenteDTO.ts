@@ -2,9 +2,11 @@ export interface IPatchElementoComponenteDTO {
   id_componente?: number;
   id_tipo_elemento?: number;
   nombre?: string;
-  icono_img?: string;
-  descripcion?: string;
-  link?: string;
+  selector?: string | null;
+  icono_img?: string | null;
+  descripcion?: string | null;
+  link?: string | null;
   orden?: number;
-  css_url?: string;
+  css_url?: string | null;
+  js_url?: string | null;
 }

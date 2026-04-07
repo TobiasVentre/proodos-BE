@@ -13,6 +13,7 @@ export class LandingComponenteMapper {
     return {
       id_landing: model.id_landing,
       id_componente: model.id_componente,
+      orden: model.orden,
       landing: landing ? LandingPageMapper.toDomain(landing) : undefined,
       componente: componente ? ComponenteMapper.toDomain(componente) : undefined,
     };
@@ -22,6 +23,7 @@ export class LandingComponenteMapper {
     return {
       id_landing: entity.id_landing,
       id_componente: entity.id_componente,
+      orden: entity.orden,
     };
   }
 }

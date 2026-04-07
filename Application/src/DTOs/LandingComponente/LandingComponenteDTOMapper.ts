@@ -3,7 +3,10 @@ import { ValidationError } from "../../Errors/ValidationError";
 import { IAssignLandingComponenteResult } from "./IAssignLandingComponenteResult";
 import { ILandingComponenteDTO } from "./ILandingComponenteDTO";
 
-const ensurePositiveInteger = (field: "id_landing" | "id_componente", value: number): number => {
+const ensurePositiveInteger = (
+  field: "id_landing" | "id_componente" | "orden",
+  value: number
+): number => {
   if (typeof value !== "number" || !Number.isInteger(value) || value <= 0) {
     throw new ValidationError(
       "VALIDATION_ERROR",
@@ -20,6 +23,8 @@ export const mapLandingComponenteDTOToEntity = (
 ): LandingComponente => ({
   id_landing: ensurePositiveInteger("id_landing", dto.id_landing),
   id_componente: ensurePositiveInteger("id_componente", dto.id_componente),
+  orden:
+    dto.orden === undefined ? undefined : ensurePositiveInteger("orden", dto.orden),
 });
 
 export const buildAssignLandingComponenteResult = (

@@ -13,6 +13,7 @@ export class ComponenteMapper {
       id_plan: model.id_plan,
       id_tipo_variacion: model.id_tipo_variacion,
       nombre: model.nombre,
+      selector_hijos: model.selector_hijos ?? null,
       fecha_creacion: model.fecha_creacion,
       estado: model.estado,
       fecha_baja: model.fecha_baja,

@@ -6,6 +6,7 @@ export class ComponenteModel extends Model {
   id_plan!: number | null;
   id_tipo_variacion!: number;
   nombre!: string;
+  selector_hijos!: string | null;
   fecha_creacion!: Date;
   estado!: string;
   fecha_baja?: Date | null;
@@ -33,6 +34,10 @@ export class ComponenteModel extends Model {
         nombre: {
           type: DataTypes.STRING(100),
           allowNull: false,
+        },
+        selector_hijos: {
+          type: DataTypes.STRING(150),
+          allowNull: true,
         },
         fecha_creacion: {
           type: DataTypes.DATE,

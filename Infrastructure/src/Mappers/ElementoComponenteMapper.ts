@@ -8,11 +8,13 @@ export class ElementoComponenteMapper {
       id_componente: model.id_componente,
       id_tipo_elemento: model.id_tipo_elemento,
       nombre: model.nombre,
-      icono_img: model.icono_img,
-      descripcion: model.descripcion,
-      link: model.link,
+      selector: model.selector ?? null,
+      icono_img: model.icono_img ?? null,
+      descripcion: model.descripcion ?? null,
+      link: model.link ?? null,
       orden: model.orden,
-      css_url: model.css_url,
+      css_url: model.css_url ?? null,
+      js_url: model.js_url ?? null,
     };
   }
 }

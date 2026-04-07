@@ -57,23 +57,36 @@ const buildElementoBase = (
     id_componente: number;
     id_tipo_elemento: number;
     nombre: string;
-    icono_img: string;
-    descripcion: string;
-    link: string;
+    icono_img: string | null;
+    descripcion: string | null;
+    link: string | null;
     orden: number;
-    css_url: string;
+    css_url: string | null;
   }> = {}
-): ICreateElementoComponenteDTO => ({
-  id_componente: 1,
-  id_tipo_elemento: 2,
-  nombre: "Header",
-  icono_img: "icon.png",
-  descripcion: "desc",
-  link: "https://example.com",
-  orden: 1,
-  css_url: "styles.css",
-  ...overrides,
-});
+): ICreateElementoComponenteDTO => {
+  const base = {
+    id_componente: 1,
+    id_tipo_elemento: 2,
+    nombre: "Header",
+    icono_img: "icon.png" as string | null,
+    descripcion: "desc" as string | null,
+    link: "https://example.com" as string | null,
+    orden: 1,
+    css_url: "styles.css" as string | null,
+  };
+  const values = { ...base, ...overrides };
+
+  return {
+    id_componente: values.id_componente,
+    id_tipo_elemento: values.id_tipo_elemento,
+    nombre: values.nombre,
+    icono_img: values.icono_img,
+    descripcion: values.descripcion,
+    link: values.link,
+    orden: values.orden,
+    css_url: values.css_url,
+  };
+};
 
 const buildElementoComponente = (
   overrides: Partial<{
@@ -81,17 +94,39 @@ const buildElementoComponente = (
     id_componente: number;
     id_tipo_elemento: number;
     nombre: string;
-    icono_img: string;
-    descripcion: string;
-    link: string;
+    icono_img: string | null;
+    descripcion: string | null;
+    link: string | null;
     orden: number;
-    css_url: string;
+    css_url: string | null;
   }> = {}
-) => ({
-  id_elemento: 1,
-  ...buildElementoBase(),
-  ...overrides,
-});
+) => {
+  const base = buildElementoBase();
+  const values = {
+    id_elemento: 1,
+    id_componente: base.id_componente,
+    id_tipo_elemento: base.id_tipo_elemento,
+    nombre: base.nombre,
+    icono_img: base.icono_img ?? null,
+    descripcion: base.descripcion ?? null,
+    link: base.link ?? null,
+    orden: base.orden,
+    css_url: base.css_url ?? null,
+    ...overrides,
+  };
+
+  return {
+    id_elemento: values.id_elemento,
+    id_componente: values.id_componente,
+    id_tipo_elemento: values.id_tipo_elemento,
+    nombre: values.nombre,
+    icono_img: values.icono_img ?? null,
+    descripcion: values.descripcion ?? null,
+    link: values.link ?? null,
+    orden: values.orden,
+    css_url: values.css_url ?? null,
+  };
+};
 
 describe("ElementoComponente services", () => {
   it("should create elemento componente when componente and tipo exist", async () => {
@@ -101,7 +136,7 @@ describe("ElementoComponente services", () => {
     const tipoElementoRepository = buildTipoElementoRepository();
     const logger = buildLogger();
     const dto = buildElementoBase();
-    const created = { id_elemento: 9, ...dto };
+    const created = buildElementoComponente({ id_elemento: 9 });
     componenteRepository.getById.mockResolvedValue({ id_componente: 1 } as never);
     tipoElementoRepository.exists.mockResolvedValue(true);
     elementoRepository.create.mockResolvedValue(created);

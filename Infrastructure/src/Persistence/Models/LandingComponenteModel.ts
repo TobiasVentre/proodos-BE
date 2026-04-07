@@ -3,6 +3,7 @@ import { Model, DataTypes, Sequelize } from "sequelize";
 export class LandingComponenteModel extends Model {
   id_landing!: number;
   id_componente!: number;
+  orden!: number;
 
   static initModel(sequelize: Sequelize) {
     LandingComponenteModel.init(
@@ -14,6 +15,10 @@ export class LandingComponenteModel extends Model {
         id_componente: {
           type: DataTypes.INTEGER,
           primaryKey: true,
+        },
+        orden: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
         },
       },
       {

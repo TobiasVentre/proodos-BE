@@ -198,9 +198,11 @@ describe("Componente services", () => {
     const componenteRepository = buildComponenteRepository();
     const landingComponenteRepository: jest.Mocked<ILandingComponenteRepository> = {
       assign: jest.fn(),
+      updateOrden: jest.fn(),
       unassign: jest.fn(),
       getByLanding: jest.fn(),
       getByComponente: jest.fn(),
+      getMaxOrdenByLanding: jest.fn(),
       exists: jest.fn(),
       existsByComponente: jest.fn().mockResolvedValue(false),
     };
@@ -222,9 +224,11 @@ describe("Componente services", () => {
     const componenteRepository = buildComponenteRepository();
     const landingComponenteRepository: jest.Mocked<ILandingComponenteRepository> = {
       assign: jest.fn(),
+      updateOrden: jest.fn(),
       unassign: jest.fn(),
       getByLanding: jest.fn(),
       getByComponente: jest.fn(),
+      getMaxOrdenByLanding: jest.fn(),
       exists: jest.fn(),
       existsByComponente: jest.fn(),
     };
@@ -246,9 +250,11 @@ describe("Componente services", () => {
     const componenteRepository = buildComponenteRepository();
     const landingComponenteRepository: jest.Mocked<ILandingComponenteRepository> = {
       assign: jest.fn(),
+      updateOrden: jest.fn(),
       unassign: jest.fn(),
       getByLanding: jest.fn(),
       getByComponente: jest.fn(),
+      getMaxOrdenByLanding: jest.fn(),
       exists: jest.fn(),
       existsByComponente: jest.fn().mockResolvedValue(true),
     };
@@ -270,9 +276,11 @@ describe("Componente services", () => {
     const componenteRepository = buildComponenteRepository();
     const landingComponenteRepository: jest.Mocked<ILandingComponenteRepository> = {
       assign: jest.fn(),
+      updateOrden: jest.fn(),
       unassign: jest.fn(),
       getByLanding: jest.fn(),
       getByComponente: jest.fn(),
+      getMaxOrdenByLanding: jest.fn(),
       exists: jest.fn(),
       existsByComponente: jest.fn().mockResolvedValue(false),
     };
@@ -298,9 +306,11 @@ describe("Componente services", () => {
     const componenteRepository = buildComponenteRepository();
     const landingComponenteRepository: jest.Mocked<ILandingComponenteRepository> = {
       assign: jest.fn(),
+      updateOrden: jest.fn(),
       unassign: jest.fn(),
       getByLanding: jest.fn(),
       getByComponente: jest.fn(),
+      getMaxOrdenByLanding: jest.fn(),
       exists: jest.fn(),
       existsByComponente: jest.fn(),
     };
@@ -322,9 +332,11 @@ describe("Componente services", () => {
     const componenteRepository = buildComponenteRepository();
     const landingComponenteRepository: jest.Mocked<ILandingComponenteRepository> = {
       assign: jest.fn(),
+      updateOrden: jest.fn(),
       unassign: jest.fn(),
       getByLanding: jest.fn(),
       getByComponente: jest.fn(),
+      getMaxOrdenByLanding: jest.fn(),
       exists: jest.fn(),
       existsByComponente: jest.fn().mockResolvedValue(true),
     };

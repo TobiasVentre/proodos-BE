@@ -5,6 +5,7 @@ import {
   ICreatePlanFullUseCase,
   IDeletePlanUseCase,
   IGetAllPlansUseCase,
+  IGetPlansDataUseCase,
   IGetPlanByIdUseCase,
   IPatchPlanUseCase,
   IPatchPlanFullUseCase,
@@ -36,6 +37,7 @@ type PlanControllerDeps = {
   createPlanService: ICreatePlanUseCase;
   createPlanFullService: ICreatePlanFullUseCase;
   getAllPlansService: IGetAllPlansUseCase;
+  getPlansDataService: IGetPlansDataUseCase;
   getPlanByIdService: IGetPlanByIdUseCase;
   patchPlanService: IPatchPlanUseCase;
   patchPlanFullService: IPatchPlanFullUseCase;
@@ -50,6 +52,7 @@ export const createPlanController = ({
   createPlanService,
   createPlanFullService,
   getAllPlansService,
+  getPlansDataService,
   getPlanByIdService,
   patchPlanService,
   patchPlanFullService,
@@ -80,6 +83,31 @@ export const createPlanController = ({
       return respondOk(res, result);
     } catch (error) {
       logControllerError(logger, "GET /planes", error);
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/planes/export-data:
+   *   get:
+   *     tags:
+   *       - Planes
+   *     summary: Devuelve el snapshot JSON de todos los planes
+   *     responses:
+   *       200:
+   *         description: Snapshot de planes
+   */
+  planController.get("/export-data", async (req, res, next) => {
+    logger.info("[Controller] GET /planes/export-data");
+
+    try {
+      const result = await getPlansDataService.execute();
+
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(200).json(result);
+    } catch (error) {
+      logControllerError(logger, "GET /planes/export-data", error);
       return next(error);
     }
   });

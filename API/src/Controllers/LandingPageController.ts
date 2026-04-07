@@ -4,6 +4,7 @@ import {
   ICreateLandingPageUseCase,
   IDeleteLandingPageUseCase,
   IGetAllLandingPagesUseCase,
+  IGenerateLandingIndexUseCase,
   IGetLandingPageByIdUseCase,
   IPatchLandingPageUseCase,
   IUpdateLandingPageUseCase,
@@ -11,12 +12,14 @@ import {
 import {
   IAssignLandingComponenteUseCase,
   IGetLandingComponentesUseCase,
+  IUpdateLandingComponenteOrdenUseCase,
   IUnassignLandingComponenteUseCase,
 } from "@proodos/application/Ports/ILandingComponenteUseCases";
 import {
   ensureFound,
   ensureRequiredFields,
   logControllerError,
+  parseOptionalPositiveInteger,
   parsePositiveInteger,
   respondCreated,
   respondNoContent,
@@ -28,10 +31,12 @@ type LandingPageControllerDeps = {
   createLandingPageService: ICreateLandingPageUseCase;
   getLandingPageByIdService: IGetLandingPageByIdUseCase;
   getAllLandingPagesService: IGetAllLandingPagesUseCase;
+  generateLandingIndexService: IGenerateLandingIndexUseCase;
   updateLandingPageService: IUpdateLandingPageUseCase;
   patchLandingPageService: IPatchLandingPageUseCase;
   deleteLandingPageService: IDeleteLandingPageUseCase;
   assignLandingComponenteService: IAssignLandingComponenteUseCase;
+  updateLandingComponenteOrdenService: IUpdateLandingComponenteOrdenUseCase;
   unassignLandingComponenteService: IUnassignLandingComponenteUseCase;
   getLandingComponentesService: IGetLandingComponentesUseCase;
 };
@@ -41,10 +46,12 @@ export const createLandingPageController = ({
   createLandingPageService,
   getLandingPageByIdService,
   getAllLandingPagesService,
+  generateLandingIndexService,
   updateLandingPageService,
   patchLandingPageService,
   deleteLandingPageService,
   assignLandingComponenteService,
+  updateLandingComponenteOrdenService,
   unassignLandingComponenteService,
   getLandingComponentesService,
 }: LandingPageControllerDeps) => {
@@ -71,6 +78,45 @@ export const createLandingPageController = ({
     return respondOk(res, result);
   } catch (error) {
     logControllerError(logger, "GET /landings", error);
+    return next(error);
+  }
+  });
+
+/**
+ * @openapi
+ * /api/landings/{id}/export-index:
+ *   get:
+ *     tags:
+ *       - Landing Pages
+ *     summary: Genera un index.html simple para una landing
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Export generado
+ *       400:
+ *         description: ID inválido
+ *       404:
+ *         description: Landing no encontrada
+ */
+  landingPageController.get("/:id/export-index", async (req, res, next) => {
+  logger.info(`[Controller] GET /landings/${req.params.id}/export-index`);
+
+  try {
+    const id_landing = parsePositiveInteger(req.params.id, "landing id");
+    const result = await generateLandingIndexService.execute(id_landing);
+
+    return respondOk(res, result);
+  } catch (error) {
+    logControllerError(
+      logger,
+      `GET /landings/${req.params.id}/export-index`,
+      error
+    );
     return next(error);
   }
   });
@@ -357,6 +403,9 @@ export const createLandingPageController = ({
  *               id_componente:
  *                 type: integer
  *                 example: 1
+ *               orden:
+ *                 type: integer
+ *                 example: 2
  *     responses:
  *       200:
  *         description: Asociación ya existente o creada (idempotente)
@@ -376,9 +425,11 @@ export const createLandingPageController = ({
       req.body?.id_componente,
       "id_componente"
     );
+    const orden = parseOptionalPositiveInteger(req.body?.orden, "orden");
     const result = await assignLandingComponenteService.execute({
       id_landing,
       id_componente,
+      orden,
     });
 
     return result.existed
@@ -392,6 +443,71 @@ export const createLandingPageController = ({
     );
     return next(error);
   }
+  });
+
+/**
+ * @openapi
+ * /api/landings/{id}/componentes/{id_componente}:
+ *   patch:
+ *     tags:
+ *       - Landing Pages
+ *     summary: Actualiza el orden de un componente asociado a una landing
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - name: id_componente
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - orden
+ *             properties:
+ *               orden:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Orden actualizado
+ *       400:
+ *         description: Request inválida
+ */
+  landingPageController.patch("/:id/componentes/:id_componente", async (req, res, next) => {
+    logger.info(
+      `[Controller] PATCH /landings/${req.params.id}/componentes/${req.params.id_componente}`
+    );
+
+    try {
+      const id_landing = parsePositiveInteger(req.params.id, "landing id");
+      const id_componente = parsePositiveInteger(
+        req.params.id_componente,
+        "id_componente"
+      );
+      const orden = parsePositiveInteger(req.body?.orden, "orden");
+      const result = await updateLandingComponenteOrdenService.execute({
+        id_landing,
+        id_componente,
+        orden,
+      });
+
+      return respondOk(res, result);
+    } catch (error) {
+      logControllerError(
+        logger,
+        `PATCH /landings/${req.params.id}/componentes/${req.params.id_componente}`,
+        error
+      );
+      return next(error);
+    }
   });
 
 /**

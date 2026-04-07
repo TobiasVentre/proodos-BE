@@ -23,6 +23,7 @@ describe("ComponenteDTOMapper", () => {
       id_plan: 1,
       id_tipo_variacion: 2,
       nombre: "Hero",
+      selector_hijos: null,
       fecha_creacion: new Date(0),
       estado: "ACTIVO",
       fecha_baja: null,
@@ -46,6 +47,7 @@ describe("ComponenteDTOMapper", () => {
       id_plan: 1,
       id_tipo_variacion: 2,
       nombre: "Banner",
+      selector_hijos: null,
       fecha_creacion: new Date(0),
       estado: "ACTIVO",
       fecha_baja: null,
@@ -58,6 +60,34 @@ describe("ComponenteDTOMapper", () => {
       id_plan: -1,
       id_tipo_variacion: 2,
       nombre: "   ",
+    };
+
+    const action = () => mapCreateComponenteDTOToEntity(dto);
+
+    expect(action).toThrow(ValidationError);
+  });
+
+  it("should keep selector_hijos when a valid selector is provided", () => {
+    const dto: ICreateComponenteDTO = {
+      id_tipo_componente: 10,
+      id_plan: 1,
+      id_tipo_variacion: 2,
+      nombre: "Hero",
+      selector_hijos: ".children-slot",
+    };
+
+    const entity = mapCreateComponenteDTOToEntity(dto);
+
+    expect(entity.selector_hijos).toBe(".children-slot");
+  });
+
+  it("should throw ValidationError when selector_hijos is invalid", () => {
+    const dto: ICreateComponenteDTO = {
+      id_tipo_componente: 10,
+      id_plan: 1,
+      id_tipo_variacion: 2,
+      nombre: "Hero",
+      selector_hijos: "children-slot",
     };
 
     const action = () => mapCreateComponenteDTOToEntity(dto);
