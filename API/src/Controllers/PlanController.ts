@@ -1,4 +1,5 @@
-import { Router } from "express";
+import { Request, Router } from "express";
+import { AppError } from "@proodos/application/Errors/AppError";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import {
   ICreatePlanUseCase,
@@ -9,10 +10,13 @@ import {
   IGetPlanByIdUseCase,
   IPatchPlanUseCase,
   IPatchPlanFullUseCase,
+  IPublishPlansUseCase,
   IUpdatePlanFullUseCase,
   IUpdatePlanUseCase,
 } from "@proodos/application/Ports/IPlanUseCases";
+import { IPublishPlanChangeDTO } from "@proodos/application/DTOs/Plan/IPublishPlansDTO";
 import { IGetComponentesByPlanUseCase } from "@proodos/application/Ports/IComponenteUseCases";
+import { canAccessSegment, getAdminRoles, isAdminUser, requireAnyRole } from "../Middleware/auth";
 import {
   ensureFound,
   ensureRequiredFields,
@@ -21,6 +25,9 @@ import {
   respondNoContent,
   respondOk,
 } from "./ControllerHelpers";
+import { buildValidationError } from "./ControllerErrors";
+
+const planAccessRoles = ["admin", "diseñador"];
 
 const requiredPlanFields = [
   "nombre",
@@ -32,6 +39,94 @@ const requiredPlanFields = [
   "precio_sin_iva",
 ];
 
+const publishPlanFieldTypes = {
+  segmento: "string",
+  producto: "string",
+  bonete: "string",
+  nombre: "string",
+  nombre_plan: "string",
+  capacidad: "number",
+  capacidad_plan: "string",
+  capacidad_anterior: "number",
+  precio_full_price: "number",
+  precio_oferta: "number",
+  tag_1: "string",
+  tag_2: "string",
+  beneficio_1: "string",
+  beneficio_2: "string",
+  beneficio_3: "string",
+  beneficio_4: "string",
+  cta_1: "string",
+  link_1: "string",
+  cta_2: "string",
+  link_2: "string",
+  aumento: "number",
+  precio_tv_digital: "number",
+  precio_tv_max: "number",
+  promo_activa: "boolean",
+  muestra_desde: "string",
+  canales_tv_digital: "string",
+  canales_tv_max: "string",
+  precio_no_cliente: "number",
+  descripcion_oferta: "string",
+  comercial_name: "string",
+  comercial_id: "string",
+  telefono_0800: "string",
+  icono_tag_1: "string",
+  pre_beneficio_2_titulo: "string",
+  pre_beneficio_2_descripcion: "string",
+  pre_beneficio_1_titulo: "string",
+  pre_beneficio_1_descripcion: "string",
+  nombre_plan_tv: "string",
+  grilla_canales: "string",
+  icono_bonete: "string",
+  precio_sin_iva: "number",
+} as const;
+
+const parsePublishFieldValue = (
+  value: unknown,
+  fieldType: "string" | "number" | "boolean",
+  fieldName: string
+) => {
+  if (value === null || value === "") {
+    return null;
+  }
+
+  if (fieldType === "string") {
+    if (typeof value !== "string") {
+      throw buildValidationError(`El campo ${fieldName} debe ser string.`);
+    }
+
+    return value;
+  }
+
+  if (fieldType === "number") {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) {
+      throw buildValidationError(`El campo ${fieldName} debe ser numerico.`);
+    }
+
+    return parsed;
+  }
+
+  if (typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (["true", "si", "sí", "1"].includes(normalized)) {
+      return true;
+    }
+
+    if (["false", "no", "0"].includes(normalized)) {
+      return false;
+    }
+  }
+
+  throw buildValidationError(`El campo ${fieldName} debe ser boolean.`);
+};
+
 type PlanControllerDeps = {
   logger: ILogger;
   createPlanService: ICreatePlanUseCase;
@@ -41,6 +136,7 @@ type PlanControllerDeps = {
   getPlanByIdService: IGetPlanByIdUseCase;
   patchPlanService: IPatchPlanUseCase;
   patchPlanFullService: IPatchPlanFullUseCase;
+  publishPlansService: IPublishPlansUseCase;
   updatePlanFullService: IUpdatePlanFullUseCase;
   updatePlanService: IUpdatePlanUseCase;
   deletePlanService: IDeletePlanUseCase;
@@ -56,12 +152,73 @@ export const createPlanController = ({
   getPlanByIdService,
   patchPlanService,
   patchPlanFullService,
+  publishPlansService,
   updatePlanFullService,
   updatePlanService,
   deletePlanService,
   getComponentesByPlanService,
 }: PlanControllerDeps) => {
   const planController = Router();
+  const requireAdmin = requireAnyRole(getAdminRoles());
+
+  const assertPlanSegmentAccess = async (req: Request, planId: number) => {
+    const plan = ensureFound(await getPlanByIdService.execute(planId), "Plan not found");
+    if (!canAccessSegment(req.user, plan?.segmento ?? null)) {
+      throw new AppError("FORBIDDEN", "No autorizado para operar este segmento.", 403, {
+        segment: plan?.segmento ?? null,
+      });
+    }
+
+    return plan;
+  };
+
+  planController.use(requireAnyRole(planAccessRoles));
+
+  const parsePublishPlanChanges = (value: unknown): IPublishPlanChangeDTO[] => {
+    if (!Array.isArray(value) || value.length === 0) {
+      throw buildValidationError("El campo plans debe ser un array no vacio.");
+    }
+
+    return value.map((item, index) => {
+      if (typeof item !== "object" || item === null) {
+        throw buildValidationError(`El item ${index} de plans es invalido.`);
+      }
+
+      const payload = item as Record<string, unknown>;
+      const change: IPublishPlanChangeDTO = {
+        id_plan: parsePositiveInteger(payload.id_plan, `plans[${index}].id_plan`),
+      };
+
+      for (const [field, fieldType] of Object.entries(publishPlanFieldTypes)) {
+        if (payload[field] === undefined) {
+          continue;
+        }
+
+        (change as unknown as Record<string, unknown>)[field] = parsePublishFieldValue(
+          payload[field],
+          fieldType,
+          `plans[${index}].${field}`
+        );
+      }
+
+      const unknownFields = Object.keys(payload).filter(
+        (field) => field !== "id_plan" && !(field in publishPlanFieldTypes)
+      );
+      if (unknownFields.length > 0) {
+        throw buildValidationError(
+          `El item ${index} de plans tiene campos no permitidos: ${unknownFields.join(", ")}.`
+        );
+      }
+
+      if (Object.keys(change).length === 1) {
+        throw buildValidationError(
+          `El item ${index} de plans no tiene cambios para publicar.`
+        );
+      }
+
+      return change;
+    });
+  };
 
   /**
    * @openapi
@@ -79,8 +236,11 @@ export const createPlanController = ({
 
     try {
       const result = await getAllPlansService.execute();
+      const allowedResult = isAdminUser(req.user)
+        ? result
+        : result.filter((plan: any) => canAccessSegment(req.user, plan?.segmento ?? null));
 
-      return respondOk(res, result);
+      return respondOk(res, allowedResult);
     } catch (error) {
       logControllerError(logger, "GET /planes", error);
       return next(error);
@@ -103,11 +263,42 @@ export const createPlanController = ({
 
     try {
       const result = await getPlansDataService.execute();
+      const allowedResult = isAdminUser(req.user) || !Array.isArray(result)
+        ? result
+        : result.filter((plan: any) => canAccessSegment(req.user, plan?.segmento ?? null));
 
       res.setHeader("Cache-Control", "no-store");
-      return res.status(200).json(result);
+      return res.status(200).json(allowedResult);
     } catch (error) {
       logControllerError(logger, "GET /planes/export-data", error);
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/planes/publish:
+   *   post:
+   *     tags:
+   *       - Planes
+   *     summary: Persiste cambios, exporta plans-data.json y lo publica
+   *     responses:
+   *       200:
+   *         description: Publicacion completada
+   */
+  planController.post("/publish", async (req, res, next) => {
+    logger.info("[Controller] POST /planes/publish");
+
+    try {
+      const plans = parsePublishPlanChanges((req.body as { plans?: unknown } | null)?.plans);
+      for (const plan of plans) {
+        await assertPlanSegmentAccess(req, plan.id_plan);
+      }
+      const result = await publishPlansService.execute(plans);
+
+      return respondOk(res, result);
+    } catch (error) {
+      logControllerError(logger, "POST /planes/publish", error);
       return next(error);
     }
   });
@@ -142,6 +333,11 @@ export const createPlanController = ({
         await getPlanByIdService.execute(id),
         "Plan not found"
       );
+      if (!canAccessSegment(req.user, result?.segmento ?? null)) {
+        throw new AppError("FORBIDDEN", "No autorizado para operar este segmento.", 403, {
+          segment: result?.segmento ?? null,
+        });
+      }
 
       return respondOk(res, result);
     } catch (error) {
@@ -176,7 +372,7 @@ export const createPlanController = ({
 
     try {
       const id = parsePositiveInteger(req.params.id);
-      ensureFound(await getPlanByIdService.execute(id), "Plan not found");
+      await assertPlanSegmentAccess(req, id);
       const result = await getComponentesByPlanService.execute(id);
 
       return respondOk(res, result);
@@ -203,7 +399,7 @@ export const createPlanController = ({
    *       200:
    *         description: Plan creado
   */
-  planController.post("/", async (req, res, next) => {
+  planController.post("/", requireAdmin, async (req, res, next) => {
     logger.info("[Controller] POST /planes");
 
     try {
@@ -234,7 +430,7 @@ export const createPlanController = ({
    *       200:
    *         description: Plan creado
   */
-  planController.post("/full", async (req, res, next) => {
+  planController.post("/full", requireAdmin, async (req, res, next) => {
     logger.info("[Controller] POST /planes/full");
 
     try {
@@ -279,6 +475,7 @@ export const createPlanController = ({
 
     try {
       const id = parsePositiveInteger(req.params.id);
+      await assertPlanSegmentAccess(req, id);
       const result = await patchPlanService.execute(id, req.body);
 
       return respondOk(res, result);
@@ -320,6 +517,7 @@ export const createPlanController = ({
 
     try {
       const id = parsePositiveInteger(req.params.id);
+      await assertPlanSegmentAccess(req, id);
       const result = await patchPlanFullService.execute(id, req.body);
 
       return respondOk(res, result);
@@ -356,7 +554,7 @@ export const createPlanController = ({
    *       404:
    *         description: No encontrado
   */
-  planController.put("/:id/full", async (req, res, next) => {
+  planController.put("/:id/full", requireAdmin, async (req, res, next) => {
     logger.info(`[Controller] PUT /planes/${req.params.id}/full`);
 
     try {
@@ -400,7 +598,7 @@ export const createPlanController = ({
    *       404:
    *         description: No encontrado
   */
-  planController.put("/:id", async (req, res, next) => {
+  planController.put("/:id", requireAdmin, async (req, res, next) => {
     logger.info(`[Controller] PUT /planes/${req.params.id}`);
 
     try {
@@ -437,7 +635,7 @@ export const createPlanController = ({
    *       400:
    *         description: ID inválido
   */
-  planController.delete("/:id", async (req, res, next) => {
+  planController.delete("/:id", requireAdmin, async (req, res, next) => {
     logger.info(`[Controller] DELETE /planes/${req.params.id}`);
 
     try {

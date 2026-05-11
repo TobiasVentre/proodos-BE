@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { getAdminRoles, requireAnyRole } from "../Middleware/auth";
 import {
   ICreateTipoComponenteUseCase,
   IDeleteTipoComponenteUseCase,
@@ -37,6 +38,15 @@ export const createTipoComponenteController = ({
   deleteTipoComponenteService,
 }: TipoComponenteControllerDeps) => {
   const tipoComponenteController = Router();
+  const requireAdmin = requireAnyRole(getAdminRoles());
+
+  tipoComponenteController.use((req, res, next) => {
+    if (req.method === "GET") {
+      return next();
+    }
+
+    return requireAdmin(req, res, next);
+  });
 
   /**
    * @openapi

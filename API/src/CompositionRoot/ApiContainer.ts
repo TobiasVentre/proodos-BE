@@ -32,6 +32,7 @@ import {
   IGetPlanByIdUseCase,
   IPatchPlanUseCase,
   IPatchPlanFullUseCase,
+  IPublishPlansUseCase,
   IUpdatePlanFullUseCase,
   IUpdatePlanUseCase,
 } from "@proodos/application/Ports/IPlanUseCases";
@@ -105,6 +106,7 @@ import { GetPlansDataService } from "@proodos/application/Services/Plan/GetPlans
 import { GetPlanByIdService } from "@proodos/application/Services/Plan/GetPlanByIdService";
 import { PatchPlanService } from "@proodos/application/Services/Plan/PatchPlanService";
 import { PatchPlanFullService } from "@proodos/application/Services/Plan/PatchPlanFullService";
+import { PublishPlansService } from "@proodos/application/Services/Plan/PublishPlansService";
 import { UpdatePlanFullService } from "@proodos/application/Services/Plan/UpdatePlanFullService";
 import { UpdatePlanService } from "@proodos/application/Services/Plan/UpdatePlanService";
 import { DeletePlanService } from "@proodos/application/Services/Plan/DeletePlanService";
@@ -149,6 +151,8 @@ import { ElementoComponenteRepository } from "@proodos/infrastructure/Persistenc
 import { initModels } from "@proodos/infrastructure/Persistence/Sequelize";
 import { LandingExportAssetLoader } from "@proodos/infrastructure/Rendering/LandingExportAssetLoader";
 import { LandingExportOutputWriter } from "@proodos/infrastructure/Rendering/LandingExportOutputWriter";
+import { PlansDataOutputWriter } from "@proodos/infrastructure/Rendering/PlansDataOutputWriter";
+import { PlansPublicationClient } from "@proodos/infrastructure/Clients/PlansPublicationClient";
 
 export type ApiUseCases = {
   componente: {
@@ -188,6 +192,7 @@ export type ApiUseCases = {
     getPlanById: IGetPlanByIdUseCase;
     patchPlan: IPatchPlanUseCase;
     patchPlanFull: IPatchPlanFullUseCase;
+    publishPlans: IPublishPlansUseCase;
     updatePlanFull: IUpdatePlanFullUseCase;
     updatePlan: IUpdatePlanUseCase;
     deletePlan: IDeletePlanUseCase;
@@ -242,6 +247,8 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
   const elementoComponenteRepository = new ElementoComponenteRepository(logger);
   const landingExportAssetLoader = new LandingExportAssetLoader(logger);
   const landingExportOutputWriter = new LandingExportOutputWriter(logger);
+  const plansDataOutputWriter = new PlansDataOutputWriter(logger);
+  const plansPublicationClient = new PlansPublicationClient(logger);
 
   return {
     componente: {
@@ -317,10 +324,21 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
       createPlan: new CreatePlanService(planRepository, logger),
       createPlanFull: new CreatePlanFullService(planRepository, logger),
       getAllPlans: new GetAllPlansService(planRepository, logger),
-      getPlansData: new GetPlansDataService(planRepository, logger),
+      getPlansData: new GetPlansDataService(
+        planRepository,
+        plansDataOutputWriter,
+        logger
+      ),
       getPlanById: new GetPlanByIdService(planRepository, logger),
       patchPlan: new PatchPlanService(planRepository, logger),
       patchPlanFull: new PatchPlanFullService(planRepository, logger),
+      publishPlans: new PublishPlansService(
+        new PatchPlanFullService(planRepository, logger),
+        new GetPlansDataService(planRepository, plansDataOutputWriter, logger),
+        plansDataOutputWriter,
+        plansPublicationClient,
+        logger
+      ),
       updatePlanFull: new UpdatePlanFullService(planRepository, logger),
       updatePlan: new UpdatePlanService(planRepository, logger),
       deletePlan: new DeletePlanService(planRepository),

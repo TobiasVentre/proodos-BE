@@ -22,6 +22,7 @@ interface IJwtModule {
 export interface IAuthPayload {
   sub: string;
   roles: string[];
+  segments?: string[];
   token_use: "access";
   iat?: number;
   exp?: number;
@@ -52,6 +53,43 @@ const extractBearerToken = (authorizationHeader?: string): string => {
 
 const normalizeRoles = (roles: string[]): string[] =>
   roles.map((role) => role.trim().toLowerCase()).filter((role) => role.length > 0);
+
+export const normalizeSegment = (segment: string): string =>
+  segment
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+export const isAdminUser = (user?: IAuthPayload): boolean => {
+  const adminRoles = getAdminRoles();
+  const roles = normalizeRoles(user?.roles ?? []);
+  return adminRoles.some((role) => roles.includes(role));
+};
+
+export const hasAnyRole = (user: IAuthPayload | undefined, allowedRoles: string[]): boolean => {
+  const normalizedAllowedRoles = normalizeRoles(allowedRoles);
+  if (normalizedAllowedRoles.length === 0) {
+    return true;
+  }
+
+  const roles = normalizeRoles(user?.roles ?? []);
+  return normalizedAllowedRoles.some((role) => roles.includes(role));
+};
+
+export const canAccessSegment = (user: IAuthPayload | undefined, segment?: string | null): boolean => {
+  if (isAdminUser(user)) {
+    return true;
+  }
+
+  const segments = (user?.segments ?? []).map(normalizeSegment).filter(Boolean);
+  if (segments.length === 0) {
+    return true;
+  }
+
+  const normalizedSegment = normalizeSegment(String(segment ?? ""));
+  return Boolean(normalizedSegment) && segments.includes(normalizedSegment);
+};
 
 export const authenticateJWT = (req: Request, _res: Response, next: NextFunction) => {
   try {
@@ -97,8 +135,7 @@ export const requireAnyRole =
       return next();
     }
 
-    const userRoles = normalizeRoles(req.user?.roles ?? []);
-    if (normalizedAllowedRoles.some((role) => userRoles.includes(role))) {
+    if (hasAnyRole(req.user, normalizedAllowedRoles)) {
       return next();
     }
 

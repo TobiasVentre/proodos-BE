@@ -1,5 +1,6 @@
 import { IPlanRepository } from "@proodos/application/Interfaces/IPlanRepository";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { IPlansDataOutputWriter } from "@proodos/application/Interfaces/IPlansDataOutputWriter";
 import { GetPlansDataService } from "@proodos/application/Services/Plan/GetPlansDataService";
 import { Plan } from "@proodos/domain/Entities/Plan";
 
@@ -115,12 +116,28 @@ describe("GetPlansDataService", () => {
       debug: jest.fn(),
     };
 
-    const service = new GetPlansDataService(planRepository, logger);
+    const plansDataOutputWriter: jest.Mocked<IPlansDataOutputWriter> = {
+      writePlansDataJson: jest.fn().mockResolvedValue({
+        output_dir: "plans-export-output",
+        plans_data_file_path: "plans-export-output/plans-data.json",
+      }),
+      getPlansDataFilePath: jest.fn().mockReturnValue("plans-export-output/plans-data.json"),
+    };
+
+    const service = new GetPlansDataService(
+      planRepository,
+      plansDataOutputWriter,
+      logger
+    );
 
     const result = await service.execute();
 
     expect(logger.info).toHaveBeenCalledWith("[Service] GetPlansDataService.execute()");
     expect(planRepository.getAll).toHaveBeenCalledTimes(1);
+    expect(plansDataOutputWriter.writePlansDataJson).toHaveBeenCalledTimes(1);
+    expect(plansDataOutputWriter.writePlansDataJson).toHaveBeenCalledWith(
+      JSON.stringify(result, null, 2)
+    );
     expect(Object.keys(result)).toEqual(["2", "10"]);
     expect(result["2"]).toMatchObject({
       id_plan: 2,

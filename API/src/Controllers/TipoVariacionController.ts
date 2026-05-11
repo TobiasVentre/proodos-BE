@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { getAdminRoles, requireAnyRole } from "../Middleware/auth";
 import {
   ICreateTipoVariacionUseCase,
   IDeleteTipoVariacionUseCase,
@@ -41,6 +42,15 @@ export const createTipoVariacionController = ({
   deleteTipoVariacionService,
 }: TipoVariacionControllerDeps) => {
   const tipoVariacionController = Router();
+  const requireAdmin = requireAnyRole(getAdminRoles());
+
+  tipoVariacionController.use((req, res, next) => {
+    if (req.method === "GET") {
+      return next();
+    }
+
+    return requireAdmin(req, res, next);
+  });
 
   /**
    * @openapi

@@ -34,6 +34,7 @@ describe("ElementoComponenteDTOMapper", () => {
       link: "https://example.com",
       orden: 2,
       css_url: "styles.css",
+      js_url: null,
     });
   });
 
@@ -66,6 +67,7 @@ describe("ElementoComponenteDTOMapper", () => {
       link: "https://example.org",
       orden: 4,
       css_url: "footer.css",
+      js_url: null,
     });
   });
 
@@ -93,6 +95,7 @@ describe("ElementoComponenteDTOMapper", () => {
       link: null,
       orden: 2,
       css_url: null,
+      js_url: null,
     });
   });
 });

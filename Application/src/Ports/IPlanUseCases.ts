@@ -5,6 +5,10 @@ import { IPatchPlanFullDTO } from "../DTOs/Plan/IPatchPlanFullDTO";
 import { IUpdatePlanDTO } from "../DTOs/Plan/IUpdatePlanDTO";
 import { IUpdatePlanFullDTO } from "../DTOs/Plan/IUpdatePlanFullDTO";
 import { IPlanExportDataDTO } from "../DTOs/Plan/IPlanExportDataDTO";
+import {
+  IPublishPlanChangeDTO,
+  IPublishPlansResultDTO,
+} from "../DTOs/Plan/IPublishPlansDTO";
 import { Plan } from "@proodos/domain/Entities/Plan";
 
 export type PlansDataSnapshot = Record<string, IPlanExportDataDTO>;
@@ -47,4 +51,8 @@ export interface IPatchPlanFullUseCase {
 
 export interface IDeletePlanUseCase {
   execute(id_plan: number): Promise<void>;
+}
+
+export interface IPublishPlansUseCase {
+  execute(changes: IPublishPlanChangeDTO[]): Promise<IPublishPlansResultDTO>;
 }

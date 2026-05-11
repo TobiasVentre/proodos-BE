@@ -94,11 +94,13 @@ const buildElementoComponente = (
     id_componente: number;
     id_tipo_elemento: number;
     nombre: string;
+    selector: string | null;
     icono_img: string | null;
     descripcion: string | null;
     link: string | null;
     orden: number;
     css_url: string | null;
+    js_url: string | null;
   }> = {}
 ) => {
   const base = buildElementoBase();
@@ -107,11 +109,13 @@ const buildElementoComponente = (
     id_componente: base.id_componente,
     id_tipo_elemento: base.id_tipo_elemento,
     nombre: base.nombre,
+    selector: null as string | null,
     icono_img: base.icono_img ?? null,
     descripcion: base.descripcion ?? null,
     link: base.link ?? null,
     orden: base.orden,
     css_url: base.css_url ?? null,
+    js_url: null as string | null,
     ...overrides,
   };
 
@@ -120,11 +124,13 @@ const buildElementoComponente = (
     id_componente: values.id_componente,
     id_tipo_elemento: values.id_tipo_elemento,
     nombre: values.nombre,
+    selector: values.selector ?? null,
     icono_img: values.icono_img ?? null,
     descripcion: values.descripcion ?? null,
     link: values.link ?? null,
     orden: values.orden,
     css_url: values.css_url ?? null,
+    js_url: values.js_url ?? null,
   };
 };
 

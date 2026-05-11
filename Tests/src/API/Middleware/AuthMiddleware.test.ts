@@ -78,7 +78,14 @@ describe("authenticateJWT", () => {
       issuer: "proodos-auth",
       audience: "proodos-be",
     });
-    expect(req.user).toEqual({ sub: "jdoe", roles: ["admin"], token_use: "access" });
+    expect(req.user).toEqual({
+      sub: "jdoe",
+      roles: ["admin"],
+      segments: [],
+      token_use: "access",
+      iat: undefined,
+      exp: undefined,
+    });
     expect(next).toHaveBeenCalledWith();
   });
 

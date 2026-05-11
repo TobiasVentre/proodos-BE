@@ -8,10 +8,15 @@ import { createTipoElementoController } from "../Controllers/TipoElementoControl
 import { createTipoVariacionController } from "../Controllers/TipoVariacionController";
 import { createElementoComponenteController } from "../Controllers/ElementoComponenteController";
 import { buildApiUseCases } from "../CompositionRoot/ApiContainer";
+import { requireAnyRole } from "../Middleware/auth";
+
+const apiAccessRoles = ["admin", "diseñador"];
 
 export const buildRoutes = async (logger: ILogger) => {
   const routes = Router();
   const useCases = await buildApiUseCases(logger);
+
+  routes.use(requireAnyRole(apiAccessRoles));
 
   routes.use(
     "/componentes",
@@ -60,6 +65,7 @@ export const buildRoutes = async (logger: ILogger) => {
       getPlanByIdService: useCases.plan.getPlanById,
       patchPlanService: useCases.plan.patchPlan,
       patchPlanFullService: useCases.plan.patchPlanFull,
+      publishPlansService: useCases.plan.publishPlans,
       updatePlanFullService: useCases.plan.updatePlanFull,
       updatePlanService: useCases.plan.updatePlan,
       deletePlanService: useCases.plan.deletePlan,

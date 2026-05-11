@@ -5,6 +5,7 @@ type SupportedJwtAlgorithm = (typeof HMAC_ALGORITHMS)[number];
 export interface AuthTokenPayload {
   sub: string;
   roles: string[];
+  segments?: string[];
   token_use: "access";
   iat?: number;
   exp?: number;
@@ -22,6 +23,21 @@ const normalizeRoles = (roles: string[]): string[] =>
       roles
         .map((role) => role.trim().toLowerCase())
         .filter((role) => role.length > 0)
+    )
+  );
+
+const normalizeSegments = (segments: string[] = []): string[] =>
+  Array.from(
+    new Set(
+      segments
+        .map((segment) =>
+          segment
+            .trim()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+        )
+        .filter((segment) => segment.length > 0)
     )
   );
 
@@ -72,6 +88,8 @@ export const isAuthTokenPayload = (payload: unknown): payload is AuthTokenPayloa
     Array.isArray(candidate.roles) &&
     candidate.roles.length > 0 &&
     candidate.roles.every(isNonEmptyString) &&
+    (candidate.segments === undefined ||
+      (Array.isArray(candidate.segments) && candidate.segments.every(isNonEmptyString))) &&
     candidate.token_use === "access"
   );
 };
@@ -79,6 +97,7 @@ export const isAuthTokenPayload = (payload: unknown): payload is AuthTokenPayloa
 export const normalizeAuthTokenPayload = (payload: AuthTokenPayload): AuthTokenPayload => ({
   sub: payload.sub.trim(),
   roles: normalizeRoles(payload.roles),
+  segments: normalizeSegments(payload.segments),
   token_use: "access",
   iat: payload.iat,
   exp: payload.exp,
