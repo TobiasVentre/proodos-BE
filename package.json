@@ -5,7 +5,8 @@
     "Domain",
     "Application",
     "Infrastructure",
-    "API"
+    "API",
+    "Tests"
   ],
   "scripts": {
     "clean": "node -e \"['Domain/dist','Application/dist','Infrastructure/dist','API/dist','Tests/dist'].forEach(p=>require('fs').rmSync(p,{recursive:true,force:true}))\"",
@@ -13,6 +14,9 @@
     "start": "npm run start --workspace API",
     "db:migrate": "npm run db:migrate --workspace Infrastructure",
     "db:migrate:undo": "npm run db:migrate:undo --workspace Infrastructure",
-    "start:api": "npm run start --workspace API"
+    "start:api": "npm run start --workspace API",
+    "tests:build": "npm run build --workspace @proodos/tests",
+    "tests:test": "npm run test --workspace @proodos/tests",
+    "tests:coverage": "npm run test:coverage --workspace @proodos/tests"
   }
 }
