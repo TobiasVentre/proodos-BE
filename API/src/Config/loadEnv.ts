@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
-import { validateJwtConfiguration } from "@proodos/api/Security/jwt";
+import { validateJwtConfiguration } from "../Security/jwt";
 
 function findRepoRoot(startDir: string): string {
   let dir = startDir;

@@ -227,15 +227,11 @@ export const createComponenteController = ({
    *                 example: 3
    *               nombre:
    *                 type: string
-   *               selector_hijos:
-   *                 type: string
-   *                 nullable: true
-   *                 example: "Nombre del componente"
-   *               selector_hijos:
-   *                 type: string
-   *                 nullable: true
-   *                 example: "#contenedor-hijos"
-   *     responses:
+    *               selector_hijos:
+    *                 type: string
+    *                 nullable: true
+    *                 example: "Nombre del componente"
+    *     responses:
    *       200:
    *         description: Componente creado
    */

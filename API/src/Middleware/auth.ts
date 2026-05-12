@@ -5,7 +5,7 @@ import {
   getAccessTokenSecret,
   isAuthTokenPayload,
   normalizeAuthTokenPayload,
-} from "@proodos/api/Security/jwt";
+} from "../Security/jwt";
 
 interface IJwtModule {
   verify(
