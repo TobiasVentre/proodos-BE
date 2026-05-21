@@ -2,6 +2,15 @@
   const PLACEHOLDER_PATTERN = /\{\s*([A-Za-z0-9_]+)\s*\}/g;
   const CONTAINER_SELECTOR = "div,section,article,li,ul,ol,aside,header,footer,nav,main,a,button";
   const SKIP_TEXT_PARENTS = new Set(["SCRIPT", "STYLE", "NOSCRIPT"]);
+  const DEFAULT_PLANS_DATA_PATH = "./plans-data.json";
+
+  const scriptElement =
+    document.currentScript ||
+    document.querySelector('script[data-plans-src][src$="planesGenerator.js"]') ||
+    document.querySelector("script[data-plans-src]");
+
+  const configuredPlansDataPath =
+    scriptElement?.getAttribute("data-plans-src")?.trim() || DEFAULT_PLANS_DATA_PATH;
 
   const hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
 
@@ -125,26 +134,41 @@
     });
   };
 
+  const loadPlansData = async () => {
+    const candidatePaths = [configuredPlansDataPath];
+    if (configuredPlansDataPath !== DEFAULT_PLANS_DATA_PATH) {
+      candidatePaths.push(DEFAULT_PLANS_DATA_PATH);
+    }
+
+    for (const plansDataPath of candidatePaths) {
+      let response;
+      try {
+        response = await fetch(plansDataPath, {
+          cache: "no-store",
+        });
+      } catch {
+        continue;
+      }
+
+      if (!response || !response.ok) {
+        continue;
+      }
+
+      try {
+        const plansData = await response.json();
+        if (plansData && typeof plansData === "object") {
+          return plansData;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return null;
+  };
+
   const hydratePlans = async () => {
-    let response;
-    try {
-      response = await fetch("./plans-data.json", {
-        cache: "no-store",
-      });
-    } catch {
-      return;
-    }
-
-    if (!response || !response.ok) {
-      return;
-    }
-
-    let plansData;
-    try {
-      plansData = await response.json();
-    } catch {
-      return;
-    }
+    const plansData = await loadPlansData();
 
     if (!plansData || typeof plansData !== "object") {
       return;
