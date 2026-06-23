@@ -7,6 +7,7 @@ import { setupSwagger } from "./Swagger/swagger.config";
 import { buildRoutes } from "./Routes/routes";
 import { createErrorHandler } from "./Middleware/ErrorHandler";
 import { authenticateJWT } from "./Middleware/auth";
+import { sequelize } from "@proodos/infrastructure/Persistence/Sequelize";
 
 
 const app = express();
@@ -28,8 +29,39 @@ app.use((req, res, next) => {
   return next();
 });
 
-app.get("/health", (_req, res) => {
-  res.status(200).json({ status: "ok" });
+app.get("/health/ready", async (_req, res) => {
+  const startedAt = Date.now();
+
+  try {
+    await sequelize.authenticate();
+    return res.status(200).json({
+      status: "ok",
+      service: "proodos-be",
+      checks: {
+        database: {
+          status: "ok",
+          durationMs: Date.now() - startedAt,
+        },
+      },
+    });
+  } catch (error) {
+    logger.error("Health readiness check failed", {
+      service: "proodos-be",
+      check: "database",
+      message: error instanceof Error ? error.message : String(error),
+    });
+
+    return res.status(503).json({
+      status: "error",
+      service: "proodos-be",
+      checks: {
+        database: {
+          status: "error",
+          durationMs: Date.now() - startedAt,
+        },
+      },
+    });
+  }
 });
 
 if (ENABLE_SWAGGER) {
