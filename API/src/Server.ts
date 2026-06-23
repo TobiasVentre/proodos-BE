@@ -3,6 +3,9 @@ import { bootstrapLogger } from "./Logging/BootstrapLogger";
 loadEnv(bootstrapLogger);
 
 import express from "express";
+import fs from "fs";
+import http from "http";
+import https from "https";
 import { setupSwagger } from "./Swagger/swagger.config";
 import { buildRoutes } from "./Routes/routes";
 import { createErrorHandler } from "./Middleware/ErrorHandler";
@@ -15,6 +18,27 @@ const logger = bootstrapLogger;
 const PORT = Number(process.env.PORT || 8000);
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 const ENABLE_SWAGGER = String(process.env.ENABLE_SWAGGER ?? "true").toLowerCase() !== "false";
+const HTTPS_ENABLED = String(process.env.HTTPS_ENABLED ?? "false").toLowerCase() === "true";
+
+function readTlsOptions(): https.ServerOptions {
+  const keyPath = process.env.TLS_KEY_PATH;
+  const certPath = process.env.TLS_CERT_PATH;
+
+  if (!keyPath || !certPath) {
+    throw new Error("HTTPS_ENABLED=true requiere TLS_KEY_PATH y TLS_CERT_PATH");
+  }
+
+  return {
+    key: fs.readFileSync(keyPath),
+    cert: fs.readFileSync(certPath),
+  };
+}
+
+function createServer() {
+  return HTTPS_ENABLED
+    ? https.createServer(readTlsOptions(), app)
+    : http.createServer(app);
+}
 
 app.use(express.json());
 app.use((req, res, next) => {
@@ -73,9 +97,10 @@ const startServer = async () => {
   app.use("/api", authenticateJWT, await buildRoutes(logger));
   app.use(createErrorHandler(logger));
 
-  app.listen(PORT, () => {
+  createServer().listen(PORT, () => {
+    const protocol = HTTPS_ENABLED ? "https" : "http";
     const docsPath = ENABLE_SWAGGER ? "/docs" : "";
-    logger.info(`API Running on http://localhost:${PORT}${docsPath}`);
+    logger.info(`API Running on ${protocol}://localhost:${PORT}${docsPath}`);
   });
 };
 
