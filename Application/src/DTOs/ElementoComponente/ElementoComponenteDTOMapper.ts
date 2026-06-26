@@ -6,7 +6,6 @@ export const mapCreateElementoComponenteDTOToEntity = (
   dto: ICreateElementoComponenteDTO
 ): ElementoComponente => ({
   id_elemento: 0,
-  id_componente: dto.id_componente,
   id_tipo_elemento: dto.id_tipo_elemento,
   nombre: dto.nombre,
   selector: dto.selector ?? null,
@@ -16,13 +15,13 @@ export const mapCreateElementoComponenteDTOToEntity = (
   orden: dto.orden,
   css_url: dto.css_url ?? null,
   js_url: dto.js_url ?? null,
+  contrato_minimo: dto.contrato_minimo ?? null,
 });
 
 export const mapUpdateElementoComponenteDTOToEntity = (
   dto: IUpdateElementoComponenteDTO
 ): ElementoComponente => ({
   id_elemento: dto.id_elemento,
-  id_componente: dto.id_componente,
   id_tipo_elemento: dto.id_tipo_elemento,
   nombre: dto.nombre,
   selector: dto.selector ?? null,
@@ -32,4 +31,5 @@ export const mapUpdateElementoComponenteDTOToEntity = (
   orden: dto.orden,
   css_url: dto.css_url ?? null,
   js_url: dto.js_url ?? null,
+  contrato_minimo: dto.contrato_minimo ?? null,
 });

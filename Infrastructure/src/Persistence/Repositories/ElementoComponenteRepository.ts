@@ -1,4 +1,5 @@
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
+import { ElementoComponenteVariacion } from "@proodos/domain/Entities/ElementoComponenteVariacion";
 import { IElementoComponenteRepository } from "@proodos/application/Interfaces/IElementoComponenteRepository";
 import { IPatchElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/IPatchElementoComponenteDTO";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
@@ -39,6 +40,19 @@ export class ElementoComponenteRepository implements IElementoComponenteReposito
 
   async getByComponente(id_componente: number): Promise<ElementoComponente[]> {
     return this.queryRepository.getByComponente(id_componente);
+  }
+
+  async getAsignacionesByElemento(
+    id_elemento: number
+  ): Promise<ElementoComponenteVariacion[]> {
+    return this.queryRepository.getAsignacionesByElemento(id_elemento);
+  }
+
+  async replaceAsignaciones(
+    id_elemento: number,
+    asignaciones: ElementoComponenteVariacion[]
+  ): Promise<ElementoComponenteVariacion[]> {
+    return this.commandRepository.replaceAsignaciones(id_elemento, asignaciones);
   }
 
   async delete(id_elemento: number): Promise<void> {

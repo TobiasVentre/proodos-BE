@@ -5,6 +5,7 @@ import {
   TipoComponenteModel,
   TipoVariacionModel,
   ElementoComponenteModel,
+  ElementoComponenteVariacionModel,
   ComponenteCompuestoModel,
   PlanModel,
   TipoElementoModel,
@@ -44,27 +45,34 @@ export const initAssociations = () => {
     as: "tipoComponente",
   });
 
-  /**
-   * elemento_componente.id_componente → componente.id_componente
-   */
-  ElementoComponenteModel.belongsTo(ComponenteModel, {
-    foreignKey: "id_componente",
-    as: "componente",
-  });
-
   ElementoComponenteModel.belongsTo(TipoElementoModel, {
     foreignKey: "id_tipo_elemento",
     as: "tipoElemento",
   });
 
-  ComponenteModel.hasMany(ElementoComponenteModel, {
-    foreignKey: "id_componente",
-    as: "elementos",
-  });
-
   TipoElementoModel.hasMany(ElementoComponenteModel, {
     foreignKey: "id_tipo_elemento",
     as: "elementos",
+  });
+
+  ElementoComponenteModel.hasMany(ElementoComponenteVariacionModel, {
+    foreignKey: "id_elemento",
+    as: "asignaciones",
+  });
+
+  ElementoComponenteVariacionModel.belongsTo(ElementoComponenteModel, {
+    foreignKey: "id_elemento",
+    as: "elemento",
+  });
+
+  ElementoComponenteVariacionModel.belongsTo(TipoVariacionModel, {
+    foreignKey: "id_tipo_variacion",
+    as: "tipoVariacion",
+  });
+
+  ElementoComponenteVariacionModel.belongsTo(ComponenteModel, {
+    foreignKey: "id_componente",
+    as: "componente",
   });
 
   /**

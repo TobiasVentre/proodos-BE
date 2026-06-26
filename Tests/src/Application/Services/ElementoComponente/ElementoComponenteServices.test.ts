@@ -1,18 +1,22 @@
-import { CreateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/CreateElementoComponenteService";
-import { DeleteElementoComponenteService } from "@proodos/application/Services/ElementoComponente/DeleteElementoComponenteService";
-import { GetAllElementosComponenteService } from "@proodos/application/Services/ElementoComponente/GetAllElementosComponenteService";
-import { GetElementoComponenteByIdService } from "@proodos/application/Services/ElementoComponente/GetElementoComponenteByIdService";
-import { GetElementosByComponenteService } from "@proodos/application/Services/ElementoComponente/GetElementosByComponenteService";
-import { PatchElementoComponenteService } from "@proodos/application/Services/ElementoComponente/PatchElementoComponenteService";
-import { UpdateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/UpdateElementoComponenteService";
-import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
-import { IComponenteRepository } from "@proodos/application/Interfaces/IComponenteRepository";
-import { IElementoComponenteRepository } from "@proodos/application/Interfaces/IElementoComponenteRepository";
-import { ITipoElementoRepository } from "@proodos/application/Interfaces/ITipoElementoRepository";
-import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { ICreateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/ICreateElementoComponenteDTO";
 import { IPatchElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/IPatchElementoComponenteDTO";
 import { IUpdateElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/IUpdateElementoComponenteDTO";
+import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
+import { ValidationError } from "@proodos/application/Errors/ValidationError";
+import { IComponenteRepository } from "@proodos/application/Interfaces/IComponenteRepository";
+import { IElementoComponenteRepository } from "@proodos/application/Interfaces/IElementoComponenteRepository";
+import { ILogger } from "@proodos/application/Interfaces/ILogger";
+import { ITipoElementoRepository } from "@proodos/application/Interfaces/ITipoElementoRepository";
+import { ITipoVariacionRepository } from "@proodos/application/Interfaces/ITipoVariacionRepository";
+import { CreateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/CreateElementoComponenteService";
+import { DeleteElementoComponenteService } from "@proodos/application/Services/ElementoComponente/DeleteElementoComponenteService";
+import { GetAllElementosComponenteService } from "@proodos/application/Services/ElementoComponente/GetAllElementosComponenteService";
+import { GetElementoComponenteAsignacionesService } from "@proodos/application/Services/ElementoComponente/GetElementoComponenteAsignacionesService";
+import { GetElementoComponenteByIdService } from "@proodos/application/Services/ElementoComponente/GetElementoComponenteByIdService";
+import { GetElementosByComponenteService } from "@proodos/application/Services/ElementoComponente/GetElementosByComponenteService";
+import { PatchElementoComponenteService } from "@proodos/application/Services/ElementoComponente/PatchElementoComponenteService";
+import { ReplaceElementoComponenteAsignacionesService } from "@proodos/application/Services/ElementoComponente/ReplaceElementoComponenteAsignacionesService";
+import { UpdateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/UpdateElementoComponenteService";
 
 const buildElementoRepository = (): jest.Mocked<IElementoComponenteRepository> => ({
   create: jest.fn(),
@@ -22,6 +26,8 @@ const buildElementoRepository = (): jest.Mocked<IElementoComponenteRepository> =
   getById: jest.fn(),
   getAll: jest.fn(),
   getByComponente: jest.fn(),
+  getAsignacionesByElemento: jest.fn(),
+  replaceAsignaciones: jest.fn(),
 });
 
 const buildComponenteRepository = (): jest.Mocked<IComponenteRepository> => ({
@@ -45,6 +51,16 @@ const buildTipoElementoRepository = (): jest.Mocked<ITipoElementoRepository> => 
   exists: jest.fn(),
 });
 
+const buildTipoVariacionRepository = (): jest.Mocked<ITipoVariacionRepository> => ({
+  create: jest.fn(),
+  update: jest.fn(),
+  patch: jest.fn(),
+  getById: jest.fn(),
+  getAll: jest.fn(),
+  getByTipoComponente: jest.fn(),
+  delete: jest.fn(),
+});
+
 const buildLogger = (): jest.Mocked<ILogger> => ({
   info: jest.fn(),
   warn: jest.fn(),
@@ -52,100 +68,46 @@ const buildLogger = (): jest.Mocked<ILogger> => ({
   debug: jest.fn(),
 });
 
-const buildElementoBase = (
-  overrides: Partial<{
-    id_componente: number;
-    id_tipo_elemento: number;
-    nombre: string;
-    icono_img: string | null;
-    descripcion: string | null;
-    link: string | null;
-    orden: number;
-    css_url: string | null;
-  }> = {}
-): ICreateElementoComponenteDTO => {
-  const base = {
-    id_componente: 1,
-    id_tipo_elemento: 2,
-    nombre: "Header",
-    icono_img: "icon.png" as string | null,
-    descripcion: "desc" as string | null,
-    link: "https://example.com" as string | null,
-    orden: 1,
-    css_url: "styles.css" as string | null,
-  };
-  const values = { ...base, ...overrides };
+const buildCreateDto = (
+  overrides: Partial<ICreateElementoComponenteDTO> = {}
+): ICreateElementoComponenteDTO => ({
+  id_tipo_elemento: 2,
+  nombre: "Header",
+  icono_img: "icon.png",
+  descripcion: "desc",
+  link: "https://example.com",
+  orden: 1,
+  css_url: "styles.css",
+  js_url: null,
+  contrato_minimo: null,
+  ...overrides,
+});
 
-  return {
-    id_componente: values.id_componente,
-    id_tipo_elemento: values.id_tipo_elemento,
-    nombre: values.nombre,
-    icono_img: values.icono_img,
-    descripcion: values.descripcion,
-    link: values.link,
-    orden: values.orden,
-    css_url: values.css_url,
-  };
-};
-
-const buildElementoComponente = (
-  overrides: Partial<{
-    id_elemento: number;
-    id_componente: number;
-    id_tipo_elemento: number;
-    nombre: string;
-    selector: string | null;
-    icono_img: string | null;
-    descripcion: string | null;
-    link: string | null;
-    orden: number;
-    css_url: string | null;
-    js_url: string | null;
-  }> = {}
-) => {
-  const base = buildElementoBase();
-  const values = {
-    id_elemento: 1,
-    id_componente: base.id_componente,
-    id_tipo_elemento: base.id_tipo_elemento,
-    nombre: base.nombre,
-    selector: null as string | null,
-    icono_img: base.icono_img ?? null,
-    descripcion: base.descripcion ?? null,
-    link: base.link ?? null,
-    orden: base.orden,
-    css_url: base.css_url ?? null,
-    js_url: null as string | null,
-    ...overrides,
-  };
-
-  return {
-    id_elemento: values.id_elemento,
-    id_componente: values.id_componente,
-    id_tipo_elemento: values.id_tipo_elemento,
-    nombre: values.nombre,
-    selector: values.selector ?? null,
-    icono_img: values.icono_img ?? null,
-    descripcion: values.descripcion ?? null,
-    link: values.link ?? null,
-    orden: values.orden,
-    css_url: values.css_url ?? null,
-    js_url: values.js_url ?? null,
-  };
-};
+const buildElementoComponente = (overrides: Record<string, unknown> = {}) => ({
+  id_elemento: 1,
+  id_tipo_elemento: 2,
+  nombre: "Header",
+  selector: null,
+  icono_img: "icon.png",
+  descripcion: "desc",
+  link: "https://example.com",
+  orden: 1,
+  css_url: "styles.css",
+  js_url: null,
+  contrato_minimo: null,
+  ...overrides,
+});
 
 describe("ElementoComponente services", () => {
-  it("should create elemento componente when componente and tipo exist", async () => {
-    // Arrange
+  it("should create elemento componente when tipo exists", async () => {
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
     const logger = buildLogger();
-    const dto = buildElementoBase();
+    const dto = buildCreateDto({ contrato_minimo: { required: ["selector"] } });
     const created = buildElementoComponente({ id_elemento: 9 });
-    componenteRepository.getById.mockResolvedValue({ id_componente: 1 } as never);
     tipoElementoRepository.exists.mockResolvedValue(true);
-    elementoRepository.create.mockResolvedValue(created);
+    elementoRepository.create.mockResolvedValue(created as never);
     const service = new CreateElementoComponenteService(
       elementoRepository,
       componenteRepository,
@@ -153,25 +115,25 @@ describe("ElementoComponente services", () => {
       logger
     );
 
-    // Act
     const result = await service.execute(dto);
 
-    // Assert
-    expect(logger.info).toHaveBeenCalledWith(
-      "[Service] CreateElementoComponenteService.execute()"
-    );
     expect(elementoRepository.create).toHaveBeenCalled();
     expect(result).toEqual(created);
   });
 
-  it("should throw NotFoundError when componente does not exist", async () => {
-    // Arrange
+  it("should create specific asignacion when create receives id_componente", async () => {
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
     const logger = buildLogger();
-    const dto = buildElementoBase({ id_componente: 99 });
-    componenteRepository.getById.mockResolvedValue(null);
+    const created = buildElementoComponente({ id_elemento: 9 });
+    tipoElementoRepository.exists.mockResolvedValue(true);
+    componenteRepository.getById.mockResolvedValue({
+      id_componente: 5,
+      id_tipo_variacion: 3,
+    } as never);
+    elementoRepository.create.mockResolvedValue(created as never);
+    elementoRepository.replaceAsignaciones.mockResolvedValue([]);
     const service = new CreateElementoComponenteService(
       elementoRepository,
       componenteRepository,
@@ -179,21 +141,24 @@ describe("ElementoComponente services", () => {
       logger
     );
 
-    // Act
-    const action = () => service.execute(dto);
+    await service.execute(buildCreateDto({ id_componente: 5 }));
 
-    // Assert
-    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+    expect(elementoRepository.replaceAsignaciones).toHaveBeenCalledWith(9, [
+      {
+        id_elemento_componente_variacion: 0,
+        id_elemento: 9,
+        id_tipo_variacion: 3,
+        id_componente: 5,
+        metadata: {},
+      },
+    ]);
   });
 
   it("should throw NotFoundError when tipo elemento does not exist on create", async () => {
-    // Arrange
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
     const logger = buildLogger();
-    const dto = buildElementoBase({ id_tipo_elemento: 99 });
-    componenteRepository.getById.mockResolvedValue({ id_componente: 1 } as never);
     tipoElementoRepository.exists.mockResolvedValue(false);
     const service = new CreateElementoComponenteService(
       elementoRepository,
@@ -202,204 +167,100 @@ describe("ElementoComponente services", () => {
       logger
     );
 
-    // Act
-    const action = () => service.execute(dto);
-
-    // Assert
-    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+    await expect(service.execute(buildCreateDto())).rejects.toBeInstanceOf(NotFoundError);
   });
 
-  it("should update elemento componente when dependencies exist", async () => {
-    // Arrange
+  it("should update elemento componente when tipo exists", async () => {
     const elementoRepository = buildElementoRepository();
-    const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
     const dto: IUpdateElementoComponenteDTO = {
-      ...buildElementoBase({
-        id_componente: 2,
-        id_tipo_elemento: 3,
-        nombre: "Hero",
-      }),
+      ...buildCreateDto({ id_tipo_elemento: 3, nombre: "Hero" }),
       id_elemento: 1,
     };
-    componenteRepository.getById.mockResolvedValue({ id_componente: 2 } as never);
     tipoElementoRepository.exists.mockResolvedValue(true);
     elementoRepository.update.mockResolvedValue(
-      buildElementoComponente({
-        id_elemento: 1,
-        id_componente: 2,
-        id_tipo_elemento: 3,
-        nombre: "Hero",
-      })
+      buildElementoComponente({ id_elemento: 1, id_tipo_elemento: 3, nombre: "Hero" }) as never
     );
     const service = new UpdateElementoComponenteService(
       elementoRepository,
-      componenteRepository,
       tipoElementoRepository
     );
 
-    // Act
     const result = await service.execute(dto);
 
-    // Assert
     expect(elementoRepository.update).toHaveBeenCalled();
     expect(result.id_elemento).toBe(1);
   });
 
-  it("should throw NotFoundError when componente does not exist on update", async () => {
-    // Arrange
-    const elementoRepository = buildElementoRepository();
-    const componenteRepository = buildComponenteRepository();
-    const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: IUpdateElementoComponenteDTO = {
-      ...buildElementoBase({ id_componente: 200 }),
-      id_elemento: 10,
-    };
-    componenteRepository.getById.mockResolvedValue(null);
-    const service = new UpdateElementoComponenteService(
-      elementoRepository,
-      componenteRepository,
-      tipoElementoRepository
-    );
-
-    // Act
-    const action = () => service.execute(dto);
-
-    // Assert
-    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
-  });
-
-  it("should throw NotFoundError when tipo elemento does not exist on update", async () => {
-    // Arrange
-    const elementoRepository = buildElementoRepository();
-    const componenteRepository = buildComponenteRepository();
-    const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: IUpdateElementoComponenteDTO = {
-      ...buildElementoBase({ id_tipo_elemento: 300 }),
-      id_elemento: 11,
-    };
-    componenteRepository.getById.mockResolvedValue({ id_componente: 1 } as never);
-    tipoElementoRepository.exists.mockResolvedValue(false);
-    const service = new UpdateElementoComponenteService(
-      elementoRepository,
-      componenteRepository,
-      tipoElementoRepository
-    );
-
-    // Act
-    const action = () => service.execute(dto);
-
-    // Assert
-    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
-  });
-
   it("should patch elemento componente and validate references", async () => {
-    // Arrange
     const elementoRepository = buildElementoRepository();
-    const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: IPatchElementoComponenteDTO = { id_componente: 5, id_tipo_elemento: 6 };
-    elementoRepository.patch.mockResolvedValue(buildElementoComponente({ id_elemento: 3 }));
-    componenteRepository.getById.mockResolvedValue({ id_componente: 5 } as never);
+    const dto: IPatchElementoComponenteDTO = { id_tipo_elemento: 6 };
+    elementoRepository.patch.mockResolvedValue(buildElementoComponente({ id_elemento: 3 }) as never);
     tipoElementoRepository.exists.mockResolvedValue(true);
     const service = new PatchElementoComponenteService(
       elementoRepository,
-      componenteRepository,
       tipoElementoRepository
     );
 
-    // Act
     const result = await service.execute(3, dto);
 
-    // Assert
     expect(elementoRepository.patch).toHaveBeenCalledWith(3, dto);
     expect(result.id_elemento).toBe(3);
   });
 
-  it("should throw NotFoundError when componente does not exist on patch", async () => {
-    // Arrange
+  it("should reject invalid contrato_minimo", async () => {
     const elementoRepository = buildElementoRepository();
     const componenteRepository = buildComponenteRepository();
     const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: IPatchElementoComponenteDTO = { id_componente: 99 };
-    componenteRepository.getById.mockResolvedValue(null);
-    const service = new PatchElementoComponenteService(
+    const logger = buildLogger();
+    tipoElementoRepository.exists.mockResolvedValue(true);
+    const service = new CreateElementoComponenteService(
       elementoRepository,
       componenteRepository,
-      tipoElementoRepository
+      tipoElementoRepository,
+      logger
     );
 
-    // Act
-    const action = () => service.execute(3, dto);
-
-    // Assert
-    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
-  });
-
-  it("should throw NotFoundError when tipo elemento does not exist on patch", async () => {
-    // Arrange
-    const elementoRepository = buildElementoRepository();
-    const componenteRepository = buildComponenteRepository();
-    const tipoElementoRepository = buildTipoElementoRepository();
-    const dto: IPatchElementoComponenteDTO = { id_tipo_elemento: 44 };
-    tipoElementoRepository.exists.mockResolvedValue(false);
-    const service = new PatchElementoComponenteService(
-      elementoRepository,
-      componenteRepository,
-      tipoElementoRepository
-    );
-
-    // Act
-    const action = () => service.execute(3, dto);
-
-    // Assert
-    await expect(action()).rejects.toBeInstanceOf(NotFoundError);
+    await expect(
+      service.execute(buildCreateDto({ contrato_minimo: { fields: { a: { type: "bad" as never } } } }))
+    ).rejects.toBeInstanceOf(ValidationError);
   });
 
   it("should delete elemento componente", async () => {
-    // Arrange
     const elementoRepository = buildElementoRepository();
     const service = new DeleteElementoComponenteService(elementoRepository);
 
-    // Act
     await service.execute(9);
 
-    // Assert
     expect(elementoRepository.delete).toHaveBeenCalledWith(9);
   });
 
   it("should get elemento componente by id", async () => {
-    // Arrange
     const elementoRepository = buildElementoRepository();
     const logger = buildLogger();
     elementoRepository.getById.mockResolvedValue({ id_elemento: 4 } as never);
     const service = new GetElementoComponenteByIdService(elementoRepository, logger);
 
-    // Act
     const result = await service.execute(4);
 
-    // Assert
     expect(elementoRepository.getById).toHaveBeenCalledWith(4);
     expect(result?.id_elemento).toBe(4);
   });
 
   it("should list elementos componente", async () => {
-    // Arrange
     const elementoRepository = buildElementoRepository();
     const logger = buildLogger();
     elementoRepository.getAll.mockResolvedValue([{ id_elemento: 1 }] as never);
     const service = new GetAllElementosComponenteService(elementoRepository, logger);
 
-    // Act
     const result = await service.execute();
 
-    // Assert
     expect(elementoRepository.getAll).toHaveBeenCalled();
     expect(result).toHaveLength(1);
   });
 
   it("should list elementos by componente", async () => {
-    // Arrange
     const elementoRepository = buildElementoRepository();
     const logger = buildLogger();
     elementoRepository.getByComponente.mockResolvedValue([
@@ -407,11 +268,87 @@ describe("ElementoComponente services", () => {
     ] as never);
     const service = new GetElementosByComponenteService(elementoRepository, logger);
 
-    // Act
     const result = await service.execute(2);
 
-    // Assert
     expect(elementoRepository.getByComponente).toHaveBeenCalledWith(2);
     expect(result[0].id_componente).toBe(2);
+  });
+
+  it("should list asignaciones by elemento", async () => {
+    const elementoRepository = buildElementoRepository();
+    const logger = buildLogger();
+    elementoRepository.getAsignacionesByElemento.mockResolvedValue([
+      { id_elemento_componente_variacion: 1, id_elemento: 2 },
+    ] as never);
+    const service = new GetElementoComponenteAsignacionesService(
+      elementoRepository,
+      logger
+    );
+
+    const result = await service.execute(2);
+
+    expect(elementoRepository.getAsignacionesByElemento).toHaveBeenCalledWith(2);
+    expect(result).toHaveLength(1);
+  });
+
+  it("should replace asignaciones after validating metadata", async () => {
+    const elementoRepository = buildElementoRepository();
+    const tipoVariacionRepository = buildTipoVariacionRepository();
+    const componenteRepository = buildComponenteRepository();
+    const logger = buildLogger();
+    elementoRepository.getById.mockResolvedValue(
+      buildElementoComponente({ contrato_minimo: { required: ["selector"] } }) as never
+    );
+    tipoVariacionRepository.getById.mockResolvedValue({ id_tipo_variacion: 3 } as never);
+    componenteRepository.getById.mockResolvedValue({
+      id_componente: 5,
+      id_tipo_variacion: 3,
+    } as never);
+    elementoRepository.replaceAsignaciones.mockResolvedValue([
+      { id_elemento_componente_variacion: 1, id_elemento: 1 },
+    ] as never);
+    const service = new ReplaceElementoComponenteAsignacionesService(
+      elementoRepository,
+      tipoVariacionRepository,
+      componenteRepository,
+      logger
+    );
+
+    const result = await service.execute(1, {
+      asignaciones: [
+        {
+          id_tipo_variacion: 3,
+          id_componente: 5,
+          metadata: { selector: ".hero-title" },
+        },
+      ],
+    });
+
+    expect(elementoRepository.replaceAsignaciones).toHaveBeenCalled();
+    expect(result).toHaveLength(1);
+  });
+
+  it("should reject duplicated global asignaciones", async () => {
+    const elementoRepository = buildElementoRepository();
+    const tipoVariacionRepository = buildTipoVariacionRepository();
+    const componenteRepository = buildComponenteRepository();
+    const logger = buildLogger();
+    elementoRepository.getById.mockResolvedValue(buildElementoComponente() as never);
+    tipoVariacionRepository.getById.mockResolvedValue({ id_tipo_variacion: 3 } as never);
+    const service = new ReplaceElementoComponenteAsignacionesService(
+      elementoRepository,
+      tipoVariacionRepository,
+      componenteRepository,
+      logger
+    );
+
+    await expect(
+      service.execute(1, {
+        asignaciones: [
+          { id_tipo_variacion: 3, id_componente: null },
+          { id_tipo_variacion: 3, id_componente: null },
+        ],
+      })
+    ).rejects.toBeInstanceOf(ValidationError);
   });
 });

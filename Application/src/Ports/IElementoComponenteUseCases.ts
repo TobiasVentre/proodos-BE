@@ -1,6 +1,8 @@
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
+import { ElementoComponenteVariacion } from "@proodos/domain/Entities/ElementoComponenteVariacion";
 import { ICreateElementoComponenteDTO } from "../DTOs/ElementoComponente/ICreateElementoComponenteDTO";
 import { IPatchElementoComponenteDTO } from "../DTOs/ElementoComponente/IPatchElementoComponenteDTO";
+import { IReplaceElementoComponenteAsignacionesDTO } from "../DTOs/ElementoComponente/IReplaceElementoComponenteAsignacionesDTO";
 import { IUpdateElementoComponenteDTO } from "../DTOs/ElementoComponente/IUpdateElementoComponenteDTO";
 
 export interface ICreateElementoComponenteUseCase {
@@ -32,4 +34,15 @@ export interface IPatchElementoComponenteUseCase {
 
 export interface IDeleteElementoComponenteUseCase {
   execute(id_elemento: number): Promise<void>;
+}
+
+export interface IGetElementoComponenteAsignacionesUseCase {
+  execute(id_elemento: number): Promise<ElementoComponenteVariacion[]>;
+}
+
+export interface IReplaceElementoComponenteAsignacionesUseCase {
+  execute(
+    id_elemento: number,
+    dto: IReplaceElementoComponenteAsignacionesDTO
+  ): Promise<ElementoComponenteVariacion[]>;
 }

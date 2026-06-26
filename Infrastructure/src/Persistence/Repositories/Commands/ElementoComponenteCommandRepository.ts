@@ -1,10 +1,13 @@
 import * as Models from "../../Models";
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
+import { ElementoComponenteVariacion } from "@proodos/domain/Entities/ElementoComponenteVariacion";
 import { IPatchElementoComponenteDTO } from "@proodos/application/DTOs/ElementoComponente/IPatchElementoComponenteDTO";
 import { ElementoComponenteMapper } from "../../../Mappers/ElementoComponenteMapper";
+import { ElementoComponenteVariacionMapper } from "../../../Mappers/ElementoComponenteVariacionMapper";
 import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { NotFoundError } from "@proodos/application/Errors/NotFoundError";
 import { ValidationError } from "@proodos/application/Errors/ValidationError";
+import { sequelize } from "../../../Config/SequelizeConfig";
 
 export class ElementoComponenteCommandRepository {
   constructor(private readonly logger: ILogger) {}
@@ -14,7 +17,6 @@ export class ElementoComponenteCommandRepository {
     this.logger.debug("[Repository] Datos recibidos:", entity);
 
     const created = await Models.ElementoComponenteModel.create({
-      id_componente: entity.id_componente,
       id_tipo_elemento: entity.id_tipo_elemento,
       nombre: entity.nombre,
       selector: entity.selector,
@@ -24,6 +26,9 @@ export class ElementoComponenteCommandRepository {
       orden: entity.orden,
       css_url: entity.css_url,
       js_url: entity.js_url,
+      contrato_minimo: entity.contrato_minimo
+        ? JSON.stringify(entity.contrato_minimo)
+        : null,
     });
 
     return ElementoComponenteMapper.toDomain(created);
@@ -35,7 +40,6 @@ export class ElementoComponenteCommandRepository {
 
     await Models.ElementoComponenteModel.update(
       {
-        id_componente: entity.id_componente,
         id_tipo_elemento: entity.id_tipo_elemento,
         nombre: entity.nombre,
         selector: entity.selector,
@@ -45,6 +49,9 @@ export class ElementoComponenteCommandRepository {
         orden: entity.orden,
         css_url: entity.css_url,
         js_url: entity.js_url,
+        contrato_minimo: entity.contrato_minimo
+          ? JSON.stringify(entity.contrato_minimo)
+          : null,
       },
       { where: { id_elemento: entity.id_elemento } }
     );
@@ -71,9 +78,6 @@ export class ElementoComponenteCommandRepository {
 
     const updatePayload: Partial<ElementoComponente> = {};
 
-    if (dto.id_componente !== undefined) {
-      updatePayload.id_componente = dto.id_componente;
-    }
     if (dto.id_tipo_elemento !== undefined) {
       updatePayload.id_tipo_elemento = dto.id_tipo_elemento;
     }
@@ -85,12 +89,26 @@ export class ElementoComponenteCommandRepository {
     if (dto.orden !== undefined) updatePayload.orden = dto.orden;
     if (dto.css_url !== undefined) updatePayload.css_url = dto.css_url;
     if (dto.js_url !== undefined) updatePayload.js_url = dto.js_url;
+    if (dto.contrato_minimo !== undefined) {
+      updatePayload.contrato_minimo = dto.contrato_minimo;
+    }
 
     if (Object.keys(updatePayload).length === 0) {
       throw new ValidationError("VALIDATION_ERROR", "No fields provided for patch");
     }
 
-    await Models.ElementoComponenteModel.update(updatePayload, {
+    const persistencePayload = {
+      ...updatePayload,
+      ...(dto.contrato_minimo !== undefined
+        ? {
+            contrato_minimo: dto.contrato_minimo
+              ? JSON.stringify(dto.contrato_minimo)
+              : null,
+          }
+        : {}),
+    };
+
+    await Models.ElementoComponenteModel.update(persistencePayload, {
       where: { id_elemento },
     });
 
@@ -109,5 +127,41 @@ export class ElementoComponenteCommandRepository {
     });
 
     await Models.ElementoComponenteModel.destroy({ where: { id_elemento } });
+  }
+
+  async replaceAsignaciones(
+    id_elemento: number,
+    asignaciones: ElementoComponenteVariacion[]
+  ): Promise<ElementoComponenteVariacion[]> {
+    this.logger.info("[Repository] ElementoComponenteCommandRepository.replaceAsignaciones()", {
+      id_elemento,
+    });
+
+    return sequelize.transaction(async (transaction) => {
+      await Models.ElementoComponenteVariacionModel.destroy({
+        where: { id_elemento },
+        transaction,
+      });
+
+      if (asignaciones.length > 0) {
+        await Models.ElementoComponenteVariacionModel.bulkCreate(
+          asignaciones.map((asignacion) => ({
+            id_elemento,
+            id_tipo_variacion: asignacion.id_tipo_variacion,
+            id_componente: asignacion.id_componente,
+            metadata: JSON.stringify(asignacion.metadata ?? {}),
+          })),
+          { transaction }
+        );
+      }
+
+      const rows = await Models.ElementoComponenteVariacionModel.findAll({
+        where: { id_elemento },
+        order: [["id_elemento_componente_variacion", "ASC"]],
+        transaction,
+      });
+
+      return rows.map((row: any) => ElementoComponenteVariacionMapper.toDomain(row));
+    });
   }
 }

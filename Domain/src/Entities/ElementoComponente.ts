@@ -1,6 +1,7 @@
+import { ContratoMinimoElemento } from "./ContratoMinimoElemento";
+
 export class ElementoComponente {
   id_elemento!: number;
-  id_componente!: number;
   id_tipo_elemento!: number;
   nombre!: string;
   selector!: string | null;
@@ -10,4 +11,8 @@ export class ElementoComponente {
   orden!: number;
   css_url!: string | null;
   js_url!: string | null;
+  contrato_minimo!: ContratoMinimoElemento | null;
+  id_tipo_variacion?: number | null;
+  id_componente?: number | null;
+  metadata?: Record<string, unknown> | null;
 }

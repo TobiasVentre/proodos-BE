@@ -7,9 +7,7 @@ import { IUpdateElementoComponenteDTO } from "@proodos/application/DTOs/Elemento
 
 describe("ElementoComponenteDTOMapper", () => {
   it("should map ICreateElementoComponenteDTO to entity with id_elemento set to 0", () => {
-    // Arrange
     const dto: ICreateElementoComponenteDTO = {
-      id_componente: 3,
       id_tipo_elemento: 5,
       nombre: "Hero",
       icono_img: "icon.png",
@@ -17,15 +15,13 @@ describe("ElementoComponenteDTOMapper", () => {
       link: "https://example.com",
       orden: 2,
       css_url: "styles.css",
+      contrato_minimo: { required: ["selector"] },
     };
 
-    // Act
     const entity = mapCreateElementoComponenteDTOToEntity(dto);
 
-    // Assert
     expect(entity).toEqual({
       id_elemento: 0,
-      id_componente: 3,
       id_tipo_elemento: 5,
       nombre: "Hero",
       selector: null,
@@ -35,14 +31,13 @@ describe("ElementoComponenteDTOMapper", () => {
       orden: 2,
       css_url: "styles.css",
       js_url: null,
+      contrato_minimo: { required: ["selector"] },
     });
   });
 
   it("should map IUpdateElementoComponenteDTO keeping id_elemento", () => {
-    // Arrange
     const dto: IUpdateElementoComponenteDTO = {
       id_elemento: 10,
-      id_componente: 7,
       id_tipo_elemento: 9,
       nombre: "Footer",
       icono_img: "footer.png",
@@ -52,13 +47,10 @@ describe("ElementoComponenteDTOMapper", () => {
       css_url: "footer.css",
     };
 
-    // Act
     const entity = mapUpdateElementoComponenteDTOToEntity(dto);
 
-    // Assert
     expect(entity).toEqual({
       id_elemento: 10,
-      id_componente: 7,
       id_tipo_elemento: 9,
       nombre: "Footer",
       selector: null,
@@ -68,25 +60,21 @@ describe("ElementoComponenteDTOMapper", () => {
       orden: 4,
       css_url: "footer.css",
       js_url: null,
+      contrato_minimo: null,
     });
   });
 
   it("should map omitted optional fields to null", () => {
-    // Arrange
     const dto: ICreateElementoComponenteDTO = {
-      id_componente: 3,
       id_tipo_elemento: 5,
       nombre: "Hero",
       orden: 2,
     };
 
-    // Act
     const entity = mapCreateElementoComponenteDTOToEntity(dto);
 
-    // Assert
     expect(entity).toEqual({
       id_elemento: 0,
-      id_componente: 3,
       id_tipo_elemento: 5,
       nombre: "Hero",
       selector: null,
@@ -96,6 +84,7 @@ describe("ElementoComponenteDTOMapper", () => {
       orden: 2,
       css_url: null,
       js_url: null,
+      contrato_minimo: null,
     });
   });
 });

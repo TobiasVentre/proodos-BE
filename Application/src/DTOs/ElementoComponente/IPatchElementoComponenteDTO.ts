@@ -1,5 +1,6 @@
+import { ContratoMinimoElemento } from "@proodos/domain/Entities/ContratoMinimoElemento";
+
 export interface IPatchElementoComponenteDTO {
-  id_componente?: number;
   id_tipo_elemento?: number;
   nombre?: string;
   selector?: string | null;
@@ -9,4 +10,5 @@ export interface IPatchElementoComponenteDTO {
   orden?: number;
   css_url?: string | null;
   js_url?: string | null;
+  contrato_minimo?: ContratoMinimoElemento | null;
 }

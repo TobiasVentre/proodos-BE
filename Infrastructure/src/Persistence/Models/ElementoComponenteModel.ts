@@ -2,7 +2,6 @@ import { Model, DataTypes, Sequelize } from "sequelize";
 
 export class ElementoComponenteModel extends Model {
   id_elemento!: number;
-  id_componente!: number;
   id_tipo_elemento!: number;
   nombre!: string;
   selector!: string | null;
@@ -12,6 +11,7 @@ export class ElementoComponenteModel extends Model {
   orden!: number;
   css_url!: string | null;
   js_url!: string | null;
+  contrato_minimo!: string | null;
 
   static initModel(sequelize: Sequelize) {
     ElementoComponenteModel.init(
@@ -20,10 +20,6 @@ export class ElementoComponenteModel extends Model {
           type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
-        },
-        id_componente: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
         },
         id_tipo_elemento: {
           type: DataTypes.INTEGER,
@@ -59,6 +55,10 @@ export class ElementoComponenteModel extends Model {
         },
         js_url: {
           type: DataTypes.STRING(500),
+          allowNull: true,
+        },
+        contrato_minimo: {
+          type: DataTypes.TEXT,
           allowNull: true,
         },
       },

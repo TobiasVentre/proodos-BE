@@ -65,9 +65,11 @@ import {
   ICreateElementoComponenteUseCase,
   IDeleteElementoComponenteUseCase,
   IGetAllElementosComponenteUseCase,
+  IGetElementoComponenteAsignacionesUseCase,
   IGetElementoComponenteByIdUseCase,
   IGetElementosByComponenteUseCase,
   IPatchElementoComponenteUseCase,
+  IReplaceElementoComponenteAsignacionesUseCase,
   IUpdateElementoComponenteUseCase,
 } from "@proodos/application/Ports/IElementoComponenteUseCases";
 import {
@@ -136,6 +138,8 @@ import { GetElementosByComponenteService } from "@proodos/application/Services/E
 import { UpdateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/UpdateElementoComponenteService";
 import { PatchElementoComponenteService } from "@proodos/application/Services/ElementoComponente/PatchElementoComponenteService";
 import { DeleteElementoComponenteService } from "@proodos/application/Services/ElementoComponente/DeleteElementoComponenteService";
+import { GetElementoComponenteAsignacionesService } from "@proodos/application/Services/ElementoComponente/GetElementoComponenteAsignacionesService";
+import { ReplaceElementoComponenteAsignacionesService } from "@proodos/application/Services/ElementoComponente/ReplaceElementoComponenteAsignacionesService";
 import { AssignLandingComponenteService } from "@proodos/application/Services/LandingComponente/AssignLandingComponenteService";
 import { UnassignComponenteFromLandingService } from "@proodos/application/Services/LandingComponente/UnassignComponenteFromLandingService";
 import { UpdateLandingComponenteOrdenService } from "@proodos/application/Services/LandingComponente/UpdateLandingComponenteOrdenService";
@@ -230,6 +234,8 @@ export type ApiUseCases = {
     updateElementoComponente: IUpdateElementoComponenteUseCase;
     patchElementoComponente: IPatchElementoComponenteUseCase;
     deleteElementoComponente: IDeleteElementoComponenteUseCase;
+    getElementoComponenteAsignaciones: IGetElementoComponenteAsignacionesUseCase;
+    replaceElementoComponenteAsignaciones: IReplaceElementoComponenteAsignacionesUseCase;
   };
 };
 
@@ -417,16 +423,24 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
       ),
       updateElementoComponente: new UpdateElementoComponenteService(
         elementoComponenteRepository,
-        componenteRepository,
         tipoElementoRepository
       ),
       patchElementoComponente: new PatchElementoComponenteService(
         elementoComponenteRepository,
-        componenteRepository,
         tipoElementoRepository
       ),
       deleteElementoComponente: new DeleteElementoComponenteService(
         elementoComponenteRepository
+      ),
+      getElementoComponenteAsignaciones: new GetElementoComponenteAsignacionesService(
+        elementoComponenteRepository,
+        logger
+      ),
+      replaceElementoComponenteAsignaciones: new ReplaceElementoComponenteAsignacionesService(
+        elementoComponenteRepository,
+        tipoVariacionRepository,
+        componenteRepository,
+        logger
       ),
     },
   };

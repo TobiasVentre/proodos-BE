@@ -1,6 +1,7 @@
+import { ContratoMinimoElemento } from "@proodos/domain/Entities/ContratoMinimoElemento";
+
 export interface IUpdateElementoComponenteDTO {
   id_elemento: number;
-  id_componente: number;
   id_tipo_elemento: number;
   nombre: string;
   selector?: string | null;
@@ -10,4 +11,5 @@ export interface IUpdateElementoComponenteDTO {
   orden: number;
   css_url?: string | null;
   js_url?: string | null;
+  contrato_minimo?: ContratoMinimoElemento | null;
 }

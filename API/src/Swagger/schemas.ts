@@ -289,13 +289,17 @@ export const elementoComponenteSchemas = {
   ICreateElementoComponenteDTO: {
     type: "object",
     required: [
-      "id_componente",
       "id_tipo_elemento",
       "nombre",
       "orden",
     ],
     properties: {
-      id_componente: { type: "integer", example: 10 },
+      id_componente: {
+        type: "integer",
+        nullable: true,
+        example: 10,
+        description: "Compatibilidad temporal: si se informa, crea una asignacion especifica para el componente."
+      },
       id_tipo_elemento: { type: "integer", example: 2 },
       nombre: { type: "string", example: "Titulo principal" },
       selector: { type: "string", nullable: true, example: "contenedor_hijos" },
@@ -303,13 +307,21 @@ export const elementoComponenteSchemas = {
       descripcion: { type: "string", nullable: true, example: "Texto descriptivo" },
       link: { type: "string", nullable: true, example: "https://example.com" },
       orden: { type: "integer", example: 1 },
-      css_url: { type: "string", nullable: true, example: "/css/elementos/titulo.css" }
+      css_url: { type: "string", nullable: true, example: "/css/elementos/titulo.css" },
+      js_url: { type: "string", nullable: true, example: "/js/elementos/titulo.js" },
+      contrato_minimo: {
+        type: "object",
+        nullable: true,
+        example: {
+          required: ["selector"],
+          fields: { selector: { type: "string" } }
+        }
+      }
     }
   },
   IPatchElementoComponenteDTO: {
     type: "object",
     properties: {
-      id_componente: { type: "integer", example: 10 },
       id_tipo_elemento: { type: "integer", example: 2 },
       nombre: { type: "string", example: "Titulo principal" },
       selector: { type: "string", nullable: true, example: "contenedor_hijos" },
@@ -317,7 +329,38 @@ export const elementoComponenteSchemas = {
       descripcion: { type: "string", nullable: true, example: "Texto descriptivo" },
       link: { type: "string", nullable: true, example: "https://example.com" },
       orden: { type: "integer", example: 1 },
-      css_url: { type: "string", nullable: true, example: "/css/elementos/titulo.css" }
+      css_url: { type: "string", nullable: true, example: "/css/elementos/titulo.css" },
+      js_url: { type: "string", nullable: true, example: "/js/elementos/titulo.js" },
+      contrato_minimo: {
+        type: "object",
+        nullable: true,
+        example: {
+          required: ["selector"],
+          fields: { selector: { type: "string" } }
+        }
+      }
+    }
+  },
+  IReplaceElementoComponenteAsignacionesDTO: {
+    type: "object",
+    required: ["asignaciones"],
+    properties: {
+      asignaciones: {
+        type: "array",
+        items: {
+          type: "object",
+          required: ["id_tipo_variacion"],
+          properties: {
+            id_tipo_variacion: { type: "integer", example: 1 },
+            id_componente: { type: "integer", nullable: true, example: 10 },
+            metadata: {
+              type: "object",
+              nullable: true,
+              example: { selector: ".hero-title" }
+            }
+          }
+        }
+      }
     }
   }
 };

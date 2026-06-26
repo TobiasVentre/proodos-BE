@@ -5,9 +5,11 @@ import {
   ICreateElementoComponenteUseCase,
   IDeleteElementoComponenteUseCase,
   IGetAllElementosComponenteUseCase,
+  IGetElementoComponenteAsignacionesUseCase,
   IGetElementoComponenteByIdUseCase,
   IGetElementosByComponenteUseCase,
   IPatchElementoComponenteUseCase,
+  IReplaceElementoComponenteAsignacionesUseCase,
   IUpdateElementoComponenteUseCase,
 } from "@proodos/application/Ports/IElementoComponenteUseCases";
 import {
@@ -29,6 +31,8 @@ type ElementoComponenteControllerDeps = {
   updateElementoComponenteService: IUpdateElementoComponenteUseCase;
   patchElementoComponenteService: IPatchElementoComponenteUseCase;
   deleteElementoComponenteService: IDeleteElementoComponenteUseCase;
+  getElementoComponenteAsignacionesService: IGetElementoComponenteAsignacionesUseCase;
+  replaceElementoComponenteAsignacionesService: IReplaceElementoComponenteAsignacionesUseCase;
 };
 
 export const createElementoComponenteController = ({
@@ -40,6 +44,8 @@ export const createElementoComponenteController = ({
   updateElementoComponenteService,
   patchElementoComponenteService,
   deleteElementoComponenteService,
+  getElementoComponenteAsignacionesService,
+  replaceElementoComponenteAsignacionesService,
 }: ElementoComponenteControllerDeps) => {
   const elementoComponenteController = Router();
   const requireAdmin = requireAnyRole(getAdminRoles());
@@ -140,13 +146,10 @@ export const createElementoComponenteController = ({
    *           schema:
    *             type: object
    *             required:
-   *               - id_componente
    *               - id_tipo_elemento
    *               - nombre
    *               - orden
    *             properties:
-   *               id_componente:
-   *                 type: integer
    *               id_tipo_elemento:
    *                 type: integer
    *               nombre:
@@ -181,7 +184,6 @@ export const createElementoComponenteController = ({
 
     try {
       ensureRequiredFields(req.body, [
-        "id_componente",
         "id_tipo_elemento",
         "nombre",
         "orden",
@@ -215,13 +217,10 @@ export const createElementoComponenteController = ({
    *           schema:
    *             type: object
    *             required:
-   *               - id_componente
    *               - id_tipo_elemento
    *               - nombre
    *               - orden
    *             properties:
-   *               id_componente:
-   *                 type: integer
    *               id_tipo_elemento:
    *                 type: integer
    *               nombre:
@@ -261,7 +260,6 @@ export const createElementoComponenteController = ({
     try {
       const id_elemento = parsePositiveInteger(req.params.id);
       ensureRequiredFields(req.body, [
-        "id_componente",
         "id_tipo_elemento",
         "nombre",
         "orden",
@@ -298,8 +296,6 @@ export const createElementoComponenteController = ({
    *           schema:
    *             type: object
    *             properties:
-   *               id_componente:
-   *                 type: integer
    *               id_tipo_elemento:
    *                 type: integer
    *               nombre:
@@ -346,6 +342,52 @@ export const createElementoComponenteController = ({
       return respondOk(res, result);
     } catch (error: any) {
       logControllerError(logger, `PATCH /elementos-componente/${req.params.id}`, error);
+      return next(error);
+    }
+  });
+
+  elementoComponenteController.get("/:id/asignaciones", async (req, res, next) => {
+    logger.info(
+      `[Controller] GET /elementos-componente/${req.params.id}/asignaciones`
+    );
+
+    try {
+      const id_elemento = parsePositiveInteger(req.params.id);
+      const result = await getElementoComponenteAsignacionesService.execute(
+        id_elemento
+      );
+
+      return respondOk(res, result);
+    } catch (error: any) {
+      logControllerError(
+        logger,
+        `GET /elementos-componente/${req.params.id}/asignaciones`,
+        error
+      );
+      return next(error);
+    }
+  });
+
+  elementoComponenteController.put("/:id/asignaciones", async (req, res, next) => {
+    logger.info(
+      `[Controller] PUT /elementos-componente/${req.params.id}/asignaciones`
+    );
+
+    try {
+      const id_elemento = parsePositiveInteger(req.params.id);
+      ensureRequiredFields(req.body, ["asignaciones"]);
+      const result = await replaceElementoComponenteAsignacionesService.execute(
+        id_elemento,
+        req.body
+      );
+
+      return respondOk(res, result);
+    } catch (error: any) {
+      logControllerError(
+        logger,
+        `PUT /elementos-componente/${req.params.id}/asignaciones`,
+        error
+      );
       return next(error);
     }
   });
