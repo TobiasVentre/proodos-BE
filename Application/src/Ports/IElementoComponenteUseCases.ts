@@ -1,6 +1,8 @@
 import { ElementoComponente } from "@proodos/domain/Entities/ElementoComponente";
 import { ElementoComponenteVariacion } from "@proodos/domain/Entities/ElementoComponenteVariacion";
 import { ICreateElementoComponenteDTO } from "../DTOs/ElementoComponente/ICreateElementoComponenteDTO";
+import { IDeleteElementoComponenteAsignacionDTO } from "../DTOs/ElementoComponente/IDeleteElementoComponenteAsignacionDTO";
+import { IElementoComponenteAsignacionDTO } from "../DTOs/ElementoComponente/IElementoComponenteAsignacionDTO";
 import { IPatchElementoComponenteDTO } from "../DTOs/ElementoComponente/IPatchElementoComponenteDTO";
 import { IReplaceElementoComponenteAsignacionesDTO } from "../DTOs/ElementoComponente/IReplaceElementoComponenteAsignacionesDTO";
 import { IUpdateElementoComponenteDTO } from "../DTOs/ElementoComponente/IUpdateElementoComponenteDTO";
@@ -45,4 +47,18 @@ export interface IReplaceElementoComponenteAsignacionesUseCase {
     id_elemento: number,
     dto: IReplaceElementoComponenteAsignacionesDTO
   ): Promise<ElementoComponenteVariacion[]>;
+}
+
+export interface IUpsertElementoComponenteAsignacionUseCase {
+  execute(
+    id_elemento: number,
+    dto: IElementoComponenteAsignacionDTO
+  ): Promise<ElementoComponenteVariacion>;
+}
+
+export interface IDeleteElementoComponenteAsignacionUseCase {
+  execute(
+    id_elemento: number,
+    dto: IDeleteElementoComponenteAsignacionDTO
+  ): Promise<void>;
 }

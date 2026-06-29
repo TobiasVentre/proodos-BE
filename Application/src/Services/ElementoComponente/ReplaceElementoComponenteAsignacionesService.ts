@@ -1,23 +1,12 @@
 import { ElementoComponenteVariacion } from "@proodos/domain/Entities/ElementoComponenteVariacion";
 import { IReplaceElementoComponenteAsignacionesDTO } from "../../DTOs/ElementoComponente/IReplaceElementoComponenteAsignacionesDTO";
-import { NotFoundError } from "../../Errors/NotFoundError";
 import { ValidationError } from "../../Errors/ValidationError";
 import { IComponenteRepository } from "../../Interfaces/IComponenteRepository";
 import { IElementoComponenteRepository } from "../../Interfaces/IElementoComponenteRepository";
 import { ILogger } from "../../Interfaces/ILogger";
 import { ITipoVariacionRepository } from "../../Interfaces/ITipoVariacionRepository";
 import { IReplaceElementoComponenteAsignacionesUseCase } from "../../Ports/IElementoComponenteUseCases";
-import { ensureMetadataMatchesContratoMinimo } from "./validateContratoMinimo";
-
-const normalizeMetadata = (
-  metadata: Record<string, unknown> | null | undefined
-): Record<string, unknown> => {
-  if (metadata === null || metadata === undefined) return {};
-  if (typeof metadata !== "object" || Array.isArray(metadata)) {
-    throw new ValidationError("VALIDATION_ERROR", "metadata must be an object");
-  }
-  return metadata;
-};
+import { validateElementoComponenteAsignacion } from "./validateElementoComponenteAsignacion";
 
 export class ReplaceElementoComponenteAsignacionesService
   implements IReplaceElementoComponenteAsignacionesUseCase
@@ -37,11 +26,6 @@ export class ReplaceElementoComponenteAsignacionesService
       id_elemento,
     });
 
-    const elemento = await this.elementoComponenteRepository.getById(id_elemento);
-    if (!elemento) {
-      throw new NotFoundError("Elemento componente not found");
-    }
-
     if (!Array.isArray(dto.asignaciones)) {
       throw new ValidationError("VALIDATION_ERROR", "asignaciones must be an array");
     }
@@ -51,60 +35,29 @@ export class ReplaceElementoComponenteAsignacionesService
     const asignaciones: ElementoComponenteVariacion[] = [];
 
     for (const asignacion of dto.asignaciones) {
-      if (!Number.isInteger(asignacion.id_tipo_variacion) || asignacion.id_tipo_variacion <= 0) {
-        throw new ValidationError("VALIDATION_ERROR", "Invalid id_tipo_variacion");
-      }
+      const validated = await validateElementoComponenteAsignacion({
+        id_elemento,
+        dto: asignacion,
+        elementoComponenteRepository: this.elementoComponenteRepository,
+        tipoVariacionRepository: this.tipoVariacionRepository,
+        componenteRepository: this.componenteRepository,
+      });
 
-      const tipoVariacion = await this.tipoVariacionRepository.getById(
-        asignacion.id_tipo_variacion
-      );
-      if (!tipoVariacion) {
-        throw new NotFoundError("Tipo variacion not found");
-      }
-
-      const idComponente = asignacion.id_componente ?? null;
-      if (idComponente !== null) {
-        if (!Number.isInteger(idComponente) || idComponente <= 0) {
-          throw new ValidationError("VALIDATION_ERROR", "Invalid id_componente");
-        }
-
-        const componente = await this.componenteRepository.getById(idComponente);
-        if (!componente) {
-          throw new NotFoundError("Componente not found");
-        }
-
-        if (componente.id_tipo_variacion !== asignacion.id_tipo_variacion) {
-          throw new ValidationError(
-            "VALIDATION_ERROR",
-            "Componente does not belong to id_tipo_variacion"
-          );
-        }
-      }
-
-      const metadata = normalizeMetadata(asignacion.metadata);
-      ensureMetadataMatchesContratoMinimo(elemento.contrato_minimo, metadata);
-
-      if (idComponente === null) {
-        const key = `${id_elemento}:${asignacion.id_tipo_variacion}`;
+      if (validated.id_componente === null) {
+        const key = `${id_elemento}:${validated.id_tipo_variacion}`;
         if (globalKeys.has(key)) {
           throw new ValidationError("VALIDATION_ERROR", "Duplicated global asignacion");
         }
         globalKeys.add(key);
       } else {
-        const key = `${id_elemento}:${asignacion.id_tipo_variacion}:${idComponente}`;
+        const key = `${id_elemento}:${validated.id_tipo_variacion}:${validated.id_componente}`;
         if (specificKeys.has(key)) {
           throw new ValidationError("VALIDATION_ERROR", "Duplicated specific asignacion");
         }
         specificKeys.add(key);
       }
 
-      asignaciones.push({
-        id_elemento_componente_variacion: 0,
-        id_elemento,
-        id_tipo_variacion: asignacion.id_tipo_variacion,
-        id_componente: idComponente,
-        metadata,
-      });
+      asignaciones.push(validated);
     }
 
     return this.elementoComponenteRepository.replaceAsignaciones(

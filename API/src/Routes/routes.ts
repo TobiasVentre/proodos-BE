@@ -127,6 +127,10 @@ export const buildRoutes = async (logger: ILogger) => {
         useCases.elementoComponente.getElementoComponenteAsignaciones,
       replaceElementoComponenteAsignacionesService:
         useCases.elementoComponente.replaceElementoComponenteAsignaciones,
+      upsertElementoComponenteAsignacionService:
+        useCases.elementoComponente.upsertElementoComponenteAsignacion,
+      deleteElementoComponenteAsignacionService:
+        useCases.elementoComponente.deleteElementoComponenteAsignacion,
     })
   );
 

@@ -14,5 +14,13 @@ export interface IElementoComponenteRepository {
     id_elemento: number,
     asignaciones: ElementoComponenteVariacion[]
   ): Promise<ElementoComponenteVariacion[]>;
+  upsertAsignacion(
+    asignacion: ElementoComponenteVariacion
+  ): Promise<ElementoComponenteVariacion>;
+  deleteAsignacion(
+    id_elemento: number,
+    id_tipo_variacion: number,
+    id_componente: number | null
+  ): Promise<void>;
   delete(id_elemento: number): Promise<void>;
 }

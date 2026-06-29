@@ -362,5 +362,25 @@ export const elementoComponenteSchemas = {
         }
       }
     }
+  },
+  IElementoComponenteAsignacionDTO: {
+    type: "object",
+    required: ["id_tipo_variacion", "metadata"],
+    properties: {
+      id_tipo_variacion: { type: "integer", example: 1 },
+      id_componente: { type: "integer", nullable: true, example: 10 },
+      metadata: {
+        type: "object",
+        example: { selector: ".hero-title" }
+      }
+    }
+  },
+  IDeleteElementoComponenteAsignacionDTO: {
+    type: "object",
+    required: ["id_tipo_variacion"],
+    properties: {
+      id_tipo_variacion: { type: "integer", example: 1 },
+      id_componente: { type: "integer", nullable: true, example: 10 }
+    }
   }
 };

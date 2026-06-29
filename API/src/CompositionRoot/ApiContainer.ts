@@ -63,6 +63,7 @@ import {
 } from "@proodos/application/Ports/ITipoElementoUseCases";
 import {
   ICreateElementoComponenteUseCase,
+  IDeleteElementoComponenteAsignacionUseCase,
   IDeleteElementoComponenteUseCase,
   IGetAllElementosComponenteUseCase,
   IGetElementoComponenteAsignacionesUseCase,
@@ -71,6 +72,7 @@ import {
   IPatchElementoComponenteUseCase,
   IReplaceElementoComponenteAsignacionesUseCase,
   IUpdateElementoComponenteUseCase,
+  IUpsertElementoComponenteAsignacionUseCase,
 } from "@proodos/application/Ports/IElementoComponenteUseCases";
 import {
   IAssignLandingComponenteUseCase,
@@ -138,8 +140,10 @@ import { GetElementosByComponenteService } from "@proodos/application/Services/E
 import { UpdateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/UpdateElementoComponenteService";
 import { PatchElementoComponenteService } from "@proodos/application/Services/ElementoComponente/PatchElementoComponenteService";
 import { DeleteElementoComponenteService } from "@proodos/application/Services/ElementoComponente/DeleteElementoComponenteService";
+import { DeleteElementoComponenteAsignacionService } from "@proodos/application/Services/ElementoComponente/DeleteElementoComponenteAsignacionService";
 import { GetElementoComponenteAsignacionesService } from "@proodos/application/Services/ElementoComponente/GetElementoComponenteAsignacionesService";
 import { ReplaceElementoComponenteAsignacionesService } from "@proodos/application/Services/ElementoComponente/ReplaceElementoComponenteAsignacionesService";
+import { UpsertElementoComponenteAsignacionService } from "@proodos/application/Services/ElementoComponente/UpsertElementoComponenteAsignacionService";
 import { AssignLandingComponenteService } from "@proodos/application/Services/LandingComponente/AssignLandingComponenteService";
 import { UnassignComponenteFromLandingService } from "@proodos/application/Services/LandingComponente/UnassignComponenteFromLandingService";
 import { UpdateLandingComponenteOrdenService } from "@proodos/application/Services/LandingComponente/UpdateLandingComponenteOrdenService";
@@ -236,6 +240,8 @@ export type ApiUseCases = {
     deleteElementoComponente: IDeleteElementoComponenteUseCase;
     getElementoComponenteAsignaciones: IGetElementoComponenteAsignacionesUseCase;
     replaceElementoComponenteAsignaciones: IReplaceElementoComponenteAsignacionesUseCase;
+    upsertElementoComponenteAsignacion: IUpsertElementoComponenteAsignacionUseCase;
+    deleteElementoComponenteAsignacion: IDeleteElementoComponenteAsignacionUseCase;
   };
 };
 
@@ -440,6 +446,16 @@ export const buildApiUseCases = async (logger: ILogger): Promise<ApiUseCases> =>
         elementoComponenteRepository,
         tipoVariacionRepository,
         componenteRepository,
+        logger
+      ),
+      upsertElementoComponenteAsignacion: new UpsertElementoComponenteAsignacionService(
+        elementoComponenteRepository,
+        tipoVariacionRepository,
+        componenteRepository,
+        logger
+      ),
+      deleteElementoComponenteAsignacion: new DeleteElementoComponenteAsignacionService(
+        elementoComponenteRepository,
         logger
       ),
     },

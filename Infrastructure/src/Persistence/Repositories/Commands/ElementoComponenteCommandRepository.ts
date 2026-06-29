@@ -164,4 +164,55 @@ export class ElementoComponenteCommandRepository {
       return rows.map((row: any) => ElementoComponenteVariacionMapper.toDomain(row));
     });
   }
+
+  async upsertAsignacion(
+    asignacion: ElementoComponenteVariacion
+  ): Promise<ElementoComponenteVariacion> {
+    this.logger.info("[Repository] ElementoComponenteCommandRepository.upsertAsignacion()", {
+      id_elemento: asignacion.id_elemento,
+      id_tipo_variacion: asignacion.id_tipo_variacion,
+      id_componente: asignacion.id_componente,
+    });
+
+    const where = {
+      id_elemento: asignacion.id_elemento,
+      id_tipo_variacion: asignacion.id_tipo_variacion,
+      id_componente: asignacion.id_componente,
+    };
+
+    const metadata = JSON.stringify(asignacion.metadata ?? {});
+    const existing = await Models.ElementoComponenteVariacionModel.findOne({ where });
+
+    if (existing) {
+      await existing.update({ metadata });
+      return ElementoComponenteVariacionMapper.toDomain(existing);
+    }
+
+    const created = await Models.ElementoComponenteVariacionModel.create({
+      ...where,
+      metadata,
+    });
+
+    return ElementoComponenteVariacionMapper.toDomain(created);
+  }
+
+  async deleteAsignacion(
+    id_elemento: number,
+    id_tipo_variacion: number,
+    id_componente: number | null
+  ): Promise<void> {
+    this.logger.info("[Repository] ElementoComponenteCommandRepository.deleteAsignacion()", {
+      id_elemento,
+      id_tipo_variacion,
+      id_componente,
+    });
+
+    await Models.ElementoComponenteVariacionModel.destroy({
+      where: {
+        id_elemento,
+        id_tipo_variacion,
+        id_componente,
+      },
+    });
+  }
 }

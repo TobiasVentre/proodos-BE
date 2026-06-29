@@ -9,6 +9,7 @@ import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { ITipoElementoRepository } from "@proodos/application/Interfaces/ITipoElementoRepository";
 import { ITipoVariacionRepository } from "@proodos/application/Interfaces/ITipoVariacionRepository";
 import { CreateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/CreateElementoComponenteService";
+import { DeleteElementoComponenteAsignacionService } from "@proodos/application/Services/ElementoComponente/DeleteElementoComponenteAsignacionService";
 import { DeleteElementoComponenteService } from "@proodos/application/Services/ElementoComponente/DeleteElementoComponenteService";
 import { GetAllElementosComponenteService } from "@proodos/application/Services/ElementoComponente/GetAllElementosComponenteService";
 import { GetElementoComponenteAsignacionesService } from "@proodos/application/Services/ElementoComponente/GetElementoComponenteAsignacionesService";
@@ -17,6 +18,7 @@ import { GetElementosByComponenteService } from "@proodos/application/Services/E
 import { PatchElementoComponenteService } from "@proodos/application/Services/ElementoComponente/PatchElementoComponenteService";
 import { ReplaceElementoComponenteAsignacionesService } from "@proodos/application/Services/ElementoComponente/ReplaceElementoComponenteAsignacionesService";
 import { UpdateElementoComponenteService } from "@proodos/application/Services/ElementoComponente/UpdateElementoComponenteService";
+import { UpsertElementoComponenteAsignacionService } from "@proodos/application/Services/ElementoComponente/UpsertElementoComponenteAsignacionService";
 
 const buildElementoRepository = (): jest.Mocked<IElementoComponenteRepository> => ({
   create: jest.fn(),
@@ -28,6 +30,8 @@ const buildElementoRepository = (): jest.Mocked<IElementoComponenteRepository> =
   getByComponente: jest.fn(),
   getAsignacionesByElemento: jest.fn(),
   replaceAsignaciones: jest.fn(),
+  upsertAsignacion: jest.fn(),
+  deleteAsignacion: jest.fn(),
 });
 
 const buildComponenteRepository = (): jest.Mocked<IComponenteRepository> => ({
@@ -326,6 +330,82 @@ describe("ElementoComponente services", () => {
 
     expect(elementoRepository.replaceAsignaciones).toHaveBeenCalled();
     expect(result).toHaveLength(1);
+  });
+
+  it("should upsert individual asignacion after validating required metadata", async () => {
+    const elementoRepository = buildElementoRepository();
+    const tipoVariacionRepository = buildTipoVariacionRepository();
+    const componenteRepository = buildComponenteRepository();
+    const logger = buildLogger();
+    elementoRepository.getById.mockResolvedValue(
+      buildElementoComponente({ contrato_minimo: { required: ["selector"] } }) as never
+    );
+    tipoVariacionRepository.getById.mockResolvedValue({ id_tipo_variacion: 3 } as never);
+    componenteRepository.getById.mockResolvedValue({
+      id_componente: 5,
+      id_tipo_variacion: 3,
+    } as never);
+    elementoRepository.upsertAsignacion.mockResolvedValue({
+      id_elemento_componente_variacion: 1,
+      id_elemento: 1,
+      id_tipo_variacion: 3,
+      id_componente: 5,
+      metadata: { selector: ".hero-title" },
+    } as never);
+    const service = new UpsertElementoComponenteAsignacionService(
+      elementoRepository,
+      tipoVariacionRepository,
+      componenteRepository,
+      logger
+    );
+
+    const result = await service.execute(1, {
+      id_tipo_variacion: 3,
+      id_componente: 5,
+      metadata: { selector: ".hero-title" },
+    });
+
+    expect(elementoRepository.upsertAsignacion).toHaveBeenCalledWith({
+      id_elemento_componente_variacion: 0,
+      id_elemento: 1,
+      id_tipo_variacion: 3,
+      id_componente: 5,
+      metadata: { selector: ".hero-title" },
+    });
+    expect(result.id_elemento_componente_variacion).toBe(1);
+  });
+
+  it("should reject individual asignacion without metadata", async () => {
+    const elementoRepository = buildElementoRepository();
+    const tipoVariacionRepository = buildTipoVariacionRepository();
+    const componenteRepository = buildComponenteRepository();
+    const logger = buildLogger();
+    elementoRepository.getById.mockResolvedValue(buildElementoComponente() as never);
+    tipoVariacionRepository.getById.mockResolvedValue({ id_tipo_variacion: 3 } as never);
+    const service = new UpsertElementoComponenteAsignacionService(
+      elementoRepository,
+      tipoVariacionRepository,
+      componenteRepository,
+      logger
+    );
+
+    await expect(
+      service.execute(1, { id_tipo_variacion: 3 })
+    ).rejects.toBeInstanceOf(ValidationError);
+  });
+
+  it("should delete individual asignacion", async () => {
+    const elementoRepository = buildElementoRepository();
+    const logger = buildLogger();
+    elementoRepository.getById.mockResolvedValue(buildElementoComponente() as never);
+    const service = new DeleteElementoComponenteAsignacionService(
+      elementoRepository,
+      logger
+    );
+
+    await service.execute(1, { id_tipo_variacion: 3, id_componente: null });
+
+    expect(elementoRepository.deleteAsignacion).toHaveBeenCalledWith(1, 3, null);
   });
 
   it("should reject duplicated global asignaciones", async () => {

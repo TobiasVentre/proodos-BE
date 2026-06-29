@@ -55,6 +55,24 @@ export class ElementoComponenteRepository implements IElementoComponenteReposito
     return this.commandRepository.replaceAsignaciones(id_elemento, asignaciones);
   }
 
+  async upsertAsignacion(
+    asignacion: ElementoComponenteVariacion
+  ): Promise<ElementoComponenteVariacion> {
+    return this.commandRepository.upsertAsignacion(asignacion);
+  }
+
+  async deleteAsignacion(
+    id_elemento: number,
+    id_tipo_variacion: number,
+    id_componente: number | null
+  ): Promise<void> {
+    return this.commandRepository.deleteAsignacion(
+      id_elemento,
+      id_tipo_variacion,
+      id_componente
+    );
+  }
+
   async delete(id_elemento: number): Promise<void> {
     return this.commandRepository.delete(id_elemento);
   }

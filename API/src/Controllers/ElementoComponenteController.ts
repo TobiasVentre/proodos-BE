@@ -3,6 +3,7 @@ import { ILogger } from "@proodos/application/Interfaces/ILogger";
 import { getAdminRoles, requireAnyRole } from "../Middleware/auth";
 import {
   ICreateElementoComponenteUseCase,
+  IDeleteElementoComponenteAsignacionUseCase,
   IDeleteElementoComponenteUseCase,
   IGetAllElementosComponenteUseCase,
   IGetElementoComponenteAsignacionesUseCase,
@@ -11,6 +12,7 @@ import {
   IPatchElementoComponenteUseCase,
   IReplaceElementoComponenteAsignacionesUseCase,
   IUpdateElementoComponenteUseCase,
+  IUpsertElementoComponenteAsignacionUseCase,
 } from "@proodos/application/Ports/IElementoComponenteUseCases";
 import {
   ensureFound,
@@ -33,6 +35,8 @@ type ElementoComponenteControllerDeps = {
   deleteElementoComponenteService: IDeleteElementoComponenteUseCase;
   getElementoComponenteAsignacionesService: IGetElementoComponenteAsignacionesUseCase;
   replaceElementoComponenteAsignacionesService: IReplaceElementoComponenteAsignacionesUseCase;
+  upsertElementoComponenteAsignacionService: IUpsertElementoComponenteAsignacionUseCase;
+  deleteElementoComponenteAsignacionService: IDeleteElementoComponenteAsignacionUseCase;
 };
 
 export const createElementoComponenteController = ({
@@ -46,6 +50,8 @@ export const createElementoComponenteController = ({
   deleteElementoComponenteService,
   getElementoComponenteAsignacionesService,
   replaceElementoComponenteAsignacionesService,
+  upsertElementoComponenteAsignacionService,
+  deleteElementoComponenteAsignacionService,
 }: ElementoComponenteControllerDeps) => {
   const elementoComponenteController = Router();
   const requireAdmin = requireAnyRole(getAdminRoles());
@@ -386,6 +392,105 @@ export const createElementoComponenteController = ({
       logControllerError(
         logger,
         `PUT /elementos-componente/${req.params.id}/asignaciones`,
+        error
+      );
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/elementos-componente/{id}/asignaciones:
+   *   post:
+   *     tags:
+   *       - Elementos de Componente
+   *     summary: Crea o actualiza una asignacion individual del elemento
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/IElementoComponenteAsignacionDTO'
+   *     responses:
+   *       200:
+   *         description: Asignacion creada o actualizada
+   *       400:
+   *         description: Request invalida
+   *       404:
+   *         description: No encontrado
+   */
+  elementoComponenteController.post("/:id/asignaciones", async (req, res, next) => {
+    logger.info(
+      `[Controller] POST /elementos-componente/${req.params.id}/asignaciones`
+    );
+
+    try {
+      const id_elemento = parsePositiveInteger(req.params.id);
+      ensureRequiredFields(req.body, ["id_tipo_variacion", "metadata"]);
+      const result = await upsertElementoComponenteAsignacionService.execute(
+        id_elemento,
+        req.body
+      );
+
+      return respondOk(res, result);
+    } catch (error: any) {
+      logControllerError(
+        logger,
+        `POST /elementos-componente/${req.params.id}/asignaciones`,
+        error
+      );
+      return next(error);
+    }
+  });
+
+  /**
+   * @openapi
+   * /api/elementos-componente/{id}/asignaciones:
+   *   delete:
+   *     tags:
+   *       - Elementos de Componente
+   *     summary: Elimina una asignacion individual del elemento
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/IDeleteElementoComponenteAsignacionDTO'
+   *     responses:
+   *       204:
+   *         description: Asignacion eliminada
+   *       400:
+   *         description: Request invalida
+   *       404:
+   *         description: No encontrado
+   */
+  elementoComponenteController.delete("/:id/asignaciones", async (req, res, next) => {
+    logger.info(
+      `[Controller] DELETE /elementos-componente/${req.params.id}/asignaciones`
+    );
+
+    try {
+      const id_elemento = parsePositiveInteger(req.params.id);
+      ensureRequiredFields(req.body, ["id_tipo_variacion"]);
+      await deleteElementoComponenteAsignacionService.execute(id_elemento, req.body);
+
+      return respondNoContent(res);
+    } catch (error: any) {
+      logControllerError(
+        logger,
+        `DELETE /elementos-componente/${req.params.id}/asignaciones`,
         error
       );
       return next(error);
