@@ -1,7 +1,29 @@
 import path from "path";
+import fs from "fs";
 import dotenv from "dotenv";
 
-dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+function findRepoRoot(startDir: string): string {
+  let dir = startDir;
+
+  while (true) {
+    const pkgPath = path.join(dir, "package.json");
+    if (fs.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+      if (pkg.workspaces) return dir;
+    }
+
+    const parent = path.dirname(dir);
+    if (parent === dir) return startDir;
+    dir = parent;
+  }
+}
+
+const root = findRepoRoot(process.cwd());
+const envPath = process.env.ENV_FILE
+  ? path.resolve(process.cwd(), process.env.ENV_FILE)
+  : path.join(root, ".env");
+
+dotenv.config({ path: envPath, override: true });
 
 const common = {
   dialect: "mssql" as const,
